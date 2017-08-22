@@ -2,22 +2,23 @@
 #include <Servo.h>
 
 
-
 // USER SETTINGS
 
 // pin assignments
 const int stepPin = 4;
 const int stepDirPin = 5;
+const int obstacleStatusPin = 6; // !!! signals whether the obstacle is engaged or not
+const int wheelBreakPin = 10; // !!! controls whether the solenoid break is engaged
 const int encoderPinA = 2;
 const int encoderPinB = 3;
 const int waterPin = 7;
-const int servoPin = 9; // it's possible this should only be 9 or 10...
+const int servoPin = 9; // it's possible the servo library only works if this pin is set to 9 or 10... not sure if this is true though...
 const int motorOnPin = 8; // turns on stepper motor driver
 
 // other user settings
 const float rewardRotations = 10;
-const int obsEngagedPosition = 30;
-const int obsDisengagedPosition = obsEngagedPosition + 90;
+const int servoObsEngagedPosition = 0;
+const int servoObsDisengagedPosition = servoObsEngagedPosition + 90;
 const int stepperStartPosition = 100; // position at which the obstacle will appear
 const int stepperStopPosition = 1600; // eventually replace this with start and stop sensors...
 const int waterDuration = 80; // milliseconds
@@ -58,7 +59,7 @@ void setup() {
   pinMode(motorOnPin, OUTPUT);
   
   digitalWrite(stepPin, LOW);
-  digitalWrite(stepDirPin, LOW);
+  digitalWrite(stepDirPin, stepDir);
   digitalWrite(waterPin, LOW);
   digitalWrite(motorOnPin, HIGH);
 
@@ -67,7 +68,7 @@ void setup() {
 
   // initialize servo
   obstacleServo.attach(servoPin);
-  obstacleServo.write(obsDisengagedPosition);
+  obstacleServo.write(servoObsDisengagedPosition);
 
   // move stepper to starting position
   takeStep(stepperStartPosition);
@@ -82,11 +83,11 @@ void loop(){
   // display variables
 //  Serial.print("wheelTicks:");
 //  Serial.print(wheelTicks);
-//  Serial.print("targetStepperTicks:");
+//  Serial.print("   targetStepperTicks:");
+//  Serial.println(targetStepperTicks);
 //  currentMicros = micros();
 //  Serial.println(currentMicros - lastMicros);
 //  lastMicros = currentMicros;
-//  Serial.println(postPulseDelay);
 
   
   // check if obstacle should be engaged
@@ -95,12 +96,12 @@ void loop(){
     if (wheelTicks > obstacleLocations[obstacleInd]){
       obstacleEngaged = true;
       digitalWrite(motorOnPin, HIGH);
-      obstacleServo.write(obsEngagedPosition);
+      obstacleServo.write(servoObsEngagedPosition);
     }
   // disengage:
   }else if (stepperTicks > stepperStopPosition){
     obstacleEngaged = false;
-    obstacleServo.write(obsDisengagedPosition);
+    obstacleServo.write(servoObsDisengagedPosition);
     obstacleInd++;
     
     targetStepperTicks = stepperStartPosition;
@@ -137,7 +138,7 @@ void loop(){
 
 // move stepper one step in stepDirection
 void takeStep(int stepsToTake){
-  digitalWrite(stepDirPin, (stepsToTake<0));
+  digitalWrite(stepDirPin, (stepsToTake>0));
 
   for (int i = 0; i < abs(stepsToTake); i++){
     digitalWrite(stepPin, HIGH);
