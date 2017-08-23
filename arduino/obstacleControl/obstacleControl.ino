@@ -1,4 +1,4 @@
-#include <digitalWriteFast.h>
+                                                                                   #include <digitalWriteFast.h>
 
 
 // USER SETTINGS
@@ -13,13 +13,14 @@ const int encoderPinB = 3;
 const int waterPin = 7;
 const int obstaclePin = 13; // signals whether the obstacle is engaged... this is sent to an arduino that controls the obstacle servo
 const int motorOnPin = 8; // turns on stepper motor driver
+const int startLimitPin = 9; // signal is LOW when engaged
+const int stopLimitPin = 10; // signal is LOW when engaged
 
 // other user settings
 const float rewardRotations = 10;
 const int servoObsEngagedPosition = 0;
 const int servoObsDisengagedPosition = servoObsEngagedPosition + 90;
-const int stepperStartPosition = 100; // position at which the obstacle will appear
-const int stepperStopPosition = 1600; // eventually replace this with start and stop sensors...
+const int endPositionBuffer = 50; // motor stops endPositionBuffer steps before the beginning and end of the track
 const int waterDuration = 80; // milliseconds
 const int microStepping = 2; // only (1/microStepping) steps per pulse // this should correspond to the setting on the stepper motor driver, which is set by 3 digital inputs
 const int stepperSpeed = 600 * microStepping; // (Hz) servo will move this fast to desired positions // maximum, unloaded appears to be around 2000
@@ -29,12 +30,13 @@ const int timingPulleyRad = 11.45915; // mm
 const float wheelRad = 95.25;
 const int obstacleLocations[] = {3*encoderSteps, 6*encoderSteps, rewardRotations*encoderSteps*2}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
 
-
 // initializations
 volatile int wheelTicks = 0;
 volatile int wheelTicksTemp = 0; // this variable temporarily copies wheelTicks in the main code to avoid having to access it multiple times, potentially colliding with its access in the interrupt
 volatile int obstacleInd = 0; // keeps track of which obstacle is being delivered for each reward trial
 volatile int stepperTicks = 0;
+const int stepperStartPosition = endPositionBuffer;
+volatile int stepperStopPosition; // value to be determined by call to initializeLimits in setup()
 volatile int targetStepperTicks = stepperStartPosition;
 volatile int stepsToTake = 0; // when driving the motor, stepsToTake is how many motor ticks required to get to target position
 const int rewardPosition = rewardRotations * encoderSteps; // expressed in wheelTicks
@@ -50,10 +52,12 @@ void setup() {
 
   // prepare ins and outs
   pinMode(stepPin, OUTPUT);
-  pinMode(stepDirPin, stepDir);
+  pinMode(stepDirPin, OUTPUT);
   pinMode(waterPin, OUTPUT);
   pinMode(motorOnPin, OUTPUT);
   pinMode(obstaclePin, OUTPUT);
+  pinMode(startLimitPin, INPUT_PULLUP);
+  pinMode(stopLimitPin, INPUT_PULLUP);
   
   digitalWrite(stepPin, LOW);
   digitalWrite(stepDirPin, stepDir);
@@ -65,9 +69,8 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(encoderPinA), encoder_isr, CHANGE);
   attachInterrupt(digitalPinToInterrupt(encoderPinB), encoder_isr, CHANGE);
 
-  // move stepper to starting position
-  takeStep(stepperStartPosition);
-  digitalWrite(motorOnPin, LOW);
+  // initialize track limits and move to starting position
+  initializeLimits();
 }
 
 
@@ -76,10 +79,10 @@ void setup() {
 void loop(){
 
   // display variables
-//  Serial.print("wheelTicksTemp:");
-//  Serial.print(wheelTicksTemp);
-//  Serial.print("   targetStepperTicks:");
-//  Serial.println(targetStepperTicks);
+//  Serial.print("stepperStartPosition:");
+//  Serial.print(stepperStartPosition);
+//  Serial.print("   stepperStopPosition:");
+//  Serial.println(stepperStopPosition);
 
   // store current wheelTicks value with interrupts disabled
   noInterrupts();
@@ -90,13 +93,13 @@ void loop(){
   // check if obstacle should be engaged
   // engage:
   if (!obstacleEngaged){
-    if (wheelTicksTemp > obstacleLocations[obstacleInd]){
+    if (wheelTicksTemp >= obstacleLocations[obstacleInd]){
       obstacleEngaged = true;
       digitalWrite(motorOnPin, HIGH); // engages stepper motor driver
       digitalWrite(obstaclePin, HIGH);
     }
   // disengage:
-  }else if (stepperTicks > stepperStopPosition){
+  }else if (stepperTicks >= stepperStopPosition){
     obstacleEngaged = false;
     digitalWrite(obstaclePin, LOW);
     obstacleInd++;
@@ -125,9 +128,10 @@ void loop(){
   
   
   // compute target stepper position
+  // !!! make sure stepsToTake doesn't exceed max position...
   if (obstacleEngaged){
     targetStepperTicks = ((wheelTicksTemp - obstacleLocations[obstacleInd]) * conversionFactor)  + stepperStartPosition;  
-    targetStepperTicks = max(targetStepperTicks, 0);
+    targetStepperTicks = constrain(targetStepperTicks, stepperStartPosition, stepperStopPosition);
 
     stepsToTake = targetStepperTicks - stepperTicks;
     if (stepsToTake!=0){
@@ -166,7 +170,36 @@ void encoder_isr() {
     wheelTicks = wheelTicks - lookup_table[enc_val & 0b1111];
 }
 
-//void encoder_isr(){
-//  encoderBState = digitalReadFast(encoderPinB);
-//  wheelTicks += encoderBState ? -1 : 1;
-//}
+
+
+// initialize motor track limits
+void initializeLimits(){
+
+  // move a few steps forward before finding start limit
+  takeStep(endPositionBuffer*5);
+
+  // find start limit
+  while (digitalRead(startLimitPin)){
+    takeStep(-1);
+  }
+  stepperTicks = 0;
+  takeStep(stepperStartPosition);
+
+  // find stop limit
+  while (digitalRead(stopLimitPin)){
+    takeStep(1);
+  }
+  stepperStopPosition = stepperTicks - endPositionBuffer;
+
+  // move back to stepperStartPosition
+  takeStep(-stepperTicks + stepperStartPosition);
+  digitalWrite(motorOnPin, LOW);
+  
+}
+
+
+
+
+
+
+
