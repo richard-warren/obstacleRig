@@ -35,6 +35,7 @@ const int obstacleLocations[] = {3*encoderSteps, 6*encoderSteps, rewardRotations
 
 // initializations
 volatile int wheelTicks = 0;
+volatile int wheelTicksTemp = 0; // this variable temporarily copies wheelTicks in the main code to avoid having to access it multiple times, potentially colliding with its access in the interrupt
 volatile int obstacleInd = 0; // keeps track of which obstacle is being delivered for each reward trial
 volatile int stepperTicks = 0;
 volatile int targetStepperTicks = stepperStartPosition;
@@ -89,11 +90,16 @@ void loop(){
 //  Serial.println(currentMicros - lastMicros);
 //  lastMicros = currentMicros;
 
+  // store current wheelTicks value with interrupts disabled
+  noInterrupts();
+  wheelTicksTemp = wheelTicks;
+  interrupts();
+
   
   // check if obstacle should be engaged
   // engage:
   if (!obstacleEngaged){
-    if (wheelTicks > obstacleLocations[obstacleInd]){
+    if (wheelTicksTemp > obstacleLocations[obstacleInd]){
       obstacleEngaged = true;
       digitalWrite(motorOnPin, HIGH);
       obstacleServo.write(servoObsEngagedPosition);
@@ -112,8 +118,12 @@ void loop(){
      
 
   // give water if reward location reached
-  if (wheelTicks>rewardPosition){
-    wheelTicks = 0;
+  if (wheelTicksTemp > rewardPosition){
+    wheelTicksTemp = 0;
+    noInterrupts();
+    wheelTicksTemp = 0;
+    interrupts();
+
     obstacleInd = 0;
     digitalWrite(waterPin, HIGH);
     delay(waterDuration);
@@ -124,7 +134,7 @@ void loop(){
   
   // compute target stepper position
   if (obstacleEngaged){
-    targetStepperTicks = ((wheelTicks - obstacleLocations[obstacleInd]) * conversionFactor)  + stepperStartPosition;  
+    targetStepperTicks = ((wheelTicksTemp - obstacleLocations[obstacleInd]) * conversionFactor)  + stepperStartPosition;  
     targetStepperTicks = max(targetStepperTicks, 0);
 
     stepsToTake = targetStepperTicks - stepperTicks;
