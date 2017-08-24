@@ -1,12 +1,13 @@
 #include "CapacitiveSensor.h"
 
 // pin assignments
-const int touchSendPin = 7;
-const int touchReceivePin = 8;
+const int touchSendPin = 8;
+const int touchReceivePin = 7;
 const int wheelBreakPin = 2;
 
 // user settings
-const int wheelBreakDuration = 500; // ms
+const bool debugOn = false;
+const int wheelBreakDuration = 5000; // ms
 const int sensorSmps = 2;
 const int touchThresh = 150;
 const int touchMax = 255;
@@ -19,24 +20,32 @@ volatile int touchMeasurement = 0;
 
 
 void setup(){
+  // setup pins
   pinMode(wheelBreakPin, OUTPUT);
   digitalWrite(wheelBreakPin, LOW);
-  
+
+  // setup touch sensor
   touchSensor.set_CS_Timeout_Millis(maxMeasurementTime / sensorSmps);
-  Serial.begin(9600);
+  if (debugOn){Serial.begin(9600);}
 }
 
 void loop(){
+
+  // get touch measurement
   touchMeasurement = (byte) min((touchSensor.capacitiveSensor(sensorSmps) / sensorSmps), touchMax);
-//  Serial.println(touchMeasurement);
-  
+
+  // break wheel if touch detected
   if (touchMeasurement > touchThresh){
     digitalWrite(wheelBreakPin, HIGH);
     delay(wheelBreakDuration);
     digitalWrite(wheelBreakPin, LOW);
   }
-  delay(20);
-  Serial.println(touchMeasurement);
+  
+  // display raw touch sensor values in debug mode
+  if (debugOn){
+    delay(20);
+    Serial.println(touchMeasurement);
+  }
 }
 
 
