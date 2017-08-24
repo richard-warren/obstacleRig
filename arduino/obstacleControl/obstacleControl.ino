@@ -1,4 +1,4 @@
-                                                                                   #include <digitalWriteFast.h>
+#include <digitalWriteFast.h>
 
 
 // USER SETTINGS
@@ -128,7 +128,6 @@ void loop(){
   
   
   // compute target stepper position
-  // !!! make sure stepsToTake doesn't exceed max position...
   if (obstacleEngaged){
     targetStepperTicks = ((wheelTicksTemp - obstacleLocations[obstacleInd]) * conversionFactor)  + stepperStartPosition;  
     targetStepperTicks = constrain(targetStepperTicks, stepperStartPosition, stepperStopPosition);
