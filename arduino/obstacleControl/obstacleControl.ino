@@ -7,7 +7,6 @@
 const int stepPin = 4;
 const int stepDirPin = 5;
 const int obstacleStatusPin = 6; // signals whether the obstacle is engaged or not
-const int wheelBreakPin = 10; // !!! controls whether the solenoid break is engaged
 const int encoderPinA = 2;
 const int encoderPinB = 3;
 const int waterPin = 7;
@@ -17,10 +16,9 @@ const int startLimitPin = 9; // signal is LOW when engaged
 const int stopLimitPin = 10; // signal is LOW when engaged
 
 // other user settings
-const float rewardRotations = 10;
-const int servoObsEngagedPosition = 0;
-const int servoObsDisengagedPosition = servoObsEngagedPosition + 90;
-const int endPositionBuffer = 50; // motor stops endPositionBuffer steps before the beginning and end of the track
+const bool debugOn = false;
+const float rewardRotations = 6;
+const int endPositionBuffer = 100; // motor stops endPositionBuffer steps before the beginning and end of the track
 const int waterDuration = 80; // milliseconds
 const int microStepping = 2; // only (1/microStepping) steps per pulse // this should correspond to the setting on the stepper motor driver, which is set by 3 digital inputs
 const int stepperSpeed = 400 * microStepping; // (Hz) servo will move this fast to desired positions // maximum, unloaded appears to be around 2000
@@ -28,7 +26,7 @@ const int motorSteps = 200;
 const int encoderSteps = 2880; // 720cpr * 4
 const int timingPulleyRad = 11.45915; // mm
 const float wheelRad = 95.25;
-const int obstacleLocations[] = {3*encoderSteps, 6*encoderSteps, rewardRotations*encoderSteps*2}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
+const int obstacleLocations[] = {2*encoderSteps, 4*encoderSteps, rewardRotations*encoderSteps*2}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
 
 // initializations
 volatile int wheelTicks = 0;
@@ -48,7 +46,7 @@ volatile bool obstacleEngaged = false;
 
 
 void setup() {
-//  Serial.begin(115200);
+  if (debugOn){ Serial.begin(115200); }
 
   // prepare ins and outs
   pinMode(stepPin, OUTPUT);
@@ -144,6 +142,8 @@ void loop(){
 // move stepper one step in stepDirection
 void takeStep(int stepsToTake){
   digitalWrite(stepDirPin, (stepsToTake>0));
+  
+  if (debugOn){ Serial.println(stepsToTake); }
 
   for (int i = 0; i < abs(stepsToTake); i++){
     digitalWrite(stepPin, HIGH);
@@ -153,7 +153,6 @@ void takeStep(int stepsToTake){
   }
 
   stepperTicks += stepsToTake;
-  
 }
 
 
@@ -175,7 +174,7 @@ void encoder_isr() {
 void initializeLimits(){
 
   // move a few steps forward before finding start limit
-  takeStep(endPositionBuffer*5);
+  takeStep(endPositionBuffer*2);
 
   // find start limit
   while (digitalRead(startLimitPin)){

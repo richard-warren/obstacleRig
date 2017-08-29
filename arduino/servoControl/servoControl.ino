@@ -7,8 +7,9 @@ const int inputPin = 2; // when this is high the servo is engaged; disengage whe
 const int servoPin = 13; // it's possible the servo library only works if this pin is set to 9 or 10... not sure if this is true though...
 
 // user settings
-const int servoObsEngagedPosition = 0;
-const int servoObsDisengagedPosition = servoObsEngagedPosition + 90;
+const int servoObsDisengagedPosition =  124;
+const int servoObsEngagedPosition = servoObsDisengagedPosition - 45;
+
 
 // initializations
 volatile bool isServoEngaged = false;
