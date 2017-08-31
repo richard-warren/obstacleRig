@@ -2,11 +2,11 @@
 
 // pin assignments
 const int touchSendPin = 8;
-const int touchReceivePin = 7;
-const int wheelBreakPin = 2;
+const int touchReceivePin = 10;
+const int wheelBreakPin = 4;
 
 // user settings
-const bool debugOn = false;
+const bool debugOn = true;
 const int wheelBreakDuration = 5000; // ms
 const int sensorSmps = 2;
 const int touchThresh = 150;

@@ -6,8 +6,7 @@
 // pin assignments
 const int stepPin = 4;
 const int stepDirPin = 5;
-const int obstacleStatusPin = 6; // signals whether the obstacle is engaged or not
-const int encoderPinA = 2;
+const int encoderPinA = 2; // encoder pins must be set to 2 and 3 for Arduino Uno because hardware interrupts exist on these pins
 const int encoderPinB = 3;
 const int waterPin = 7;
 const int obstaclePin = 13; // signals whether the obstacle is engaged... this is sent to an arduino that controls the obstacle servo
@@ -16,7 +15,6 @@ const int startLimitPin = 9; // signal is LOW when engaged
 const int stopLimitPin = 10; // signal is LOW when engaged
 
 // other user settings
-const bool debugOn = false;
 const float rewardRotations = 6;
 const int endPositionBuffer = 100; // motor stops endPositionBuffer steps before the beginning and end of the track
 const int waterDuration = 80; // milliseconds
@@ -24,7 +22,7 @@ const int microStepping = 2; // only (1/microStepping) steps per pulse // this s
 const int stepperSpeed = 400 * microStepping; // (Hz) servo will move this fast to desired positions // maximum, unloaded appears to be around 2000
 const int motorSteps = 200;
 const int encoderSteps = 2880; // 720cpr * 4
-const int timingPulleyRad = 11.45915; // mm
+const int timingPulleyRad = 15.2789; // mm
 const float wheelRad = 95.25;
 const int obstacleLocations[] = {2*encoderSteps, 4*encoderSteps, rewardRotations*encoderSteps*2}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
 
@@ -46,7 +44,7 @@ volatile bool obstacleEngaged = false;
 
 
 void setup() {
-  if (debugOn){ Serial.begin(115200); }
+//  Serial.begin(115200);
 
   // prepare ins and outs
   pinMode(stepPin, OUTPUT);
@@ -77,10 +75,8 @@ void setup() {
 void loop(){
 
   // display variables
-//  Serial.print("stepperStartPosition:");
-//  Serial.print(stepperStartPosition);
-//  Serial.print("   stepperStopPosition:");
-//  Serial.println(stepperStopPosition);
+//  Serial.print("wheelTicks: ");
+//  Serial.println(wheelTicks);
 
   // store current wheelTicks value with interrupts disabled
   noInterrupts();
@@ -142,8 +138,6 @@ void loop(){
 // move stepper one step in stepDirection
 void takeStep(int stepsToTake){
   digitalWrite(stepDirPin, (stepsToTake>0));
-  
-  if (debugOn){ Serial.println(stepsToTake); }
 
   for (int i = 0; i < abs(stepsToTake); i++){
     digitalWrite(stepPin, HIGH);
@@ -173,6 +167,8 @@ void encoder_isr() {
 // initialize motor track limits
 void initializeLimits(){
 
+  noInterrupts();
+
   // move a few steps forward before finding start limit
   takeStep(endPositionBuffer*2);
 
@@ -192,6 +188,8 @@ void initializeLimits(){
   // move back to stepperStartPosition
   takeStep(-stepperTicks + stepperStartPosition);
   digitalWrite(motorOnPin, LOW);
+
+  interrupts();
   
 }
 

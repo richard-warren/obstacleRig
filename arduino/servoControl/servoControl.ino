@@ -4,12 +4,13 @@
 
 // pin assignments
 const int inputPin = 2; // when this is high the servo is engaged; disengage when it goes low
-const int servoPin = 13; // it's possible the servo library only works if this pin is set to 9 or 10... not sure if this is true though...
+const int servoPin = 8;
 
 // user settings
-const int servoObsDisengagedPosition =  124;
+const int servoObsDisengagedPosition =  128;
 const int servoObsEngagedPosition = servoObsDisengagedPosition - 45;
 
+// 128, 128-45
 
 // initializations
 volatile bool isServoEngaged = false;
@@ -22,10 +23,16 @@ void setup() {
   // initialize servo
   pinMode(inputPin, INPUT);
   obstacleServo.attach(servoPin);
-  obstacleServo.write(servoObsDisengagedPosition);
 
   // initialize hardware interrupt
   attachInterrupt(digitalPinToInterrupt(inputPin), controlServo, CHANGE);
+
+  // test obstacle positionts
+  obstacleServo.write(servoObsDisengagedPosition);
+  delay(1000);
+  obstacleServo.write(servoObsEngagedPosition);
+  delay(1000);
+  obstacleServo.write(servoObsDisengagedPosition);
 
 }
 
