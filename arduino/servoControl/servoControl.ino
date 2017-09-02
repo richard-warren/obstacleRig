@@ -7,8 +7,10 @@ const int inputPin = 2; // when this is high the servo is engaged; disengage whe
 const int servoPin = 8;
 
 // user settings
-const int servoObsDisengagedPosition =  128;
-const int servoObsEngagedPosition = servoObsDisengagedPosition - 45;
+const int engagedPosition =  62;
+const int disengagedPosition = engagedPosition + 45;
+const int pwmMin = 553;
+const int pwmMax = 2450;
 
 // 128, 128-45
 
@@ -22,17 +24,17 @@ void setup() {
   
   // initialize servo
   pinMode(inputPin, INPUT);
-  obstacleServo.attach(servoPin);
+  obstacleServo.attach(servoPin, pwmMin, pwmMax);
 
   // initialize hardware interrupt
   attachInterrupt(digitalPinToInterrupt(inputPin), controlServo, CHANGE);
 
   // test obstacle positionts
-  obstacleServo.write(servoObsDisengagedPosition);
+  obstacleServo.write(disengagedPosition);
   delay(1000);
-  obstacleServo.write(servoObsEngagedPosition);
+  obstacleServo.write(engagedPosition);
   delay(1000);
-  obstacleServo.write(servoObsDisengagedPosition);
+  obstacleServo.write(disengagedPosition);
 
 }
 
@@ -48,9 +50,9 @@ void controlServo(){
 
   // set obstacle to desired position
   if (isServoEngaged){
-    obstacleServo.write(servoObsEngagedPosition);
+    obstacleServo.write(engagedPosition);
   }else{
-    obstacleServo.write(servoObsDisengagedPosition);
+    obstacleServo.write(disengagedPosition);
   }
   
 }

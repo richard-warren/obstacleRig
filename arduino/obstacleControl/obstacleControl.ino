@@ -13,13 +13,14 @@ const int obstaclePin = 13; // signals whether the obstacle is engaged... this i
 const int motorOnPin = 8; // turns on stepper motor driver
 const int startLimitPin = 9; // signal is LOW when engaged
 const int stopLimitPin = 10; // signal is LOW when engaged
+const int servoSwingTime = 500; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
 
 // other user settings
 const float rewardRotations = 6;
-const int endPositionBuffer = 100; // motor stops endPositionBuffer steps before the beginning and end of the track
+const int microStepping = 16; // only (1/microStepping) steps per pulse // this should correspond to the setting on the stepper motor driver, which is set by 3 digital inputs
+const int endPositionBuffer = 50 * microStepping; // motor stops endPositionBuffer steps before the beginning and end of the track
 const int waterDuration = 80; // milliseconds
-const int microStepping = 2; // only (1/microStepping) steps per pulse // this should correspond to the setting on the stepper motor driver, which is set by 3 digital inputs
-const int stepperSpeed = 400 * microStepping; // (Hz) servo will move this fast to desired positions // maximum, unloaded appears to be around 2000
+const int stepperSpeed = 1000 * microStepping; // (Hz) servo will move this fast to desired positions // maximum, unloaded appears to be around 2000
 const int motorSteps = 200;
 const int encoderSteps = 2880; // 720cpr * 4
 const int timingPulleyRad = 15.2789; // mm
@@ -101,6 +102,7 @@ void loop(){
     // return stage to starting position
     targetStepperTicks = stepperStartPosition;
     stepsToTake = targetStepperTicks - stepperTicks;
+    delay(servoSwingTime); // delay before returning the platform to avoid whacking the mouse in the butt
     takeStep(stepsToTake);
     digitalWrite(motorOnPin, LOW); // disengage stepper motor driver
   }
@@ -169,9 +171,6 @@ void initializeLimits(){
 
   noInterrupts();
 
-  // move a few steps forward before finding start limit
-  takeStep(endPositionBuffer*2);
-
   // find start limit
   while (digitalRead(startLimitPin)){
     takeStep(-1);
@@ -192,10 +191,6 @@ void initializeLimits(){
   interrupts();
   
 }
-
-
-
-
 
 
 

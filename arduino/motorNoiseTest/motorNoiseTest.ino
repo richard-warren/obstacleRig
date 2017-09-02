@@ -4,9 +4,9 @@ const int stepDirPin = 5;
 const int motorOnPin = 8; // turns on stepper motor driver
 
 // user settings
-const int stepNumbers[] = {1, 2, 4, 8, 16, 32, 64, 128, 256}; // the arduino will take successive steps in these amounts
+const int microStepping = 16;
+const int stepNumbers[] = {1, 2, 4, 8, 16, 32, 64, 128}; // the arduino will take successive steps in these amounts
 const int interStepInterval = 1000; // ms
-const int microStepping = 2;
 const int stepperSpeed = 400 * microStepping;
 
 // other initializations
@@ -47,7 +47,7 @@ void loop() {
       // display current step number
       Serial.println(stepNumbers[i]);
       
-      for (int j=0; j<stepNumbers[i]; j++){
+      for (int j=0; j < (stepNumbers[i] * microStepping); j++){
         digitalWrite(stepPin, HIGH);
         delayMicroseconds(pulseDuration);
         digitalWrite(stepPin, LOW);
