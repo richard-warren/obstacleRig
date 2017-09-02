@@ -10,7 +10,7 @@ const int encoderPinA = 2; // encoder pins must be set to 2 and 3 for Arduino Un
 const int encoderPinB = 3;
 const int waterPin = 7;
 const int obstaclePin = 13; // signals whether the obstacle is engaged... this is sent to an arduino that controls the obstacle servo
-const int motorOnPin = 8; // turns on stepper motor driver
+const int motorOffPin = 8; // turns on stepper motor driver
 const int startLimitPin = 9; // signal is LOW when engaged
 const int stopLimitPin = 10; // signal is LOW when engaged
 const int servoSwingTime = 500; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
@@ -51,7 +51,7 @@ void setup() {
   pinMode(stepPin, OUTPUT);
   pinMode(stepDirPin, OUTPUT);
   pinMode(waterPin, OUTPUT);
-  pinMode(motorOnPin, OUTPUT);
+  pinMode(motorOffPin, OUTPUT);
   pinMode(obstaclePin, OUTPUT);
   pinMode(startLimitPin, INPUT_PULLUP);
   pinMode(stopLimitPin, INPUT_PULLUP);
@@ -59,7 +59,7 @@ void setup() {
   digitalWrite(stepPin, LOW);
   digitalWrite(stepDirPin, stepDir);
   digitalWrite(waterPin, LOW);
-  digitalWrite(motorOnPin, HIGH);
+  digitalWrite(motorOffPin, LOW);
   digitalWrite(obstaclePin, LOW);
 
   // initialize encoder hhardware interrupt
@@ -68,6 +68,7 @@ void setup() {
 
   // initialize track limits and move to starting position
   initializeLimits();
+  digitalWrite(motorOffPin, HIGH);
 }
 
 
@@ -90,7 +91,7 @@ void loop(){
   if (!obstacleEngaged){
     if (wheelTicksTemp >= obstacleLocations[obstacleInd]){
       obstacleEngaged = true;
-      digitalWrite(motorOnPin, HIGH); // engages stepper motor driver
+      digitalWrite(motorOffPin, LOW); // engages stepper motor driver
       digitalWrite(obstaclePin, HIGH);
     }
   // disengage:
@@ -104,7 +105,7 @@ void loop(){
     stepsToTake = targetStepperTicks - stepperTicks;
     delay(servoSwingTime); // delay before returning the platform to avoid whacking the mouse in the butt
     takeStep(stepsToTake);
-    digitalWrite(motorOnPin, LOW); // disengage stepper motor driver
+    digitalWrite(motorOffPin, HIGH); // disengage stepper motor driver
   }
      
 
@@ -139,7 +140,7 @@ void loop(){
 
 // move stepper one step in stepDirection
 void takeStep(int stepsToTake){
-  digitalWrite(stepDirPin, (stepsToTake>0));
+  digitalWrite(stepDirPin, (stepsToTake<0));
 
   for (int i = 0; i < abs(stepsToTake); i++){
     digitalWrite(stepPin, HIGH);
@@ -186,7 +187,6 @@ void initializeLimits(){
 
   // move back to stepperStartPosition
   takeStep(-stepperTicks + stepperStartPosition);
-  digitalWrite(motorOnPin, LOW);
 
   interrupts();
   
