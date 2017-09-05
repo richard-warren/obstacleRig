@@ -102,9 +102,10 @@ void loop(){
     
     // return stage to starting position
     targetStepperTicks = stepperStartPosition;
-    stepsToTake = targetStepperTicks - stepperTicks;
+//    stepsToTake = targetStepperTicks - stepperTicks;
     delay(servoSwingTime); // delay before returning the platform to avoid whacking the mouse in the butt
-    takeStep(stepsToTake);
+//    takeStep(stepsToTake);
+    getStartLimit();
     digitalWrite(motorOffPin, HIGH); // disengage stepper motor driver
   }
      
@@ -170,14 +171,9 @@ void encoder_isr() {
 // initialize motor track limits
 void initializeLimits(){
 
-  noInterrupts();
+  getStartLimit();
 
-  // find start limit
-  while (digitalRead(startLimitPin)){
-    takeStep(-1);
-  }
-  stepperTicks = 0;
-  takeStep(stepperStartPosition);
+  noInterrupts();
 
   // find stop limit
   while (digitalRead(stopLimitPin)){
@@ -191,6 +187,23 @@ void initializeLimits(){
   interrupts();
   
 }
+
+
+void getStartLimit(){
+  
+  noInterrupts();
+
+  // find start limit
+  while (digitalRead(startLimitPin)){
+    takeStep(-1);
+  }
+  stepperTicks = 0;
+  takeStep(stepperStartPosition);
+
+  interrupts();
+  
+}
+
 
 
 
