@@ -67,7 +67,9 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(encoderPinB), encoder_isr, CHANGE);
 
   // initialize track limits and move to starting position
-  initializeLimits();
+  getStartLimit();
+  getEndLimit();
+  takeStep(-stepperTicks + stepperStartPosition); // move back to stepperStartPosition
   digitalWrite(motorOffPin, HIGH);
 }
 
@@ -102,10 +104,9 @@ void loop(){
     
     // return stage to starting position
     targetStepperTicks = stepperStartPosition;
-//    stepsToTake = targetStepperTicks - stepperTicks;
     delay(servoSwingTime); // delay before returning the platform to avoid whacking the mouse in the butt
-//    takeStep(stepsToTake);
     getStartLimit();
+    takeStep(stepperStartPosition);
     digitalWrite(motorOffPin, HIGH); // disengage stepper motor driver
   }
      
@@ -173,18 +174,7 @@ void initializeLimits(){
 
   getStartLimit();
 
-  noInterrupts();
-
-  // find stop limit
-  while (digitalRead(stopLimitPin)){
-    takeStep(1);
-  }
-  stepperStopPosition = stepperTicks - endPositionBuffer;
-
-  // move back to stepperStartPosition
-  takeStep(-stepperTicks + stepperStartPosition);
-
-  interrupts();
+  
   
 }
 
@@ -198,12 +188,26 @@ void getStartLimit(){
     takeStep(-1);
   }
   stepperTicks = 0;
-  takeStep(stepperStartPosition);
 
   interrupts();
   
 }
 
+
+
+void getEndLimit(){
+
+  noInterrupts();
+
+  // find stop limit
+  while (digitalRead(stopLimitPin)){
+    takeStep(1);
+  }
+  stepperStopPosition = stepperTicks - endPositionBuffer;
+
+  interrupts();
+  
+}
 
 
 
