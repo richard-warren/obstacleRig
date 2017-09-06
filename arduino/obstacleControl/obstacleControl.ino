@@ -1,5 +1,8 @@
 #include <digitalWriteFast.h>
 
+// things to do:
+// - not sure what would happen if the mouse reached next obstacle zone before the obs has returned home... maybe the code would break in that case?
+// - need to add parameter that controls where the obstacle start along the track with every trial
 
 // USER SETTINGS
 
@@ -181,7 +184,7 @@ void initializeLimits(){
 
 void getStartLimit(){
   
-  noInterrupts();
+//  noInterrupts();
 
   // find start limit
   while (digitalRead(startLimitPin)){
@@ -189,7 +192,7 @@ void getStartLimit(){
   }
   stepperTicks = 0;
 
-  interrupts();
+//  interrupts();
   
 }
 
@@ -197,7 +200,7 @@ void getStartLimit(){
 
 void getEndLimit(){
 
-  noInterrupts();
+//  noInterrupts();
 
   // find stop limit
   while (digitalRead(stopLimitPin)){
@@ -205,7 +208,7 @@ void getEndLimit(){
   }
   stepperStopPosition = stepperTicks - endPositionBuffer;
 
-  interrupts();
+//  interrupts();
   
 }
 
