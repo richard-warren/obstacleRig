@@ -1,8 +1,5 @@
 #include <digitalWriteFast.h>
 
-// things to do:
-// - not sure what would happen if the mouse reached next obstacle zone before the obs has returned home... maybe the code would break in that case?
-// - need to add parameter that controls where the obstacle start along the track with every trial
 
 // USER SETTINGS
 
@@ -19,6 +16,7 @@ const int stopLimitPin = 10; // signal is LOW when engaged
 const int servoSwingTime = 500; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
 
 // other user settings
+const bool obstacleOn = false; /// !!! temp, replace with preprocessor directives in the future, one state variable that determines whether platOn noObs, platOn Obs, or platoff noObs
 const float rewardRotations = 6;
 const int microStepping = 16; // only (1/microStepping) steps per pulse // this should correspond to the setting on the stepper motor driver, which is set by 3 digital inputs
 const int endPositionBuffer = 50 * microStepping; // motor stops endPositionBuffer steps before the beginning and end of the track
@@ -28,7 +26,9 @@ const int motorSteps = 200;
 const int encoderSteps = 2880; // 720cpr * 4
 const int timingPulleyRad = 15.2789; // mm
 const float wheelRad = 95.25;
-const int obstacleLocations[] = {2*encoderSteps, 4*encoderSteps, rewardRotations*encoderSteps*2}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
+//int obstacleLocations[] = {2*encoderSteps, 4*encoderSteps, rewardRotations*encoderSteps*2}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
+int obstacleLocations[] = {rewardRotations*encoderSteps*2}; /// !!! temp, replace with preprocessor directives in the future
+
 
 // initializations
 volatile int wheelTicks = 0;
@@ -97,7 +97,9 @@ void loop(){
     if (wheelTicksTemp >= obstacleLocations[obstacleInd]){
       obstacleEngaged = true;
       digitalWrite(motorOffPin, LOW); // engages stepper motor driver
-      digitalWrite(obstaclePin, HIGH);
+      if (obstacleOn){ /// !!! temp, replace with preprocessor directives in the future
+        digitalWrite(obstaclePin, HIGH);
+      }
     }
   // disengage:
   }else if (stepperTicks >= stepperStopPosition){
