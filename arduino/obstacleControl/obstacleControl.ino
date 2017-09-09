@@ -26,7 +26,7 @@ const float rewardRotations = 6;
 const int microStepping = 16; // only (1/microStepping) steps per pulse // this should correspond to the setting on the stepper motor driver, which is set by 3 digital inputs
 const int endPositionBuffer = 50 * microStepping; // motor stops endPositionBuffer steps before the beginning and end of the track
 const int waterDuration = 80; // milliseconds
-const long maxStepperSpeed = 12000 * long(microStepping); // (Hz) servo will move this fast to desired positions // maximum, unloaded appears to be around 2000
+const long maxStepperSpeed = 12000 * long(microStepping); // (Hz) servo will move this fast to desired positions // maximum, unloaded appears to be around 2000 // NOTE: right now even a delay of microsecond fails to keep up with very fast speeds, so execution of other code in takeStep is rate limiting factor...
 const int motorSteps = 200;
 const int encoderSteps = 2880; // 720cpr * 4
 const int timingPulleyRad = 15.2789; // mm
@@ -66,11 +66,11 @@ void setup() {
   pinMode(startLimitPin, INPUT_PULLUP);
   pinMode(stopLimitPin, INPUT_PULLUP);
   
-  digitalWrite(stepPin, LOW);
+  digitalWriteFast(stepPin, LOW);
   digitalWrite(stepDirPin, stepDir);
-  digitalWrite(waterPin, LOW);
-  digitalWrite(motorOffPin, LOW);
-  digitalWrite(obstaclePin, LOW);
+  digitalWriteFast(waterPin, LOW);
+  digitalWriteFast(motorOffPin, LOW);
+  digitalWriteFast(obstaclePin, LOW);
 
   // initialize encoder hhardware interrupt
   attachInterrupt(digitalPinToInterrupt(encoderPinA), encoder_isr, CHANGE);
@@ -79,24 +79,24 @@ void setup() {
   // initialize lookup table for stepper speeds
   for (int i=0; i<speedLookupLength; i++){
     long tempSpeed = (i+1) * (maxStepperSpeed / speedLookupLength);
-//    Serial.println(tempSpeed);
     stepperDelays[i] = (pow(10, 6) / tempSpeed) / 2;
   }
   pulseDuration = stepperDelays[speedLookupLength];
-
-  // initialize track limits and move to starting position
-  getStartLimit();
-  getEndLimit();
-  getStartLimit();
-  stepperDelayInd = 0;
-  takeStep(stepperStartPosition, slowSpeedMultiplier); // move back to stepperStartPosition
-  digitalWrite(motorOffPin, HIGH);
 
   // begin serial communication
   Serial.begin(1200);
   Serial.println("1: rewards only");
   Serial.println("2: platform, no obstacles");
   Serial.println("3: platform, with obstacles");
+  Serial.println(stepperDelays[speedLookupLength-1]);;
+  
+  // initialize track limits and move to starting position
+  getStartLimit();
+  getEndLimit();
+  getStartLimit();
+  stepperDelayInd = 0;
+  takeStep(stepperStartPosition, slowSpeedMultiplier); // move back to stepperStartPosition
+  digitalWriteFast(motorOffPin, HIGH);
 }
 
 
@@ -117,18 +117,18 @@ void loop(){
       
       if ((state==2) || (state==3)){
         obstacleEngaged = true;
-        digitalWrite(motorOffPin, LOW); // engages stepper motor driver
+        digitalWriteFast(motorOffPin, LOW); // engages stepper motor driver
         stepperDelayInd = 0; // start at lowest velocity
       }
       
       if (state==3){
-        digitalWrite(obstaclePin, HIGH); // engages servo motor
+        digitalWriteFast(obstaclePin, HIGH); // engages servo motor
       }
     }
   // disengage:
   }else if (stepperTicks >= stepperStopPosition){
     obstacleEngaged = false;
-    digitalWrite(obstaclePin, LOW);
+    digitalWriteFast(obstaclePin, LOW);
     obstacleInd++;
     
     // return stage to starting position
@@ -136,7 +136,7 @@ void loop(){
     getStartLimit();
     stepperDelayInd = 0;
     takeStep(stepperStartPosition, slowSpeedMultiplier);
-    digitalWrite(motorOffPin, HIGH); // disengage stepper motor driver
+    digitalWriteFast(motorOffPin, HIGH); // disengage stepper motor driver
   }
      
 
@@ -148,9 +148,9 @@ void loop(){
     interrupts();
 
     obstacleInd = 0;
-    digitalWrite(waterPin, HIGH);
+    digitalWriteFast(waterPin, HIGH);
     delay(waterDuration);
-    digitalWrite(waterPin, LOW);
+    digitalWriteFast(waterPin, LOW);
 
   }
   
@@ -183,6 +183,9 @@ void takeStep(int stepsToTake, float speedMultiplier){
 
   for (int i = 0; i < abs(stepsToTake); i++){
 
+    // the two initial computation below take ~60 microseconds, thus rate limiting step speed...
+    // also, microseconds of stepPin pulse near 1, so in danger of being to short for driver?
+    
     // increment motor speed
     stepperDelayInd = min(stepperDelayInd + rampResolution, speedLookupLength-1);
 
@@ -190,9 +193,9 @@ void takeStep(int stepsToTake, float speedMultiplier){
     stepDelay = stepperDelays[int(stepperDelayInd)] / speedMultiplier;
     
     // take step
-    digitalWrite(stepPin, HIGH);
+    digitalWriteFast(stepPin, HIGH);
     delayMicroseconds(stepDelay);
-    digitalWrite(stepPin, LOW);
+    digitalWriteFast(stepPin, LOW);
     delayMicroseconds(stepDelay);
   }
 
