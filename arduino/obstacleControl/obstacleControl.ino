@@ -13,20 +13,26 @@ const int obstaclePin = 13; // signals whether the obstacle is engaged... this i
 const int motorOffPin = 8; // turns on stepper motor driver
 const int startLimitPin = 9; // signal is LOW when engaged
 const int stopLimitPin = 10; // signal is LOW when engaged
-const int servoSwingTime = 500; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
+const int servoSwingTime = 200; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
 
 // other user settings
-volatile int state = 1; // 1: no platform movement, no obstaacles, 2: platform movement, no obstacles, 3: platform movement and obstacles
+const int speedLookupLength = 100;
+const float rampResolution = .05; // < 1, smaller values are longer ramps
+volatile int stepperDelays[speedLookupLength];
+
+
+volatile int state = 2; // 1: no platform movement, no obstaacles, 2: platform movement, no obstacles, 3: platform movement and obstacles
 const float rewardRotations = 6;
 const int microStepping = 16; // only (1/microStepping) steps per pulse // this should correspond to the setting on the stepper motor driver, which is set by 3 digital inputs
 const int endPositionBuffer = 50 * microStepping; // motor stops endPositionBuffer steps before the beginning and end of the track
 const int waterDuration = 80; // milliseconds
-const int stepperSpeed = 800 * microStepping; // (Hz) servo will move this fast to desired positions // maximum, unloaded appears to be around 2000
+const long maxStepperSpeed = 12000 * long(microStepping); // (Hz) servo will move this fast to desired positions // maximum, unloaded appears to be around 2000
 const int motorSteps = 200;
 const int encoderSteps = 2880; // 720cpr * 4
 const int timingPulleyRad = 15.2789; // mm
 const float wheelRad = 95.25;
 int obstacleLocations[] = {2*encoderSteps, 4*encoderSteps, rewardRotations*encoderSteps*2}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
+volatile float slowSpeedMultiplier = .25;
 
 // initializations
 volatile int wheelTicks = 0;
@@ -39,9 +45,13 @@ volatile int targetStepperTicks = stepperStartPosition;
 volatile int stepsToTake = 0; // when driving the motor, stepsToTake is how many motor ticks required to get to target position
 const int rewardPosition = rewardRotations * encoderSteps; // expressed in wheelTicks
 const float conversionFactor = (wheelRad / timingPulleyRad) * (float(motorSteps) / encoderSteps) * microStepping; // this converts from analogRead reading of wheel encoder to desired number of steps in stepper driver
-const int pulseDuration = (pow(10, 6) / stepperSpeed) / 2; // wait this many microseconds before sending successive stepper pulses // this is constrained by max stepper frequency
 volatile bool stepDir = HIGH;
 volatile bool obstacleEngaged = false;
+volatile float stepperDelayInd = 0;
+volatile int pulseDuration;
+volatile int stepDelay;
+
+
 
 
 
@@ -66,14 +76,24 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(encoderPinA), encoder_isr, CHANGE);
   attachInterrupt(digitalPinToInterrupt(encoderPinB), encoder_isr, CHANGE);
 
+  // initialize lookup table for stepper speeds
+  for (int i=0; i<speedLookupLength; i++){
+    long tempSpeed = (i+1) * (maxStepperSpeed / speedLookupLength);
+//    Serial.println(tempSpeed);
+    stepperDelays[i] = (pow(10, 6) / tempSpeed) / 2;
+  }
+  pulseDuration = stepperDelays[speedLookupLength];
+
   // initialize track limits and move to starting position
   getStartLimit();
   getEndLimit();
-  takeStep(-stepperTicks + stepperStartPosition); // move back to stepperStartPosition
+  getStartLimit();
+  stepperDelayInd = 0;
+  takeStep(stepperStartPosition, slowSpeedMultiplier); // move back to stepperStartPosition
   digitalWrite(motorOffPin, HIGH);
-  
+
   // begin serial communication
-  Serial.begin(9600);
+  Serial.begin(1200);
   Serial.println("1: rewards only");
   Serial.println("2: platform, no obstacles");
   Serial.println("3: platform, with obstacles");
@@ -98,6 +118,7 @@ void loop(){
       if ((state==2) || (state==3)){
         obstacleEngaged = true;
         digitalWrite(motorOffPin, LOW); // engages stepper motor driver
+        stepperDelayInd = 0; // start at lowest velocity
       }
       
       if (state==3){
@@ -111,10 +132,10 @@ void loop(){
     obstacleInd++;
     
     // return stage to starting position
-    targetStepperTicks = stepperStartPosition;
     delay(servoSwingTime); // delay before returning the platform to avoid whacking the mouse in the butt
     getStartLimit();
-    takeStep(stepperStartPosition);
+    stepperDelayInd = 0;
+    takeStep(stepperStartPosition, slowSpeedMultiplier);
     digitalWrite(motorOffPin, HIGH); // disengage stepper motor driver
   }
      
@@ -141,7 +162,7 @@ void loop(){
 
     stepsToTake = targetStepperTicks - stepperTicks;
     if (stepsToTake!=0){
-      takeStep(stepsToTake);
+      takeStep(stepsToTake, 1);
     }
   }
   
@@ -155,18 +176,29 @@ void loop(){
 
 
 // move stepper one step in stepDirection
-void takeStep(int stepsToTake){
+void takeStep(int stepsToTake, float speedMultiplier){
+
+  // set motor direction
   digitalWrite(stepDirPin, (stepsToTake<0));
 
   for (int i = 0; i < abs(stepsToTake); i++){
+
+    // increment motor speed
+    stepperDelayInd = min(stepperDelayInd + rampResolution, speedLookupLength-1);
+
+    // get speed index
+    stepDelay = stepperDelays[int(stepperDelayInd)] / speedMultiplier;
+    
+    // take step
     digitalWrite(stepPin, HIGH);
-    delayMicroseconds(pulseDuration);
+    delayMicroseconds(stepDelay);
     digitalWrite(stepPin, LOW);
-    delayMicroseconds(pulseDuration);
+    delayMicroseconds(stepDelay);
   }
 
   stepperTicks += stepsToTake;
 }
+
 
 
 
@@ -185,9 +217,11 @@ void encoder_isr() {
 
 void getStartLimit(){
 
+  stepperDelayInd = 0; // start at lowest velocity
+  
   // find start limit
-  while (digitalRead(startLimitPin)){
-    takeStep(-1);
+  while (digitalReadFast(startLimitPin)){
+    takeStep(-1, slowSpeedMultiplier);
   }
   stepperTicks = 0;
   
@@ -197,13 +231,14 @@ void getStartLimit(){
 
 void getEndLimit(){
 
+  stepperDelayInd = 0; // start at lowest velocity
+
   // find stop limit
-  while (digitalRead(stopLimitPin)){
-    takeStep(1);
+  while (digitalReadFast(stopLimitPin)){
+    takeStep(1, slowSpeedMultiplier);
   }
   stepperStopPosition = stepperTicks - endPositionBuffer;
   
 }
-
 
 
