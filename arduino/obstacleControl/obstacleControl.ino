@@ -16,7 +16,7 @@ const int stopLimitPin = 10; // signal is LOW when engaged
 const int servoSwingTime = 500; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
 
 // other user settings
-const bool obstacleOn = false; /// !!! temp, replace with preprocessor directives in the future, one state variable that determines whether platOn noObs, platOn Obs, or platoff noObs
+const int state = 1; // 1: no platform movement, no obstaacles, 2: platform movement, no obstacles, 3: platform movement and obstacles
 const float rewardRotations = 6;
 const int microStepping = 16; // only (1/microStepping) steps per pulse // this should correspond to the setting on the stepper motor driver, which is set by 3 digital inputs
 const int endPositionBuffer = 50 * microStepping; // motor stops endPositionBuffer steps before the beginning and end of the track
@@ -26,9 +26,7 @@ const int motorSteps = 200;
 const int encoderSteps = 2880; // 720cpr * 4
 const int timingPulleyRad = 15.2789; // mm
 const float wheelRad = 95.25;
-//int obstacleLocations[] = {2*encoderSteps, 4*encoderSteps, rewardRotations*encoderSteps*2}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
-int obstacleLocations[] = {rewardRotations*encoderSteps*2}; /// !!! temp, replace with preprocessor directives in the future
-
+int obstacleLocations[] = {2*encoderSteps, 4*encoderSteps, rewardRotations*encoderSteps*2}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
 
 // initializations
 volatile int wheelTicks = 0;
@@ -48,8 +46,7 @@ volatile bool obstacleEngaged = false;
 
 
 void setup() {
-//  Serial.begin(115200);
-
+  
   // prepare ins and outs
   pinMode(stepPin, OUTPUT);
   pinMode(stepDirPin, OUTPUT);
@@ -74,16 +71,18 @@ void setup() {
   getEndLimit();
   takeStep(-stepperTicks + stepperStartPosition); // move back to stepperStartPosition
   digitalWrite(motorOffPin, HIGH);
+  
+  // begin serial communication
+  Serial.begin(9600);
+  Serial.println("1: rewards only");
+  Serial.println("2: platform, no obstacles");
+  Serial.println("3: platform, with obstacles");
 }
 
 
 
 
 void loop(){
-
-  // display variables
-//  Serial.print("wheelTicks: ");
-//  Serial.println(wheelTicks);
 
   // store current wheelTicks value with interrupts disabled
   noInterrupts();
@@ -95,10 +94,14 @@ void loop(){
   // engage:
   if (!obstacleEngaged){
     if (wheelTicksTemp >= obstacleLocations[obstacleInd]){
-      obstacleEngaged = true;
-      digitalWrite(motorOffPin, LOW); // engages stepper motor driver
-      if (obstacleOn){ /// !!! temp, replace with preprocessor directives in the future
-        digitalWrite(obstaclePin, HIGH);
+      
+      if ((state==2) || (state==3)){
+        obstacleEngaged = true;
+        digitalWrite(motorOffPin, LOW); // engages stepper motor driver
+      }
+      
+      if (state==3){
+        digitalWrite(obstaclePin, HIGH); // engages servo motor
       }
     }
   // disengage:
@@ -131,7 +134,7 @@ void loop(){
   }
   
   
-  // compute target stepper position
+  // compute and move to target stepper position
   if (obstacleEngaged){
     targetStepperTicks = ((wheelTicksTemp - obstacleLocations[obstacleInd]) * conversionFactor)  + stepperStartPosition;  
     targetStepperTicks = constrain(targetStepperTicks, stepperStartPosition, stepperStopPosition);
@@ -140,7 +143,13 @@ void loop(){
     if (stepsToTake!=0){
       takeStep(stepsToTake);
     }
-  }  
+  }
+  
+  
+  // check for user input
+  if (Serial.available()){
+    state = Serial.read() - 48;
+  }
 }
 
 
@@ -174,27 +183,13 @@ void encoder_isr() {
 
 
 
-// initialize motor track limits
-void initializeLimits(){
-
-  getStartLimit();
-
-  
-  
-}
-
-
 void getStartLimit(){
-  
-//  noInterrupts();
 
   // find start limit
   while (digitalRead(startLimitPin)){
     takeStep(-1);
   }
   stepperTicks = 0;
-
-//  interrupts();
   
 }
 
@@ -202,15 +197,11 @@ void getStartLimit(){
 
 void getEndLimit(){
 
-//  noInterrupts();
-
   // find stop limit
   while (digitalRead(stopLimitPin)){
     takeStep(1);
   }
   stepperStopPosition = stepperTicks - endPositionBuffer;
-
-//  interrupts();
   
 }
 
