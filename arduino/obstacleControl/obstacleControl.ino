@@ -17,7 +17,7 @@ volatile int state = 2; // 1: no platform movement, no obstaacles, 2: platform m
 const int speedLookupLength = 100;
 const float rampResolution = .1; // < 1, smaller values are longer ramps
 volatile int stepperDelays[speedLookupLength];
-const float rewardRotations = 6;
+const float rewardRotations = 3;
 const int microStepping = 16; // only (1/microStepping) steps per pulse // this should correspond to the setting on the stepper motor driver, which is set by 3 digital inputs
 const int endPositionBuffer = 50 * microStepping; // motor stops endPositionBuffer steps before the beginning and end of the track
 const int waterDuration = 80; // milliseconds
