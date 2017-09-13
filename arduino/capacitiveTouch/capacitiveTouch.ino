@@ -12,28 +12,17 @@ const int isTouchingPin = 13;
 
 // user settings
 const int baselineLng = 20; // s, the amount of time to compute moving median for baseline subtraction
-<<<<<<< HEAD
 const int sensorSmps = 2;
 const int touchThresh = 500;
 const int maxMeasurementTime = 100; // ms, capacitive touch reading times out after 100ms
 const int medianSmps = 100;
 const int maxTouchMeasurement = 32767; // constain to fit in an int
-=======
-const int sensorSmps = 1;
-const int touchThresh = 150;
-const int maxMeasurementTime = 100; // ms, capacitive touch reading times out after 100ms
-const int medianSmps = 100;
->>>>>>> 4ea58df526006edf66c6dd3667b608057062ec24
 
 // other initializations
 CapacitiveSensor touchSensor = CapacitiveSensor(touchSendPin, touchReceivePin);
 RunningMedian runningMed = RunningMedian(medianSmps);
 volatile int touchMeasurement = 0;
-<<<<<<< HEAD
 const int runningMedTics = (float(baselineLng)/medianSmps * 1000) / sensorSmps; // number of loop cycles between successive sampling of touch signal for running median computation... assumes 1ms loop time
-=======
-const int runningMedTics = (float(baselineLng)/medianSmps * 1000); // number of loop cycles between successive sampling of touch signal for running median computation... assumes 1ms loop time
->>>>>>> 4ea58df526006edf66c6dd3667b608057062ec24
 volatile int runningMedCounter = 0;
 volatile long currentBaseline = 0;
 
@@ -60,11 +49,7 @@ void loop(){
   // timing notes: at baseline, executing this loop with serial communication takes ~1ms, but longer when something is actually touching the sensor
 
   // get touch measurement
-<<<<<<< HEAD
   touchMeasurement = touchSensor.capacitiveSensorRaw(sensorSmps);
-=======
-  touchMeasurement = touchSensor.capacitiveSensorRaw(sensorSmps) / sensorSmps;
->>>>>>> 4ea58df526006edf66c6dd3667b608057062ec24
 
   // increment running median and add samples if proper time interval has passed
   runningMedCounter++;
@@ -79,31 +64,16 @@ void loop(){
     // subtract running median and scale
     touchMeasurement = constrain((touchMeasurement - currentBaseline) / sensorSmps, 0, maxTouchMeasurement);
   
-<<<<<<< HEAD
     // write isTouching pin HIGH if threshold crossed
     digitalWrite(isTouchingPin, (touchMeasurement > touchThresh));
   }
   else{
-    digitalWrite(isTouchingPin, HIGH);  
+    digitalWrite(isTouchingPin, HIGH); // previous touchMeasurement is maintained in this case
   }
-=======
-
-  // subtract running median and limit range to fit in a byte
-  touchMeasurement = touchMeasurement - currentBaseline;
-  touchMeasurement = byte constrain(touchMeasurement, 0, 255);
-
-  // write isTouching pin HIGH if threshold crossed
-  digitalWrite(isTouchingPin, (touchMeasurement > touchThresh));
->>>>>>> 4ea58df526006edf66c6dd3667b608057062ec24
      
   // display raw touch sensor values
   Serial.println(touchMeasurement);
   delay(1);
-  
-<<<<<<< HEAD
-  
-=======
->>>>>>> 4ea58df526006edf66c6dd3667b608057062ec24
 }
 
 
