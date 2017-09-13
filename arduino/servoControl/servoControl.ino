@@ -10,7 +10,7 @@ const int vidTtlPin = 13;
 
 
 // user settings
-const int engagedPosition =  62;
+const int engagedPosition =  64;
 const int disengagedPosition = engagedPosition + 45;
 const int pwmMin = 553;
 const int pwmMax = 2450;
