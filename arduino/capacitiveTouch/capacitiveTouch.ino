@@ -1,51 +1,75 @@
-#include "CapacitiveSensor.h"
+#include <CapacitiveSensor.h>
+#include <RunningMedian.h>
+
+// note: this touch sensor using a running median calculation to measure and subtract baseline
+// the capacitive touch library disables interrupts, so I can't use timer interrupts to properly
+// printing the values to the serial port will approximately double the time of the loop, so length of baseline measurement will double while printing to serial port unfortunately
 
 // pin assignments
-const int touchSendPin = 8;
-const int touchReceivePin = 10;
-const int wheelBreakPin = 4;
+const int touchSendPin = 3;
+const int touchReceivePin = 4;
+const int isTouchingPin = 13;
 
 // user settings
-const bool debugOn = true;
-const int wheelBreakDuration = 5000; // ms
-const int sensorSmps = 2;
+const int baselineLng = 20; // s, the amount of time to compute moving median for baseline subtraction
+const int sensorSmps = 1;
 const int touchThresh = 150;
-const int touchMax = 255;
-const int maxMeasurementTime = 100; // ms
+const int maxMeasurementTime = 100; // ms, capacitive touch reading times out after 100ms
+const int medianSmps = 100;
 
-// initializations
+// other initializations
 CapacitiveSensor touchSensor = CapacitiveSensor(touchSendPin, touchReceivePin);
+RunningMedian runningMed = RunningMedian(medianSmps);
 volatile int touchMeasurement = 0;
+const int runningMedTics = (float(baselineLng)/medianSmps * 1000); // number of loop cycles between successive sampling of touch signal for running median computation... assumes 1ms loop time
+volatile int runningMedCounter = 0;
+volatile long currentBaseline = 0;
+
 
 
 
 void setup(){
+  
   // setup pins
-  pinMode(wheelBreakPin, OUTPUT);
-  digitalWrite(wheelBreakPin, LOW);
+  pinMode(isTouchingPin, OUTPUT);
+  digitalWrite(isTouchingPin, LOW);
 
   // setup touch sensor
   touchSensor.set_CS_Timeout_Millis(maxMeasurementTime / sensorSmps);
-  if (debugOn){Serial.begin(9600);}
+
+  // begin serial communication
+  Serial.begin(115200);
 }
+
+
 
 void loop(){
 
-  // get touch measurement
-  touchMeasurement = (byte) min((touchSensor.capacitiveSensor(sensorSmps) / sensorSmps), touchMax);
+  // timing notes: at baseline, executing this loop with serial communication takes ~1ms, but longer when something is actually touching the sensor
 
-  // break wheel if touch detected
-  if (touchMeasurement > touchThresh){
-    digitalWrite(wheelBreakPin, HIGH);
-    delay(wheelBreakDuration);
-    digitalWrite(wheelBreakPin, LOW);
+  // get touch measurement
+  touchMeasurement = touchSensor.capacitiveSensorRaw(sensorSmps) / sensorSmps;
+
+  // increment running median and add samples if proper time interval has passed
+  runningMedCounter++;
+  if (runningMedCounter == runningMedTics){
+    runningMed.add(touchMeasurement);
+    currentBaseline = runningMed.getMedian();
+    runningMedCounter = 0;
   }
   
-  // display raw touch sensor values in debug mode
-  if (debugOn){
-    delay(20);
-    Serial.println(touchMeasurement);
-  }
+
+  // subtract running median and limit range to fit in a byte
+  touchMeasurement = touchMeasurement - currentBaseline;
+  touchMeasurement = byte constrain(touchMeasurement, 0, 255);
+
+  // write isTouching pin HIGH if threshold crossed
+  digitalWrite(isTouchingPin, (touchMeasurement > touchThresh));
+     
+  // display raw touch sensor values
+  Serial.println(touchMeasurement);
+  delay(1);
+  
 }
 
 
