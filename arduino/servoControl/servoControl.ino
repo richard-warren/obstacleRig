@@ -15,7 +15,7 @@ const int disengagedPosition = engagedPosition + 45;
 const int pwmMin = 553;
 const int pwmMax = 2450;
 const int vidTtlPulseDuration = 1;   // ms
-const int vidTtlInterval = 4; // ms
+const int vidTtlInterval = 20; // ms
 const int rewardTtlOverhang = 500; // ms to continue generating ttls for after reward reached // THIS SHOULD NOT BE DIVISIBLE BY 1000, SO THE TIMESTAMP INTERVAL BETWEEN FRAMES AT ENDAND BEGINNING OF NEXT TRIAL WILL BE DIFFERENT THAN 1/FS
 const int rewardTtlGap = 500; // ms pause in ttls after rewardTtlOverhang has passed
 

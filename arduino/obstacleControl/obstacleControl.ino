@@ -10,7 +10,7 @@ const int obstaclePin = 13; // signals whether the obstacle is engaged... this i
 const int motorOffPin = 8; // turns on stepper motor driver
 const int startLimitPin = 9; // signal is LOW when engaged
 const int stopLimitPin = 10; // signal is LOW when engaged
-const int servoSwingTime = 200; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
+const int servoSwingTime = 500; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
 
 // other user settings
 volatile int state = 2; // 1: no platform movement, no obstaacles, 2: platform movement, no obstacles, 3: platform movement and obstacles
@@ -178,6 +178,7 @@ void takeStep(int stepsToTake, float speedMultiplier){
 
   // set motor direction
   digitalWrite(stepDirPin, (stepsToTake<0));
+  delayMicroseconds(1); // TCM2100 stepper motor driver requires 20 nanoseconds between stepDirectionPin change and stepPin input // the driver was messing up occasionally, so hopefully this will fix the problem
 
   for (int i = 0; i < abs(stepsToTake); i++){
 
@@ -221,6 +222,8 @@ void encoder_isr() {
 
 void getStartLimit(){
 
+  noInterrupts();
+
   stepperDelayInd = 0; // start at lowest velocity
   
   // find start limit
@@ -228,12 +231,16 @@ void getStartLimit(){
     takeStep(-1, slowSpeedMultiplier);
   }
   stepperTicks = 0;
+
+  interrupts();
   
 }
 
 
 
 void getEndLimit(){
+
+  noInterrupts();
 
   stepperDelayInd = 0; // start at lowest velocity
 
@@ -242,6 +249,8 @@ void getEndLimit(){
     takeStep(1, slowSpeedMultiplier);
   }
   stepperStopPosition = stepperTicks - endPositionBuffer;
+
+  interrupts();
   
 }
 
