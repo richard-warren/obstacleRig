@@ -17,7 +17,7 @@ volatile int state = 2; // 1: no platform movement, no obstaacles, 2: platform m
 const int speedLookupLength = 100;
 const float rampResolution = .1; // < 1, smaller values are longer ramps
 volatile int stepperDelays[speedLookupLength];
-const float rewardRotations = 3;
+const float rewardRotations = 6;
 const int microStepping = 16; // only (1/microStepping) steps per pulse // this should correspond to the setting on the stepper motor driver, which is set by 3 digital inputs
 const int endPositionBuffer = 50 * microStepping; // motor stops endPositionBuffer steps before the beginning and end of the track
 const int waterDuration = 80; // milliseconds
@@ -177,7 +177,7 @@ void loop(){
 void takeStep(int stepsToTake, float speedMultiplier){
 
   // set motor direction
-  digitalWrite(stepDirPin, (stepsToTake<0));
+  digitalWrite(stepDirPin, (stepsToTake>0));
   delayMicroseconds(1); // TCM2100 stepper motor driver requires 20 nanoseconds between stepDirectionPin change and stepPin input // the driver was messing up occasionally, so hopefully this will fix the problem
 
   for (int i = 0; i < abs(stepsToTake); i++){
