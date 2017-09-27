@@ -10,27 +10,26 @@ const int obstaclePin = 13; // signals whether the obstacle is engaged... this i
 const int motorOffPin = 8; // turns on stepper motor driver
 const int startLimitPin = 9; // signal is LOW when engaged
 const int stopLimitPin = 10; // signal is LOW when engaged
-const int servoSwingTime = 0; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
+const int servoSwingTime = 500; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
 
 // other user settings
 volatile int state = 2; // 1: no platform movement, no obstaacles, 2: platform movement, no obstacles, 3: platform movement and obstacles
 const int speedLookupLength = 100;
-const float rampResolution = .2; // < 1, smaller values are longer ramps
+const float rampResolution = 1; // < 1, smaller values are longer ramps
 volatile int stepperDelays[speedLookupLength];
-volatile float rewardRotations = 8;
+volatile float rewardRotations = 6;
 const int microStepping = 16; // only (1/microStepping) steps per pulse // this should correspond to the setting on the stepper motor driver, which is set by 3 digital inputs
 const int endPositionBuffer = 50 * microStepping; // motor stops endPositionBuffer steps before the beginning and end of the track
 const int waterDuration = 80; // milliseconds
-const int maxStepperRPS = 12;
+const int maxStepperRPS = 8;
 const int motorSteps = 200;
 const int encoderSteps = 2880; // 720cpr * 4
 const int timingPulleyRad = 15.2789; // mm
 const float wheelRad = 95.25;
-int obstacleLocations[] = {2*encoderSteps, 4*encoderSteps, 6*encoderSteps, rewardRotations*encoderSteps*20}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
+int obstacleLocations[] = {2*encoderSteps, 4*encoderSteps, rewardRotations*encoderSteps*2}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
 volatile float slowSpeedMultiplier = .4;
 
 // initializations
-volatile int userInput;
 const long maxStepperSpeed = maxStepperRPS * 200 * long(microStepping);
 volatile int wheelTicks = 0;
 volatile int wheelTicksTemp = 0; // this variable temporarily copies wheelTicks in the main code to avoid having to access it multiple times, potentially colliding with its access in the interrupt
@@ -47,6 +46,7 @@ volatile bool obstacleEngaged = false;
 volatile float stepperDelayInd = 0;
 volatile int pulseDuration;
 volatile int stepDelay;
+volatile int userInput;
 
 
 
@@ -82,21 +82,14 @@ void setup() {
 
   // begin serial communication
   Serial.begin(9600);
+//  delay(1000);
   Serial.println("1: rewards only");
   Serial.println("2: platform, no obstacles");
   Serial.println("3: platform, with obstacles");
-  Serial.println("4: set reward rotation number");
-  delay(1000);
+  Serial.println("4: calibrate track");
+  Serial.println("5: enter reward rotation number");
 //  Serial.print("min stepper delay: ");
-//  Serial.println(stepperDelays[speedLookupLength-1]);;
-  
-  // initialize track limits and move to starting position
-  getStartLimit();
-  getEndLimit();
-  getStartLimit();
-  stepperDelayInd = 0;
-  takeStep(stepperStartPosition, slowSpeedMultiplier); // move back to stepperStartPosition
-  digitalWrite(motorOffPin, HIGH);
+//  Serial.println(stepperDelays[speedLookupLength-1]);
 }
 
 
@@ -131,16 +124,13 @@ void loop(){
     digitalWrite(obstaclePin, LOW);
     obstacleInd++;
     
-    // !!! this is an attempt to 'reset' the motor before going home to solve the freezing that often occurs at this point
-    digitalWrite(motorOffPin, HIGH); // disengage stepper motor driver
-    delay(50);
-    digitalWrite(motorOffPin, LOW);
-    
     // return stage to starting position
     delay(servoSwingTime); // delay before returning the platform to avoid whacking the mouse in the butt
-    getStartLimit();
+//    getStartLimit();
     stepperDelayInd = 0;
-    takeStep(stepperStartPosition, slowSpeedMultiplier);
+//    takeStep(stepperStartPosition, slowSpeedMultiplier);
+    targetStepperTicks = stepperStartPosition;
+//    takeStep(-stepperTicks, 0);
     digitalWrite(motorOffPin, HIGH); // disengage stepper motor driver
   }
      
@@ -160,15 +150,16 @@ void loop(){
   }
   
   
-  // compute and move to target stepper position
+  // compute target stepper position if obstacle engaged
   if (obstacleEngaged){
     targetStepperTicks = ((wheelTicksTemp - obstacleLocations[obstacleInd]) * conversionFactor)  + stepperStartPosition;  
     targetStepperTicks = constrain(targetStepperTicks, stepperStartPosition, stepperStopPosition);
-
-    stepsToTake = targetStepperTicks - stepperTicks;
-    if (stepsToTake!=0){
-      takeStep(stepsToTake, 1);
-    }
+  }
+  
+  // go to target position
+  stepsToTake = targetStepperTicks - stepperTicks;
+  if (stepsToTake!=0){
+    takeStep(stepsToTake, 1);
   }
   
   
@@ -188,14 +179,28 @@ void loop(){
       case 3:
         state = userInput;
         break;
-      // enter reward rotation number
+      // calibrate track
       case 4:
+        Serial.println("now calibrating...");
+        delay(500);
+        getStartLimit();
+        getEndLimit();
+        getStartLimit();
+        stepperDelayInd = 0;
+        takeStep(stepperStartPosition, slowSpeedMultiplier); // move back to stepperStartPosition
+        digitalWrite(motorOffPin, HIGH);
+        Serial.println("done calibrating...");
+        delay(500);
+        break;
+      // enter reward rotation number
+      case 5:
         Serial.print("enter reward rotations: ");
         while (Serial.available() == 0)  {}
         rewardRotations = Serial.parseFloat();
         rewardPosition = rewardRotations * encoderSteps;
         Serial.println(rewardRotations);
         break;
+        
     }
     
   }
@@ -218,7 +223,8 @@ void takeStep(int stepsToTake, float speedMultiplier){
     stepperDelayInd = min(stepperDelayInd + rampResolution, speedLookupLength-1);
 
     // get speed index
-    stepDelay = stepperDelays[round(stepperDelayInd)] / speedMultiplier;
+//    stepDelay = stepperDelays[round(stepperDelayInd)] / speedMultiplier;
+    stepDelay = round(stepperDelays[speedLookupLength]); // temporarily removes velocity ramps for testing with mechaduino...
 
 //    long micros2 = micros();
 //    Serial.println(micros2 - micros1);
@@ -252,17 +258,18 @@ void encoder_isr() {
 
 void getStartLimit(){
 
-  noInterrupts();
+//  noInterrupts();
 
   stepperDelayInd = 0; // start at lowest velocity
   
   // find start limit
   while (digitalRead(startLimitPin)){
     takeStep(-1, slowSpeedMultiplier);
+    delay(16/microStepping);
   }
   stepperTicks = 0;
 
-  interrupts();
+//  interrupts();
   
 }
 
@@ -270,17 +277,18 @@ void getStartLimit(){
 
 void getEndLimit(){
 
-  noInterrupts();
+//  noInterrupts();
 
   stepperDelayInd = 0; // start at lowest velocity
 
   // find stop limit
   while (digitalRead(stopLimitPin)){
     takeStep(1, slowSpeedMultiplier);
+    delay(16/microStepping);
   }
   stepperStopPosition = stepperTicks - endPositionBuffer;
 
-  interrupts();
+//  interrupts();
   
 }
 

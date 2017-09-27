@@ -65,7 +65,7 @@ void setup()        // This code runs once at startup
 
   // this is an outrageous hack // after resetting the arduino the SPI reading from encoder seems to yield the last measurement BEFORE restarting, so the loop below sortof clears the buffer (or something?!)
   // i also moved setupTCInterrupts() further down so the control loop doesn't kick in until r is properly set
-  for (int i=0; i<2; i++){
+  for (int i=0; i<10; i++){
     r = lookup[readEncoder()];
   }
   

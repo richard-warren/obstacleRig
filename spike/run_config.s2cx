@@ -1,18 +1,18 @@
 <CEDResources>
 	<DocTime>
 		<View>
-			<WPlace flags="2" showc="3" minx="-1" miny="-1" maxx="-8" maxy="-31" t="0" b="428" l="0" r="1916"/>
+			<WPlace flags="2" showc="3" minx="-1" miny="-1" maxx="-8" maxy="-31" t="234" b="832" l="234" r="1864"/>
 			<Font hgt="-11" wid="0" esc="0" or="0" wgt="400" itl="0" und="0" so="0" cset="0" oupre="0" clpre="0" qual="0" paf="16" fnam="Times New Roman"/>
 			<Chan Chan="30" DMode="9" DTrig="-1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" FreqAxMax="2" ChType="5"/>
 			<Chan Chan="5" DMode="10" DTrig="-1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" FreqAxMax="2000" ChType="4"/>
 			<Chan Chan="7" DMode="10" DTrig="-1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" FreqAxMax="20000" ChType="4"/>
-			<Chan Chan="6" DMode="6" DWidth="0.99999999999999989" DHLine="1" DRise="1" DSubMd="2" Vis="1" Ax="1" AxMin="0" AxMax="1034.3591550206481" AdcAxMax="1" FreqAxMax="1034.3591550206481" AxType="2" ChType="4" PenWidth="2"/>
+			<Chan Chan="6" DMode="6" DWidth="0.49999999999999994" DHLine="1" DRise="1" DSubMd="2" Vis="1" Ax="1" AxMin="0" AxMax="1034.3591550206481" AdcAxMax="1" FreqAxMax="1034.3591550206481" AxType="2" ChType="4" PenWidth="2"/>
 			<Chan Chan="1" DMode="9" DWidth="0.99999999999999989" DDSize="9" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" CWeight="4.6428571428571432" ChType="3"/>
 			<Chan Chan="2" DMode="10" DTrig="-1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" FreqAxMax="2000" ChType="4"/>
 			<Chan Chan="4" DMode="10" DTrig="-1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" FreqAxMax="200" ChType="4"/>
-			<Chan Chan="0" DMode="10" DTrig="-1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" FreqAxMax="20000" ChType="3"/>
+			<Chan Chan="0" DMode="6" DWidth="0.49999999999999994" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="1" AxMin="0" AxMax="20000" AdcAxMax="1" FreqAxMax="20000" AxType="2" ChType="3"/>
 			<Chan Chan="3" DMode="10" DTrig="-1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" FreqAxMax="20000" ChType="4"/>
-			<XInfo Left="93.092197563216672" Right="209.60061433577289" XAxSmall="5" VCLabMode="2" HCLabMode="1" VCCount="3">
+			<XInfo Left="48.668721100440912" Right="395.40968738412693" XAxSmall="5" VCLabMode="2" HCLabMode="1" VCCount="3">
 				<VCur id="0" Pos="2.7816959987046719" LabMode="2" LabPos="0.20000000000000001" Num="0" Chan="0" LabStr="" AMode="0"/>
 				<VCur id="1" Pos="0" LabMode="2" LabPos="0.20000000000000001" Num="1" Chan="0" LabStr="" AMode="0"/>
 				<VCur id="2" Pos="3749.5242269470723" LabMode="2" LabPos="0.20000000000000001" Num="2" Chan="0" LabStr="" AMode="0"/>
@@ -35,7 +35,7 @@
 		</View>
 	</DocTime>
 	<Sample S2Ver="718" ARange="5">
-		<!--Sampling configuration saved to C:\Users\sawtell\Desktop\github\obstacleRig\spike\run_config.s2cx on Friday, September 15, 2017 2:57:43 PM-->
+		<!--Sampling configuration saved to C:\Users\sawtell\Desktop\github\obstacleRig\spike\run_config.s2cx on Tuesday, September 26, 2017 6:49:09 PM-->
 		<Chans Chans="32" BigFile="0" IdealWMRate="20000" DigMode="0">
 			<Chan id="0" Type="3" Title="step" Port="4" Traces="0" Rate="10000" ActRate="100" Comment="" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
 			<Chan id="1" Type="3" Title="reward" Port="2" Traces="0" Rate="50" ActRate="100" Comment="water reward" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
@@ -205,6 +205,6 @@
 		<SampSta t="43" b="0" l="791" r="2"/>
 	</Sample>
 	<App>
-		<WPlace flags="2" showc="3" minx="-1" miny="-1" maxx="-1" maxy="-1" t="40" b="798" l="101" r="993"/>
+		<WPlace flags="2" showc="3" minx="-32000" miny="-32000" maxx="-1" maxy="-1" t="40" b="798" l="101" r="993"/>
 	</App>
 </CEDResources>
