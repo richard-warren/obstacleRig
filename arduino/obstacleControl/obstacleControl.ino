@@ -21,12 +21,12 @@ volatile float rewardRotations = 8;
 const int microStepping = 16; // only (1/microStepping) steps per pulse // this should correspond to the setting on the stepper motor driver, which is set by 3 digital inputs
 const int endPositionBuffer = 50 * microStepping; // motor stops endPositionBuffer steps before the beginning and end of the track
 const int waterDuration = 80; // milliseconds
-const int maxStepperRPS = 10;
+const int maxStepperRPS = 12;
 const int motorSteps = 200;
 const int encoderSteps = 2880; // 720cpr * 4
 const float timingPulleyRad = 15.2789; // mm
 const float wheelRad = 95.25;
-int obstacleLocations[] = {2*encoderSteps, 4*encoderSteps, 6*encoderSteps, rewardRotations*encoderSteps*20}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
+int obstacleLocations[] = {1.5*encoderSteps, 4.0*encoderSteps, 6.5*encoderSteps, rewardRotations*encoderSteps*20}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
 volatile float slowSpeedMultiplier = .4;
 
 // initializations
@@ -47,6 +47,7 @@ volatile bool obstacleEngaged = false;
 volatile float stepperDelayInd = 0;
 volatile int pulseDuration;
 volatile int stepDelay;
+const int faultyStepperTics = 25000; // if stepper has taken more than this many steps it is porbably frozen, and software will re-calibrate
 
 
 
@@ -91,12 +92,7 @@ void setup() {
 //  Serial.println(stepperDelays[speedLookupLength-1]);;
   
   // initialize track limits and move to starting position
-  getStartLimit();
-  getEndLimit();
-  getStartLimit();
-  stepperDelayInd = 0;
-  takeStep(stepperStartPosition, slowSpeedMultiplier); // move back to stepperStartPosition
-  digitalWrite(motorOffPin, HIGH);
+  initializeLimits();
 }
 
 
@@ -131,7 +127,7 @@ void loop(){
     digitalWrite(obstaclePin, LOW);
     obstacleInd++;
     
-    // !!! this is an attempt to 'reset' the motor before going home to solve the freezing that often occurs at this point
+    // reset the stepper driver before going home, which prevents the driver from freezing due to fast de-acceleration at the end of the track
     digitalWrite(motorOffPin, HIGH); // disengage stepper motor driver
     delay(50);
     digitalWrite(motorOffPin, LOW);
@@ -231,6 +227,25 @@ void takeStep(int stepsToTake, float speedMultiplier){
   }
 
   stepperTicks += stepsToTake;
+
+  // check that the motor is not going way off the fucking rails (ie the stepper driver has stalled)
+  if (abs(stepperTicks) > faultyStepperTics){
+
+    // reset stepper driver
+    digitalWrite(motorOffPin, HIGH); // disengage stepper motor driver
+    delay(50);
+    digitalWrite(motorOffPin, LOW);
+
+    // recalibrate track and reset parameters
+    initializeLimits();
+    noInterrupts();
+    wheelTicks = 0;
+    obstacleInd = 0;
+    interrupts();
+//    
+    Serial.println("stepper driver has been reset...");
+  }
+  
 }
 
 
@@ -252,7 +267,7 @@ void encoder_isr() {
 
 void getStartLimit(){
 
-  noInterrupts();
+//  noInterrupts();
 
   stepperDelayInd = 0; // start at lowest velocity
   
@@ -262,7 +277,7 @@ void getStartLimit(){
   }
   stepperTicks = 0;
 
-  interrupts();
+//  interrupts();
   
 }
 
@@ -270,7 +285,7 @@ void getStartLimit(){
 
 void getEndLimit(){
 
-  noInterrupts();
+//  noInterrupts();
 
   stepperDelayInd = 0; // start at lowest velocity
 
@@ -280,7 +295,23 @@ void getEndLimit(){
   }
   stepperStopPosition = stepperTicks - endPositionBuffer;
 
-  interrupts();
+//  faultyStepperTics = round(stepperStopPosition * 1.25); // if the the stepper has taken more than this amnount of steps then it has almost certainly frozen, and we can resest the stepper driver by toggling the enable pin
+//  Serial.println(faultyStepperTics);
+
+//  interrupts();
+  
+}
+
+
+
+void initializeLimits(){
+
+  getStartLimit();
+  getEndLimit();
+  getStartLimit();
+  stepperDelayInd = 0; // start at lowest velocity
+  takeStep(stepperStartPosition, slowSpeedMultiplier); // move back to stepperStartPosition
+  digitalWrite(motorOffPin, HIGH);
   
 }
 
