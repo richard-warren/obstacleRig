@@ -11,9 +11,9 @@ const int touchReceivePin = 4;
 const int isTouchingPin = 13;
 
 // user settings
-const int baselineLng = 20; // s, the amount of time to compute moving median for baseline subtraction
+const int baselineLng = 30; // s, the amount of time to compute moving median for baseline subtraction
 const int sensorSmps = 2;
-const int touchThresh = 500;
+const int touchThresh = 50;
 const int maxMeasurementTime = 100; // ms, capacitive touch reading times out after 100ms
 const int medianSmps = 100;
 const int maxTouchMeasurement = 32767; // constain to fit in an int
@@ -63,6 +63,7 @@ void loop(){
 
     // subtract running median and scale
     touchMeasurement = constrain((touchMeasurement - currentBaseline) / sensorSmps, 0, maxTouchMeasurement);
+//    touchMeasurement = constrain((touchMeasurement) / sensorSmps, 0, maxTouchMeasurement);
   
     // write isTouching pin HIGH if threshold crossed
     digitalWrite(isTouchingPin, (touchMeasurement > touchThresh));

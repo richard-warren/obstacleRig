@@ -10,7 +10,7 @@ const int obstaclePin = 13; // signals whether the obstacle is engaged... this i
 const int motorOffPin = 8; // turns on stepper motor driver
 const int startLimitPin = 9; // signal is LOW when engaged
 const int stopLimitPin = 10; // signal is LOW when engaged
-const int servoSwingTime = 0; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
+const int servoSwingTime = 300; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
 
 // other user settings
 volatile int state = 2; // 1: no platform movement, no obstaacles, 2: platform movement, no obstacles, 3: platform movement and obstacles
@@ -113,6 +113,8 @@ void loop(){
       
       if ((state==2) || (state==3)){
         obstacleEngaged = true;
+//        delay(servoSwingTime);
+//        noInterrupts(); delay(servoSwingTime); interrupts();
         digitalWrite(motorOffPin, LOW); // engages stepper motor driver
         stepperDelayInd = 0; // start at lowest velocity
       }
@@ -231,19 +233,27 @@ void takeStep(int stepsToTake, float speedMultiplier){
   // check that the motor is not going way off the fucking rails (ie the stepper driver has stalled)
   if (abs(stepperTicks) > faultyStepperTics){
 
+    interrupts();
+    
+    Serial.println("stepper driver is resetting...");
+    delay(500);
+    
     // reset stepper driver
     digitalWrite(motorOffPin, HIGH); // disengage stepper motor driver
     delay(50);
     digitalWrite(motorOffPin, LOW);
 
+    noInterrupts();
+
     // recalibrate track and reset parameters
     initializeLimits();
+    
     noInterrupts();
     wheelTicks = 0;
     obstacleInd = 0;
     interrupts();
 //    
-    Serial.println("stepper driver has been reset...");
+    
   }
   
 }
@@ -267,7 +277,7 @@ void encoder_isr() {
 
 void getStartLimit(){
 
-//  noInterrupts();
+  noInterrupts();
 
   stepperDelayInd = 0; // start at lowest velocity
   
@@ -277,7 +287,7 @@ void getStartLimit(){
   }
   stepperTicks = 0;
 
-//  interrupts();
+  interrupts();
   
 }
 
@@ -285,7 +295,7 @@ void getStartLimit(){
 
 void getEndLimit(){
 
-//  noInterrupts();
+  noInterrupts();
 
   stepperDelayInd = 0; // start at lowest velocity
 
@@ -298,7 +308,7 @@ void getEndLimit(){
 //  faultyStepperTics = round(stepperStopPosition * 1.25); // if the the stepper has taken more than this amnount of steps then it has almost certainly frozen, and we can resest the stepper driver by toggling the enable pin
 //  Serial.println(faultyStepperTics);
 
-//  interrupts();
+  interrupts();
   
 }
 
