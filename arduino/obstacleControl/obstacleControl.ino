@@ -10,6 +10,7 @@ const int obstaclePin = 13; // signals whether the obstacle is engaged... this i
 const int motorOffPin = 8; // turns on stepper motor driver
 const int startLimitPin = 9; // signal is LOW when engaged
 const int stopLimitPin = 10; // signal is LOW when engaged
+const int obsLightPin = 2;   // controls when the light for the obstacle turns on
 const int servoSwingTime = 300; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
 
 // other user settings
@@ -63,12 +64,14 @@ void setup() {
   pinMode(obstaclePin, OUTPUT);
   pinMode(startLimitPin, INPUT_PULLUP);
   pinMode(stopLimitPin, INPUT_PULLUP);
+  pinMode(obsLightPin, OUTPUT);
   
   digitalWrite(stepPin, LOW);
   digitalWrite(stepDirPin, stepDir);
   digitalWrite(waterPin, LOW);
   digitalWrite(motorOffPin, LOW);
   digitalWrite(obstaclePin, LOW);
+  digitalWrite(obsLightPin, LOW);
 
   // initialize encoder hhardware interrupt
   attachInterrupt(digitalPinToInterrupt(encoderPinA), encoder_isr, CHANGE);
@@ -113,20 +116,20 @@ void loop(){
       
       if ((state==2) || (state==3)){
         obstacleEngaged = true;
-//        delay(servoSwingTime);
-//        noInterrupts(); delay(servoSwingTime); interrupts();
         digitalWrite(motorOffPin, LOW); // engages stepper motor driver
         stepperDelayInd = 0; // start at lowest velocity
       }
       
       if (state==3){
         digitalWrite(obstaclePin, HIGH); // engages servo motor
+        digitalWrite(obsLightPin, HIGH);
       }
     }
   // disengage:
   }else if (stepperTicks >= stepperStopPosition){
     obstacleEngaged = false;
     digitalWrite(obstaclePin, LOW);
+    digitalWrite(obsLightPin, LOW);
     obstacleInd++;
     
     // reset the stepper driver before going home, which prevents the driver from freezing due to fast de-acceleration at the end of the track
@@ -140,6 +143,9 @@ void loop(){
     stepperDelayInd = 0;
     takeStep(stepperStartPosition, slowSpeedMultiplier);
     digitalWrite(motorOffPin, HIGH); // disengage stepper motor driver
+    if (state==3){
+      digitalWrite(obstaclePin, HIGH);
+    }
   }
      
 
