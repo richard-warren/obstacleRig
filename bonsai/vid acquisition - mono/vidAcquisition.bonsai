@@ -70,6 +70,9 @@ def process(value):
           <q1:ResizeInterpolation>NearestNeighbor</q1:ResizeInterpolation>
         </Combinator>
       </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Source.Metadata.embeddedTimeStamp</Selector>
+      </Expression>
     </Nodes>
     <Edges>
       <Edge>
@@ -103,6 +106,11 @@ def process(value):
         <Label>Source1</Label>
       </Edge>
       <Edge>
+        <From>4</From>
+        <To>11</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
         <From>5</From>
         <To>8</To>
         <Label>Source2</Label>
@@ -121,6 +129,11 @@ def process(value):
         <From>8</From>
         <To>9</To>
         <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>11</From>
+        <To>8</To>
+        <Label>Source3</Label>
       </Edge>
     </Edges>
   </Workflow>
