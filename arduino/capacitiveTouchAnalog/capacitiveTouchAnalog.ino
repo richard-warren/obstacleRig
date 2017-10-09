@@ -36,6 +36,8 @@ void setup(){
   // initialize DAC
   dac.begin(0x62);
   dac.setVoltage(0, true);
+
+//  Serial.begin(115200);
   
 }
 
@@ -65,6 +67,8 @@ void loop(){
     digitalWrite(isTouchingPin, LOW);
   }
   delayMicroseconds(100);
+
+//  Serial.println(touchMeasurement);
 }
 
 
