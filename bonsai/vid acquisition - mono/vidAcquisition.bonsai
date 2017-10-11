@@ -55,21 +55,6 @@ def process(value):
         <q4:Suffix>None</q4:Suffix>
         <q4:IncludeHeader>false</q4:IncludeHeader>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="q1:VideoWriter">
-          <q1:FileName>E:\bonsaiVid\runAll.avi</q1:FileName>
-          <q1:Suffix>None</q1:Suffix>
-          <q1:Buffered>true</q1:Buffered>
-          <q1:Overwrite>true</q1:Overwrite>
-          <q1:FourCC>FMP4</q1:FourCC>
-          <q1:FrameRate>250</q1:FrameRate>
-          <q1:FrameSize>
-            <q1:Width>0</q1:Width>
-            <q1:Height>0</q1:Height>
-          </q1:FrameSize>
-          <q1:ResizeInterpolation>NearestNeighbor</q1:ResizeInterpolation>
-        </Combinator>
-      </Expression>
       <Expression xsi:type="MemberSelector">
         <Selector>Source.Metadata.embeddedTimeStamp</Selector>
       </Expression>
@@ -78,11 +63,6 @@ def process(value):
       <Edge>
         <From>0</From>
         <To>1</To>
-        <Label>Source1</Label>
-      </Edge>
-      <Edge>
-        <From>0</From>
-        <To>10</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
@@ -107,7 +87,7 @@ def process(value):
       </Edge>
       <Edge>
         <From>4</From>
-        <To>11</To>
+        <To>10</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
@@ -131,7 +111,7 @@ def process(value):
         <Label>Source1</Label>
       </Edge>
       <Edge>
-        <From>11</From>
+        <From>10</From>
         <To>8</To>
         <Label>Source3</Label>
       </Edge>
@@ -145,6 +125,5 @@ def process(value):
     <Type>Bonsai.Reactive.Timestamp, Bonsai.Core, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Reactive.Zip, Bonsai.Core, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.IO.CsvWriter, Bonsai.System, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Vision.VideoWriter, Bonsai.Vision, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
   </ExtensionTypes>
 </WorkflowBuilder>

@@ -63,6 +63,7 @@ void loop(){
   // set isTouchingPin 
   if (touchMeasurement>touchThresh){
     digitalWrite(isTouchingPin, HIGH);
+    delay(500);
   }else{
     digitalWrite(isTouchingPin, LOW);
   }
