@@ -3,9 +3,6 @@
 #include <CapacitiveSensor.h>
 Adafruit_MCP4725 dac;
 
-// note: this touch sensor using a running median calculation to measure and subtract baseline
-// the capacitive touch library disables interrupts, so I can't use timer interrupts to properly
-// printing the values to the serial port will approximately double the time of the loop, so length of baseline measurement will double while printing to serial port unfortunately
 
 // pin assignments
 const int touchSendPin = 3;
@@ -37,7 +34,7 @@ void setup(){
   dac.begin(0x62);
   dac.setVoltage(0, true);
 
-//  Serial.begin(115200);
+  Serial.begin(115200);
   
 }
 
@@ -63,13 +60,12 @@ void loop(){
   // set isTouchingPin 
   if (touchMeasurement>touchThresh){
     digitalWrite(isTouchingPin, HIGH);
-    delay(500);
   }else{
     digitalWrite(isTouchingPin, LOW);
   }
   delayMicroseconds(100);
 
-//  Serial.println(touchMeasurement);
+  Serial.println(touchMeasurement);
 }
 
 

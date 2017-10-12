@@ -188,9 +188,11 @@ void loop(){
         break;
       case 2:
         state = userInput;
+        digitalWrite(obstaclePin, HIGH);
         break;
       case 3:
         state = userInput;
+        digitalWrite(obstaclePin, HIGH);
         break;
       // enter reward rotation number
       case 4:
