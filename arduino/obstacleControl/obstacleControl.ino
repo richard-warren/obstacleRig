@@ -18,16 +18,16 @@ volatile int state = 2; // 1: no platform movement, no obstaacles, 2: platform m
 const int speedLookupLength = 100;
 const float rampResolution = .2; // < 1, smaller values are longer ramps
 volatile int stepperDelays[speedLookupLength];
-volatile float rewardRotations = 8;
+volatile float rewardRotations = 10;
 const int microStepping = 16; // only (1/microStepping) steps per pulse // this should correspond to the setting on the stepper motor driver, which is set by 3 digital inputs
-const int endPositionBuffer = 50 * microStepping; // motor stops endPositionBuffer steps before the beginning and end of the track
+const int endPositionBuffer = 75 * microStepping; // motor stops endPositionBuffer steps before the beginning and end of the track
 const int waterDuration = 80; // milliseconds
 const int maxStepperRPS = 12;
 const int motorSteps = 200;
 const int encoderSteps = 2880; // 720cpr * 4
 const float timingPulleyRad = 15.2789; // mm
 const float wheelRad = 95.25;
-int obstacleLocations[] = {1.5*encoderSteps, 4.0*encoderSteps, 6.5*encoderSteps, rewardRotations*encoderSteps*20}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
+int obstacleLocations[] = {2.5*encoderSteps, 5.0*encoderSteps, 7.5*encoderSteps, rewardRotations*encoderSteps*20}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
 volatile float slowSpeedMultiplier = .4;
 
 // initializations
@@ -37,7 +37,7 @@ volatile int wheelTicks = 0;
 volatile int wheelTicksTemp = 0; // this variable temporarily copies wheelTicks in the main code to avoid having to access it multiple times, potentially colliding with its access in the interrupt
 volatile int obstacleInd = 0; // keeps track of which obstacle is being delivered for each reward trial
 volatile int stepperTicks = 0;
-const int stepperStartPosition = endPositionBuffer;
+const int stepperStartPosition = 25 * microStepping;
 volatile int stepperStopPosition; // value to be determined by call to initializeLimits in setup()
 volatile int targetStepperTicks = stepperStartPosition;
 volatile int stepsToTake = 0; // when driving the motor, stepsToTake is how many motor ticks required to get to target position
@@ -141,11 +141,11 @@ void loop(){
     delay(servoSwingTime); // delay before returning the platform to avoid whacking the mouse in the butt
     getStartLimit();
     stepperDelayInd = 0;
-    takeStep(stepperStartPosition, slowSpeedMultiplier);
-    digitalWrite(motorOffPin, HIGH); // disengage stepper motor driver
     if (state==3){
       digitalWrite(obstaclePin, HIGH);
     }
+    takeStep(stepperStartPosition, slowSpeedMultiplier);
+    digitalWrite(motorOffPin, HIGH); // disengage stepper motor driver
   }
      
 
@@ -312,9 +312,6 @@ void getEndLimit(){
     takeStep(1, slowSpeedMultiplier);
   }
   stepperStopPosition = stepperTicks - endPositionBuffer;
-
-//  faultyStepperTics = round(stepperStopPosition * 1.25); // if the the stepper has taken more than this amnount of steps then it has almost certainly frozen, and we can resest the stepper driver by toggling the enable pin
-//  Serial.println(faultyStepperTics);
 
 //  interrupts();
   
