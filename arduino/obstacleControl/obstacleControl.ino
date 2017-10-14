@@ -285,7 +285,7 @@ void encoder_isr() {
 
 void getStartLimit(){
 
-  noInterrupts();
+//  noInterrupts();
 
   stepperDelayInd = 0; // start at lowest velocity
   
@@ -295,7 +295,7 @@ void getStartLimit(){
   }
   stepperTicks = 0;
 
-  interrupts();
+//  interrupts();
   
 }
 
@@ -303,7 +303,7 @@ void getStartLimit(){
 
 void getEndLimit(){
 
-  noInterrupts();
+//  noInterrupts();
 
   stepperDelayInd = 0; // start at lowest velocity
 
@@ -316,7 +316,7 @@ void getEndLimit(){
 //  faultyStepperTics = round(stepperStopPosition * 1.25); // if the the stepper has taken more than this amnount of steps then it has almost certainly frozen, and we can resest the stepper driver by toggling the enable pin
 //  Serial.println(faultyStepperTics);
 
-  interrupts();
+//  interrupts();
   
 }
 
