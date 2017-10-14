@@ -37,7 +37,7 @@ volatile int wheelTicks = 0;
 volatile int wheelTicksTemp = 0; // this variable temporarily copies wheelTicks in the main code to avoid having to access it multiple times, potentially colliding with its access in the interrupt
 volatile int obstacleInd = 0; // keeps track of which obstacle is being delivered for each reward trial
 volatile int stepperTicks = 0;
-const int stepperStartPosition = 25 * microStepping;
+const int stepperStartPosition = 50 * microStepping;
 volatile int stepperStopPosition; // value to be determined by call to initializeLimits in setup()
 volatile int targetStepperTicks = stepperStartPosition;
 volatile int stepsToTake = 0; // when driving the motor, stepsToTake is how many motor ticks required to get to target position
