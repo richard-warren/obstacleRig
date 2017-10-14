@@ -18,7 +18,7 @@ volatile int state = 2; // 1: no platform movement, no obstaacles, 2: platform m
 const int speedLookupLength = 100;
 const float rampResolution = .2; // < 1, smaller values are longer ramps
 volatile int stepperDelays[speedLookupLength];
-volatile float rewardRotations = 10;
+volatile float rewardRotations = 9;
 const int microStepping = 16; // only (1/microStepping) steps per pulse // this should correspond to the setting on the stepper motor driver, which is set by 3 digital inputs
 const int endPositionBuffer = 75 * microStepping; // motor stops endPositionBuffer steps before the beginning and end of the track
 const int waterDuration = 80; // milliseconds
@@ -27,7 +27,7 @@ const int motorSteps = 200;
 const int encoderSteps = 2880; // 720cpr * 4
 const float timingPulleyRad = 15.2789; // mm
 const float wheelRad = 95.25;
-int obstacleLocations[] = {2.5*encoderSteps, 5.0*encoderSteps, 7.5*encoderSteps, rewardRotations*encoderSteps*20}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
+int obstacleLocations[] = {1.5*encoderSteps, 4.5*encoderSteps, 7.5*encoderSteps, rewardRotations*encoderSteps*20}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
 volatile float slowSpeedMultiplier = .4;
 
 // initializations
