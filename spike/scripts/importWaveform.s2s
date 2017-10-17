@@ -1,0 +1,65 @@
+'IMPORTS TEXT FILES OF WAVEFORMS INTO SPIKE2.
+'each line of file is a single floating point value.
+'Armen Enikolopov DEC 9 2015
+
+'Addition, June? 2016: can scale wave by arbitrary factor
+'Addition Aug 2016: can specify other parameters by via popup window 
+
+var dac% := 0;             'what DAC it should come from
+var rate := 200000;        ' sampling rate 
+var key$ := "x";           'key press to associate it with
+var label$ := "imported";  'label/name
+
+
+
+var data[1]; 
+var th%;
+var dir$;
+var fn$;
+var line$;
+var numlines%;
+var i%;
+var j%; 
+
+var test%;
+
+
+dir$ := "C:\\Users\\sawtell\\Desktop\\github\\obstacleRig\\matlab";
+numlines% := 0; 
+
+th% := FileOpen("",8,0,"Select a text file");
+fn$ := FileName$(); 
+if (th% > 0) then
+    while Read(line$) >= 0 do
+        numlines% := numlines% + 1; 
+    wend; 
+    resize data[numlines%]; 'resize data to be the right length; 
+    FileClose();
+    
+    th% := FileOpen(fn$,8,0,"Select a text file");    
+    for i%:=0 to len(data[])-1 do    
+        Read(data[i%]); ' write 
+        'printlog(data[i%]);
+        
+        'printlog("\n");
+    next;
+    FileClose();
+else
+    Message("couldn't open file!");
+    printlog("couldn't open file! " + dir$ + fn$);
+endif; 
+dac% := Input("Play from DAC#: ",dac%,0,4);
+rate := Input("Sampling rate (Hz): ", rate,1,10000000);
+key$ := Input$("bind to which key: ",key$,1);
+label$ := Input$("Waveform label/name: ",label$,8);
+
+var scale := Input("Scaling factor",1.0,0.001,1000,15);
+
+ArrMul(data,scale);
+test% := PlayWaveAdd(key$,label$,dac%,rate,data);
+if test%<0 then
+    Message("Failed to import, error: %d",test%);
+else
+    Message("Successfully imported."); 
+endif;
+

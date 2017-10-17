@@ -1,0 +1,10 @@
+fs = 200000;
+length = 1;
+ampPeakPeak = 15;
+
+
+noise = rand(1, fs*length) * ampPeakPeak;
+noise = noise - (ampPeakPeak/2);
+
+dlmwrite(['C:\Users\sawtell\Desktop\github\obstacleRig\matlab\noiseFs' num2str(fs) 'Length '.txt'], sequence', 'delimiter', '\t');
+disp(['sequence length: ' num2str(length(sequence))])
