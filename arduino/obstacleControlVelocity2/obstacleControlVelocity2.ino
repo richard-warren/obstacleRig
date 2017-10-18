@@ -1,5 +1,5 @@
 // OBSTACLE CONTROL
-
+#include <RunningMedian.h>
 
 
 // pin assignments
@@ -18,14 +18,15 @@
 // user settings
 volatile int state = 2; // 1: no platform movement, no obstaacles, 2: platform movement, no obstacles, 3: platform movement and obstacles
 const int servoSwingTime = 300; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
-const int lookUpSteps = 800; // velocity increments linearly up to maxStepper speed // higher values means velocity increases for longer period of time
+const int lookUpSteps = 600; // velocity increments linearly up to maxStepper speed // higher values means velocity increases for longer period of time
 volatile float rewardRotations = 9.01;
-const int startPositionMm = 10;
+const int startPositionMm = 5;
 const int endPositionMm = 25;
 const int waterDuration = 80; // milliseconds
 const double maxStepperSpeed = 1.5; // (m/s)
-volatile float callibrationSpeed = .4; // speed with motor moves plastform during callibration (m/s)
+volatile float callibrationSpeed = .45; // speed with motor moves plastform during callibration (m/s)
 const float obstacleLocations[] = {1.5, 4.5, 7.5, rewardRotations*20}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
+const int velocitySamples = 10; // each sample last about 500 microseconds
 
 
 // rig characteristics
@@ -65,7 +66,7 @@ volatile int callibrationDelay; // tbd in setup
 volatile int startingWheelTics = 0;
 volatile int startingStepperTics = 0;
 volatile int obstacleLocationSteps[sizeof(obstacleLocations)];
-
+RunningMedian deltaMicroSmps = RunningMedian(5);
 
 
 
@@ -131,8 +132,6 @@ void loop(){
   wheelTicksTemp = wheelTicks;
   interrupts();
 
-
-
   
   // check if obstacle should be engaged or disengaged  
   
@@ -171,13 +170,11 @@ void loop(){
        
 
 
-
   // give water if reward location reached
   if (wheelTicksTemp > rewardPosition){
     giveReward();
   }
   
-
 
   
   // compute and move to target stepper position
@@ -203,7 +200,7 @@ void startTracking(){
   // set motor direction to forward
   digitalWrite(stepDirPin, HIGH);
 
-  targetStepDelay = getMotorDelayFromWheelDelay(deltaMicros);
+  targetStepDelay = getMotorDelayFromWheelDelay(deltaMicroSmps.getAverage());
   stepperDelayInd = 0;
   stepDelay = stepperDelays[0];
 
@@ -223,7 +220,7 @@ void startTracking(){
     stepperTicks++;
 
     // update target delay based on current wheel speed
-    targetStepDelay = getMotorDelayFromWheelDelay(deltaMicros);
+    targetStepDelay = getMotorDelayFromWheelDelay(deltaMicroSmps.getAverage());
   }
 
   // record wheel and motor positions at the start of positional tracking  
@@ -270,7 +267,7 @@ void takeStep(int stepsToTake, int minDelay){
 void encoder_isr() {
     
     currentMicros = micros();
-    deltaMicros = currentMicros - lastMicros;
+    deltaMicroSmps.add(currentMicros - lastMicros);
     lastMicros = currentMicros;
     
     static int8_t lookup_table[] = {0,-1,1,0,1,0,0,-1,-1,0,0,1,0,1,-1,0};
