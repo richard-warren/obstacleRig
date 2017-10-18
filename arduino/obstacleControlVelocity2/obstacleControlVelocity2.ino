@@ -20,10 +20,7 @@
 // other user settings
 const int servoSwingTime = 300; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
 volatile int state = 2; // 1: no platform movement, no obstaacles, 2: platform movement, no obstacles, 3: platform movement and obstacles
-char* conditionNames[] = {"rewards only", "platform, no obstacles", "platform, with obstacles"};
-const int speedLookupLength = 100;
-const float rampResolution = .2; // < 1, smaller values are longer ramps
-volatile int stepperDelays[speedLookupLength];
+const int lookUpSteps = 1000; // velocity increments linearly up to maxStepper speed // higher values means velocity increases for longer period of time
 volatile float rewardRotations = 9.01;
 const int microStepping = 16; // only (1/microStepping) steps per pulse // this should correspond to the setting on the stepper motor driver, which is set by 3 digital inputs
 const int stepperStartPosition = 25 * microStepping;
@@ -41,6 +38,10 @@ int obstacleLocations[] = {1.5*encoderSteps, 4.5*encoderSteps, 7.5*encoderSteps,
 
 
 // initializations
+const int speedLookupLength = 100;
+volatile int stepperDelays[speedLookupLength];
+const double rampResolution = speedLookupLength / double(lookUpSteps);
+char* conditionNames[] = {"rewards only", "platform, no obstacles", "platform, with obstacles"};
 volatile int userInput;
 volatile int wheelTicks = 0;
 volatile int wheelTicksTemp = 0; // this variable temporarily copies wheelTicks in the main code to avoid having to access it multiple times, potentially colliding with its access in the interrupt
@@ -215,8 +216,7 @@ void startTracking(){
     stepperTicks++;
   }
 
-//  stepperDelayInd = speedLookupLength-1; // go back to max speed
-  
+  // record wheel and motor positions at the start of positional tracking  
   noInterrupts();
   wheelTicksTemp = wheelTicks;
   interrupts();
