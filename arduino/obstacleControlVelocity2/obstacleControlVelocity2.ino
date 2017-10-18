@@ -29,20 +29,19 @@ const int microStepping = 16; // only (1/microStepping) steps per pulse // this 
 const int stepperStartPosition = 25 * microStepping;
 const int endPositionBuffer = 75 * microStepping; // motor stops endPositionBuffer steps before the beginning and end of the track
 const int waterDuration = 80; // milliseconds
-const int maxStepperRPS = 12;
+const double maxStepperSpeed = 1.25; // (m/s)
+volatile float callibrationSpeed = .3; // speed with motor moves plastform during callibration (m/s)
 const int motorSteps = 200;
 const int encoderSteps = 2880; // 720cpr * 4
-const float timingPulleyRad = 15.2789; // mm
-const float wheelRad = 95.25;
+const double timingPulleyRad = 15.2789; // (mm)
+const double wheelRad = 95.25; // (m)
 int obstacleLocations[] = {1.5*encoderSteps, 4.5*encoderSteps, 7.5*encoderSteps, rewardRotations*encoderSteps*20}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
-volatile float slowSpeedMultiplier = .4;
 
 
 
 
 // initializations
 volatile int userInput;
-const long maxStepperSpeed = maxStepperRPS * 200 * long(microStepping);
 volatile int wheelTicks = 0;
 volatile int wheelTicksTemp = 0; // this variable temporarily copies wheelTicks in the main code to avoid having to access it multiple times, potentially colliding with its access in the interrupt
 volatile int obstacleInd = 0; // keeps track of which obstacle is being delivered for each reward trial
@@ -52,18 +51,18 @@ volatile int targetStepperTicks = stepperStartPosition;
 volatile int stepsToTake = 0; // when driving the motor, stepsToTake is how many motor ticks required to get to target position
 volatile int rewardPosition = rewardRotations * encoderSteps; // expressed in wheelTicks
 const double conversionFactor = (wheelRad / timingPulleyRad) * (float(motorSteps) / encoderSteps) * microStepping; // this converts from analogRead reading of wheel encoder to desired number of steps in stepper driver
-const double delayConversionFactor = ((2*PI*timingPulleyRad) / (motorSteps*microStepping)) / ((2*PI*wheelRad) / encoderSteps); // multiply time interval between wheel encoder tics by this to get interval between stepper tics that gives the same velocity
 volatile bool stepDir = HIGH;
 volatile bool obstacleEngaged = false;
 volatile float stepperDelayInd = 0;
-volatile int pulseDuration;
 volatile int stepDelay;
 const int faultyStepperTics = 25000; // if stepper has taken more than this many steps it is porbably frozen, and software will re-calibrate
 volatile long currentMicros = 0;
 volatile long lastMicros = 0;
 volatile int deltaMicros = 0;
 volatile int targetStepDelay = 0;
-volatile int forgivenSteps = 0;
+volatile int callibrationDelay; // tbd in setup
+volatile int startingWheelTics = 0;
+volatile int startingStepperTics = 0;
 
 
 
@@ -93,18 +92,18 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(encoderPinB), encoder_isr, CHANGE);
 
   
-  // initialize lookup table for stepper speeds
-  for (int i=0; i<speedLookupLength; i++){
-    long tempSpeed = (i+1) * (maxStepperSpeed / speedLookupLength);
-    stepperDelays[i] = (pow(10, 6) / tempSpeed) / 2;
-  }
-  pulseDuration = stepperDelays[speedLookupLength];
-
-  
   // begin serial communication
   Serial.begin(115200);
   printMenuAndSettings();
   
+  
+  // initialize lookup table for stepper speeds
+  for (int i=0; i<speedLookupLength; i++){
+    float tempSpeed = (i+1) * (maxStepperSpeed / speedLookupLength);
+    stepperDelays[i] = getMotorDelayFromSpeed(tempSpeed);
+  }
+  callibrationDelay = getMotorDelayFromSpeed(callibrationSpeed);
+   
   
   // initialize track limits and move to starting position
   initializeLimits();
@@ -175,12 +174,14 @@ void loop(){
   
   // compute and move to target stepper position
   if (obstacleEngaged){
-    targetStepperTicks = ((wheelTicksTemp - obstacleLocations[obstacleInd]) * conversionFactor)  + stepperStartPosition - forgivenSteps;
+    
+    targetStepperTicks = ((wheelTicksTemp - startingWheelTics) * conversionFactor) + startingStepperTics;
     targetStepperTicks = constrain(targetStepperTicks, stepperStartPosition, stepperStopPosition);
 
     stepsToTake = targetStepperTicks - stepperTicks;
+    
     if (stepsToTake!=0){
-      takeStep(stepsToTake, 1);
+      takeStep(stepsToTake, stepperDelays[speedLookupLength-1]);
     }
   }
 }
@@ -194,9 +195,9 @@ void startTracking(){
   // set motor direction to forward
   digitalWrite(stepDirPin, HIGH);
 
-  targetStepDelay = deltaMicros * delayConversionFactor;
-  stepDelay = stepperDelays[0];
+  targetStepDelay = getMotorDelayFromWheelDelay(deltaMicros);
   stepperDelayInd = 0;
+  stepDelay = stepperDelays[0];
 
   while (stepDelay >= targetStepDelay){
     
@@ -211,21 +212,23 @@ void startTracking(){
     delayMicroseconds(stepDelay);
     digitalWrite(stepPin, LOW);
     delayMicroseconds(stepDelay);
+    stepperTicks++;
   }
 
-  // set the current position to the target position
+//  stepperDelayInd = speedLookupLength-1; // go back to max speed
+  
   noInterrupts();
   wheelTicksTemp = wheelTicks;
   interrupts();
-  targetStepperTicks = ((wheelTicksTemp - obstacleLocations[obstacleInd]) * conversionFactor)  + stepperStartPosition;
-  forgivenSteps = targetStepperTicks - stepperTicks;
+  startingWheelTics = wheelTicksTemp;
+  startingStepperTics = stepperTicks;
 }
 
 
 
 
 // move stepper one step in stepDirection
-void takeStep(int stepsToTake, float speedMultiplier){
+void takeStep(int stepsToTake, int minDelay){
 
   // set motor direction
   digitalWrite(stepDirPin, (stepsToTake>0));
@@ -238,7 +241,7 @@ void takeStep(int stepsToTake, float speedMultiplier){
     stepperDelayInd = min(stepperDelayInd + rampResolution, speedLookupLength-1);
 
     // get speed index
-    stepDelay = stepperDelays[round(stepperDelayInd)] / speedMultiplier;
+    stepDelay = max(stepperDelays[round(stepperDelayInd)], minDelay);
 
     // take step
     digitalWrite(stepPin, HIGH);
@@ -294,7 +297,7 @@ void getStartLimit(){
   
   // find start limit
   while (digitalRead(startLimitPin)){
-    takeStep(-1, slowSpeedMultiplier);
+    takeStep(-1, callibrationDelay);
   }
   stepperTicks = 0;
   
@@ -308,7 +311,7 @@ void getEndLimit(){
 
   // find stop limit
   while (digitalRead(stopLimitPin)){
-    takeStep(1, slowSpeedMultiplier);
+    takeStep(1, callibrationDelay);
   }
   stepperStopPosition = stepperTicks - endPositionBuffer;
 
@@ -322,7 +325,7 @@ void initializeLimits(){
   getEndLimit();
   getStartLimit();
   stepperDelayInd = 0; // start at lowest velocity
-  takeStep(stepperStartPosition, slowSpeedMultiplier); // move back to stepperStartPosition
+  takeStep(stepperStartPosition, callibrationDelay); // move back to stepperStartPosition
   digitalWrite(motorOffPin, HIGH);
   
 }
@@ -346,7 +349,7 @@ void recalibrateLimits(){
 
   // return to starting position
   stepperDelayInd = 0; // start at lowest velocity
-  takeStep(stepperStartPosition, slowSpeedMultiplier);
+  takeStep(stepperStartPosition, callibrationDelay);
   digitalWrite(motorOffPin, HIGH); // disengage stepper motor driver
   
 }
@@ -444,4 +447,25 @@ void giveReward(){
     digitalWrite(waterPin, LOW);
 
 }
+
+
+
+
+long getMotorDelayFromSpeed(float motorSpeed){
+
+    long ticsPerSecond = motorSpeed * (motorSteps*microStepping* 1000) / (2*PI*timingPulleyRad);
+    int microSecondsPerTic = (1 / (ticsPerSecond / pow(10,6))) / 2;
+    return microSecondsPerTic;
+
+}
+
+
+
+int getMotorDelayFromWheelDelay(int wheelDelay){
+
+  double conversionFactor = ((2*PI*timingPulleyRad) / (motorSteps*microStepping)) / ((2*PI*wheelRad) / encoderSteps); // ratio (mm/step) for motor and wheel
+  return (wheelDelay * conversionFactor) / 2;
+  
+}
+
 
