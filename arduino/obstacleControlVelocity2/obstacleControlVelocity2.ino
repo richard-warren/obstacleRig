@@ -26,6 +26,7 @@ const float rampResolution = .2; // < 1, smaller values are longer ramps
 volatile int stepperDelays[speedLookupLength];
 volatile float rewardRotations = 9.01;
 const int microStepping = 16; // only (1/microStepping) steps per pulse // this should correspond to the setting on the stepper motor driver, which is set by 3 digital inputs
+const int stepperStartPosition = 25 * microStepping;
 const int endPositionBuffer = 75 * microStepping; // motor stops endPositionBuffer steps before the beginning and end of the track
 const int waterDuration = 80; // milliseconds
 const int maxStepperRPS = 12;
@@ -46,7 +47,6 @@ volatile int wheelTicks = 0;
 volatile int wheelTicksTemp = 0; // this variable temporarily copies wheelTicks in the main code to avoid having to access it multiple times, potentially colliding with its access in the interrupt
 volatile int obstacleInd = 0; // keeps track of which obstacle is being delivered for each reward trial
 volatile int stepperTicks = 0;
-const int stepperStartPosition = 50 * microStepping;
 volatile int stepperStopPosition; // value to be determined by call to initializeLimits in setup()
 volatile int targetStepperTicks = stepperStartPosition;
 volatile int stepsToTake = 0; // when driving the motor, stepsToTake is how many motor ticks required to get to target position
@@ -130,60 +130,44 @@ void loop(){
   // check if obstacle should be engaged or disengaged  
   
   // engage:
-  if (!obstacleEngaged){
-    if (wheelTicksTemp >= obstacleLocations[obstacleInd]){
+  if (!obstacleEngaged & (wheelTicksTemp >= obstacleLocations[obstacleInd])){
+
+    switch (state){
       
-      if ((state==2) || (state==3)){
+      // platform, no obstacles
+      case 2:
         obstacleEngaged = true;
         digitalWrite(motorOffPin, LOW); // engages stepper motor driver
-        stepperDelayInd = 0; // start at lowest velocity
         startTracking();
-      }
-      
-      if (state==3){
-        digitalWrite(obstaclePin, HIGH); // engages servo motor
+        break;
+
+      // platform, with obstacles
+      case 3:
+        obstacleEngaged = true;
+        digitalWrite(motorOffPin, LOW); // engages stepper motor driver
         digitalWrite(obsLightPin, HIGH);
+        startTracking();
+        break;
       }
-    }
+  }
   
   // disengage:
-  }else if (stepperTicks >= stepperStopPosition){
+  else if (obstacleEngaged & (stepperTicks >= stepperStopPosition)){
+    
     obstacleEngaged = false;
     digitalWrite(obstaclePin, LOW);
     digitalWrite(obsLightPin, LOW);
     obstacleInd++;
+    recalibrateLimits();
     
-    // reset the stepper driver before going home, which prevents the driver from freezing due to fast de-acceleration at the end of the track
-    digitalWrite(motorOffPin, HIGH); // disengage stepper motor driver
-    delay(50);
-    digitalWrite(motorOffPin, LOW);
-    
-    // return stage to starting position
-    delay(servoSwingTime); // delay before returning the platform to avoid whacking the mouse in the butt
-    getStartLimit();
-    stepperDelayInd = 0;
-    if (state==3){
-      digitalWrite(obstaclePin, HIGH);
-    }
-    takeStep(stepperStartPosition, slowSpeedMultiplier);
-    digitalWrite(motorOffPin, HIGH); // disengage stepper motor driver
   }
+       
 
-     
 
 
   // give water if reward location reached
   if (wheelTicksTemp > rewardPosition){
-    wheelTicksTemp = 0;
-    noInterrupts();
-    wheelTicks = 0;
-    interrupts();
-
-    obstacleInd = 0;
-    digitalWrite(waterPin, HIGH);
-    delay(waterDuration);
-    digitalWrite(waterPin, LOW);
-
+    giveReward();
   }
   
 
@@ -207,11 +191,12 @@ void loop(){
 // move stepper one step in stepDirection
 void startTracking(){
 
-  // set motor direction
+  // set motor direction to forward
   digitalWrite(stepDirPin, HIGH);
 
   targetStepDelay = deltaMicros * delayConversionFactor;
   stepDelay = stepperDelays[0];
+  stepperDelayInd = 0;
 
   while (stepDelay >= targetStepDelay){
     
@@ -265,29 +250,20 @@ void takeStep(int stepsToTake, float speedMultiplier){
   stepperTicks += stepsToTake;
 
   // check that the motor is not going way off the fucking rails (ie the stepper driver has stalled)
-  if (abs(stepperTicks) > faultyStepperTics){
-
-    interrupts();
-    
-    Serial.println("stepper driver is resetting...");
-    delay(500);
-    
-    // reset stepper driver
-    digitalWrite(motorOffPin, HIGH); // disengage stepper motor driver
-    delay(50);
-    digitalWrite(motorOffPin, LOW);
-
-    noInterrupts();
-
-    // recalibrate track and reset parameters
-    initializeLimits();
-    
-    noInterrupts();
-    wheelTicks = 0;
-    obstacleInd = 0;
-    interrupts();   
-    
-  }
+//  if (abs(stepperTicks) > faultyStepperTics){
+//
+//    Serial.println("stepper driver is resetting...");
+//    delay(500);
+//    resetStepperDriver(); // reset stepper driver
+//
+//    // recalibrate track and reset parameters
+//    initializeLimits();
+//    
+//    noInterrupts();
+//    wheelTicks = 0;
+//    obstacleInd = 0;
+//    interrupts();
+//  }
 }
 
 
@@ -348,6 +324,30 @@ void initializeLimits(){
   stepperDelayInd = 0; // start at lowest velocity
   takeStep(stepperStartPosition, slowSpeedMultiplier); // move back to stepperStartPosition
   digitalWrite(motorOffPin, HIGH);
+  
+}
+
+
+
+
+void recalibrateLimits(){
+
+  // reset stepper motor driver
+  digitalWrite(motorOffPin, HIGH);
+  delay(50);
+  digitalWrite(motorOffPin, LOW);
+
+  // return to beginning of track
+  delay(servoSwingTime); // delay before returning the platform to avoid whacking the mouse in the butt
+  getStartLimit();
+  if (state==3){
+    digitalWrite(obstaclePin, HIGH);
+  }
+
+  // return to starting position
+  stepperDelayInd = 0; // start at lowest velocity
+  takeStep(stepperStartPosition, slowSpeedMultiplier);
+  digitalWrite(motorOffPin, HIGH); // disengage stepper motor driver
   
 }
 
@@ -425,5 +425,23 @@ void getUserInput(){
         break;
     }
   }
+}
+
+
+
+
+void giveReward(){
+  
+    wheelTicksTemp = 0;
+    
+    noInterrupts();
+    wheelTicks = 0;
+    interrupts();
+
+    obstacleInd = 0;
+    digitalWrite(waterPin, HIGH);
+    delay(waterDuration);
+    digitalWrite(waterPin, LOW);
+
 }
 
