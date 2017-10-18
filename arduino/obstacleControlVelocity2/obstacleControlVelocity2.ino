@@ -15,29 +15,30 @@
 #define obsLightPin     2    // controls when the light for the obstacle turns on
 
 
-
-
-// other user settings
-const int servoSwingTime = 300; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
+// user settings
 volatile int state = 2; // 1: no platform movement, no obstaacles, 2: platform movement, no obstacles, 3: platform movement and obstacles
-const int lookUpSteps = 1000; // velocity increments linearly up to maxStepper speed // higher values means velocity increases for longer period of time
+const int servoSwingTime = 300; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
+const int lookUpSteps = 800; // velocity increments linearly up to maxStepper speed // higher values means velocity increases for longer period of time
 volatile float rewardRotations = 9.01;
-const int microStepping = 16; // only (1/microStepping) steps per pulse // this should correspond to the setting on the stepper motor driver, which is set by 3 digital inputs
-const int stepperStartPosition = 25 * microStepping;
-const int endPositionBuffer = 75 * microStepping; // motor stops endPositionBuffer steps before the beginning and end of the track
+const int startPositionMm = 10;
+const int endPositionMm = 25;
 const int waterDuration = 80; // milliseconds
-const double maxStepperSpeed = 1.25; // (m/s)
-volatile float callibrationSpeed = .3; // speed with motor moves plastform during callibration (m/s)
+const double maxStepperSpeed = 1.5; // (m/s)
+volatile float callibrationSpeed = .4; // speed with motor moves plastform during callibration (m/s)
+const float obstacleLocations[] = {1.5, 4.5, 7.5, rewardRotations*20}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
+
+
+// rig characteristics
+const int microStepping = 16; // only (1/microStepping) steps per pulse // this should correspond to the setting on the stepper motor driver, which is set by 3 digital inputs
 const int motorSteps = 200;
 const int encoderSteps = 2880; // 720cpr * 4
 const double timingPulleyRad = 15.2789; // (mm)
 const double wheelRad = 95.25; // (m)
-int obstacleLocations[] = {1.5*encoderSteps, 4.5*encoderSteps, 7.5*encoderSteps, rewardRotations*encoderSteps*20}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
-
-
 
 
 // initializations
+const int startPositionBuffer = startPositionMm * ((motorSteps*microStepping) / (2*PI*timingPulleyRad));
+const int endPositionBuffer = endPositionMm  * ((motorSteps*microStepping) / (2*PI*timingPulleyRad));; // motor stops endPositionBuffer steps before the beginning and end of the track
 const int speedLookupLength = 100;
 volatile int stepperDelays[speedLookupLength];
 const double rampResolution = speedLookupLength / double(lookUpSteps);
@@ -48,7 +49,7 @@ volatile int wheelTicksTemp = 0; // this variable temporarily copies wheelTicks 
 volatile int obstacleInd = 0; // keeps track of which obstacle is being delivered for each reward trial
 volatile int stepperTicks = 0;
 volatile int stepperStopPosition; // value to be determined by call to initializeLimits in setup()
-volatile int targetStepperTicks = stepperStartPosition;
+volatile int targetStepperTicks = startPositionBuffer;
 volatile int stepsToTake = 0; // when driving the motor, stepsToTake is how many motor ticks required to get to target position
 volatile int rewardPosition = rewardRotations * encoderSteps; // expressed in wheelTicks
 const double conversionFactor = (wheelRad / timingPulleyRad) * (float(motorSteps) / encoderSteps) * microStepping; // this converts from analogRead reading of wheel encoder to desired number of steps in stepper driver
@@ -56,7 +57,6 @@ volatile bool stepDir = HIGH;
 volatile bool obstacleEngaged = false;
 volatile float stepperDelayInd = 0;
 volatile int stepDelay;
-const int faultyStepperTics = 25000; // if stepper has taken more than this many steps it is porbably frozen, and software will re-calibrate
 volatile long currentMicros = 0;
 volatile long lastMicros = 0;
 volatile int deltaMicros = 0;
@@ -64,6 +64,7 @@ volatile int targetStepDelay = 0;
 volatile int callibrationDelay; // tbd in setup
 volatile int startingWheelTics = 0;
 volatile int startingStepperTics = 0;
+volatile int obstacleLocationSteps[sizeof(obstacleLocations)];
 
 
 
@@ -104,6 +105,12 @@ void setup() {
     stepperDelays[i] = getMotorDelayFromSpeed(tempSpeed);
   }
   callibrationDelay = getMotorDelayFromSpeed(callibrationSpeed);
+
+  
+  // initialize locations of obstacles
+  for (int i=0; i<sizeof(obstacleLocations); i++){
+    obstacleLocationSteps[i] = obstacleLocations[i] * encoderSteps;
+  }
    
   
   // initialize track limits and move to starting position
@@ -130,7 +137,7 @@ void loop(){
   // check if obstacle should be engaged or disengaged  
   
   // engage:
-  if (!obstacleEngaged & (wheelTicksTemp >= obstacleLocations[obstacleInd])){
+  if (!obstacleEngaged & (wheelTicksTemp >= obstacleLocationSteps[obstacleInd])){
 
     switch (state){
       
@@ -177,7 +184,7 @@ void loop(){
   if (obstacleEngaged){
     
     targetStepperTicks = ((wheelTicksTemp - startingWheelTics) * conversionFactor) + startingStepperTics;
-    targetStepperTicks = constrain(targetStepperTicks, stepperStartPosition, stepperStopPosition);
+    targetStepperTicks = constrain(targetStepperTicks, startPositionBuffer, stepperStopPosition);
 
     stepsToTake = targetStepperTicks - stepperTicks;
     
@@ -214,6 +221,9 @@ void startTracking(){
     digitalWrite(stepPin, LOW);
     delayMicroseconds(stepDelay);
     stepperTicks++;
+
+    // update target delay based on current wheel speed
+    targetStepDelay = getMotorDelayFromWheelDelay(deltaMicros);
   }
 
   // record wheel and motor positions at the start of positional tracking  
@@ -251,22 +261,6 @@ void takeStep(int stepsToTake, int minDelay){
   }
 
   stepperTicks += stepsToTake;
-
-  // check that the motor is not going way off the fucking rails (ie the stepper driver has stalled)
-//  if (abs(stepperTicks) > faultyStepperTics){
-//
-//    Serial.println("stepper driver is resetting...");
-//    delay(500);
-//    resetStepperDriver(); // reset stepper driver
-//
-//    // recalibrate track and reset parameters
-//    initializeLimits();
-//    
-//    noInterrupts();
-//    wheelTicks = 0;
-//    obstacleInd = 0;
-//    interrupts();
-//  }
 }
 
 
@@ -325,7 +319,7 @@ void initializeLimits(){
   getEndLimit();
   getStartLimit();
   stepperDelayInd = 0; // start at lowest velocity
-  takeStep(stepperStartPosition, callibrationDelay); // move back to stepperStartPosition
+  takeStep(startPositionBuffer, callibrationDelay); // move back to startPositionBuffer
   digitalWrite(motorOffPin, HIGH);
   
 }
@@ -349,7 +343,7 @@ void recalibrateLimits(){
 
   // return to starting position
   stepperDelayInd = 0; // start at lowest velocity
-  takeStep(stepperStartPosition, callibrationDelay);
+  takeStep(startPositionBuffer, callibrationDelay);
   digitalWrite(motorOffPin, HIGH); // disengage stepper motor driver
   
 }
@@ -463,7 +457,7 @@ long getMotorDelayFromSpeed(float motorSpeed){
 
 int getMotorDelayFromWheelDelay(int wheelDelay){
 
-  double conversionFactor = ((2*PI*timingPulleyRad) / (motorSteps*microStepping)) / ((2*PI*wheelRad) / encoderSteps); // ratio (mm/step) for motor and wheel
+  static double conversionFactor = ((2*PI*timingPulleyRad) / (motorSteps*microStepping)) / ((2*PI*wheelRad) / encoderSteps); // ratio (mm/step) for motor and wheel
   return (wheelDelay * conversionFactor) / 2;
   
 }
