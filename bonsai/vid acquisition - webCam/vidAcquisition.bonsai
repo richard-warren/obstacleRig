@@ -102,6 +102,9 @@ def process(value):
           <q1:CaptureProperties />
         </Combinator>
       </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Source.Timestamp.Millisecond</Selector>
+      </Expression>
     </Nodes>
     <Edges>
       <Edge>
@@ -166,7 +169,7 @@ def process(value):
       </Edge>
       <Edge>
         <From>14</From>
-        <To>12</To>
+        <To>17</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
@@ -182,6 +185,11 @@ def process(value):
       <Edge>
         <From>16</From>
         <To>14</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>17</From>
+        <To>12</To>
         <Label>Source1</Label>
       </Edge>
     </Edges>
