@@ -27,6 +27,7 @@ const double maxStepperSpeed = 1.5; // (m/s)
 volatile float callibrationSpeed = .45; // speed with motor moves plastform during callibration (m/s)
 const float obstacleLocations[] = {1.5, 4.5, 7.5, rewardRotations*20}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
 const int velocitySamples = 10; // each sample last about 500 microseconds
+const int obsPosJitter[] = {-10, 10}; // jitter range for the onset position of obstacles (mm)
 
 
 // rig characteristics
@@ -66,6 +67,7 @@ volatile int callibrationDelay; // tbd in setup
 volatile int startingWheelTics = 0;
 volatile int startingStepperTics = 0;
 volatile int obstacleLocationSteps[sizeof(obstacleLocations)];
+volatile int obsPos; // position of obstacle, in wheel tics, on a given trial
 RunningMedian deltaMicroSmps = RunningMedian(5);
 
 
@@ -88,6 +90,10 @@ void setup() {
   digitalWrite(motorOffPin, LOW);
   digitalWrite(obstaclePin, LOW);
   digitalWrite(obsLightPin, LOW);
+
+
+  // initialiez random seed
+  randomSeed(analogRead(0));
   
 
   // initialize encoder hardware interrupt
@@ -112,6 +118,7 @@ void setup() {
   for (int i=0; i<sizeof(obstacleLocations); i++){
     obstacleLocationSteps[i] = obstacleLocations[i] * encoderSteps;
   }
+  obsPos = getObsPos(0); // get first position
    
   
   // initialize track limits and move to starting position
@@ -136,7 +143,7 @@ void loop(){
   // check if obstacle should be engaged or disengaged  
   
   // engage:
-  if (!obstacleEngaged & (wheelTicksTemp >= obstacleLocationSteps[obstacleInd])){
+  if (!obstacleEngaged & (wheelTicksTemp >= obsPos)){
 
     switch (state){
       
@@ -164,6 +171,7 @@ void loop(){
     digitalWrite(obstaclePin, LOW);
     digitalWrite(obsLightPin, LOW);
     obstacleInd++;
+    obsPos = getObsPos(obstacleInd);
     recalibrateLimits();
     
   }
@@ -433,6 +441,7 @@ void giveReward(){
     interrupts();
 
     obstacleInd = 0;
+    obsPos = getObsPos(obstacleInd);
     digitalWrite(waterPin, HIGH);
     delay(waterDuration);
     digitalWrite(waterPin, LOW);
@@ -458,5 +467,16 @@ int getMotorDelayFromWheelDelay(int wheelDelay){
   return (wheelDelay * conversionFactor) / 2;
   
 }
+
+
+
+int getObsPos(int index){
+
+  static double ticsPerMm = (encoderSteps / (2*PI*wheelRad));
+  return obstacleLocationSteps[index] + random(obsPosJitter[0]*ticsPerMm, obsPosJitter[1]*ticsPerMm); // initialize first position)
+
+}
+
+
 
 
