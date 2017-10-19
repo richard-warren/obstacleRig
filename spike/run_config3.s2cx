@@ -39,7 +39,7 @@
 		</View>
 	</DocTime>
 	<Sample S2Ver="718" ARange="5">
-		<!--Sampling configuration saved to C:\Users\sawtell\Desktop\github\obstacleRig\spike\run_config3.s2cx on Thursday, October 19, 2017 1:57:43 PM-->
+		<!--Sampling configuration saved to C:\Users\sawtell\Desktop\github\obstacleRig\spike\run_config3.s2cx on Thursday, October 19, 2017 2:27:18 PM-->
 		<Chans Chans="32" BigFile="0" IdealWMRate="20000" DigMode="0">
 			<Chan id="0" Type="3" Title="step" Port="4" Traces="0" Rate="10000" ActRate="100" Comment="" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0.0099999997764825821" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
 			<Chan id="1" Type="4" Title="obEncodA" Port="2" Traces="0" Rate="10000" ActRate="100" Comment="quadrature output channel A for rotary encoder on obstacle platform" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
@@ -49,12 +49,13 @@
 			<Chan id="5" Type="3" Title="exposure" Port="5" Traces="0" Rate="10000" ActRate="100" Comment="" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0.10000000149011612" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
 			<Chan id="6" Type="4" Title="whEncodA" Port="0" Traces="0" Rate="10000" ActRate="100" Comment="" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
 			<Chan id="7" Type="4" Title="whEncodB" Port="1" Traces="0" Rate="10000" ActRate="100" Comment="" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
-			<Chan id="8" Type="1" Title="reward" Port="3" Traces="0" Rate="1000" ActRate="1000" Comment="" Units="" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="2" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
-			<Chan id="9" Type="1" Title="touch" Port="2" Traces="0" Rate="1000" ActRate="1000" Comment="" Units="V" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="2" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
+			<Chan id="8" Type="1" Title="reward" Port="3" Traces="0" Rate="1000" ActRate="1000" Comment="" Units="" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="4" AType="1" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
+			<Chan id="9" Type="1" Title="touch" Port="2" Traces="0" Rate="1000" ActRate="1000" Comment="" Units="V" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="4" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
+			<Chan id="10" Type="1" Title="obsLight" Port="0" Traces="0" Rate="1000" ActRate="1000" Comment="on when obstacle light is turned on... realy a digital channel" Units="" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="4" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
 			<Chan id="30" Type="5" Title="Keyboard" Port="0" Traces="0" Rate="1" ActRate="100" Comment="No comment" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
 			<Chan id="31" Type="5" Title="breaks" Port="0" Traces="0" Rate="50" ActRate="100" Comment="record times of wheel breaks" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
 		</Chans>
-		<Resol uspt="2" tpa="250" recalc="0" Assume1401="8" TenMHz="0" OptMeth="1" OptUSFrom="2" OptUSTo="50" GrpRates="1" QuickDum="0" CompFlgs="0" Burst="0"/>
+		<Resol uspt="2" tpa="125" recalc="0" Assume1401="8" TenMHz="0" OptMeth="1" OptUSFrom="2" OptUSTo="50" GrpRates="1" QuickDum="0" CompFlgs="0" Burst="0"/>
 		<Mode Mode="0" For="30" ForUn="1" Every="120" EveryUn="1">
 			<Trigs id="0" Chan="30" Code="-1" Pre="0" Post="1" Chans="-1" Mask="0" List=""/>
 			<Trigs id="1" Chan="-4" Code="-1" Pre="0" Post="1" Chans="-1" Mask="0" List=""/>

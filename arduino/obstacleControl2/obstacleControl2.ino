@@ -13,6 +13,7 @@
 #define startLimitPin   9    // signal is LOW when engaged
 #define stopLimitPin    10   // signal is LOW when engaged
 #define obsLightPin     2    // controls when the light for the obstacle turns on
+#define obsOnPin        3    // when the obstacle is engaged in a trial, i.e. tracking the mouse's position
 
 
 // user settings
@@ -29,7 +30,7 @@ const float obstacleLocations[] = {1.5, 4.5, 7.5, rewardRotations*20}; // expres
 const int velocitySamples = 10; // each sample last about 500 microseconds
 const int obsPosJitter[] = {-100, 100}; // jitter range for the onset position of obstacles (mm)
 const int startPosJitter = 20; // (mm)
-const float obsLightProbability = 1;
+const float obsLightProbability = .5;
 
 
 // rig characteristics
@@ -85,6 +86,7 @@ void setup() {
   pinMode(startLimitPin, INPUT_PULLUP);
   pinMode(stopLimitPin, INPUT_PULLUP);
   pinMode(obsLightPin, OUTPUT);
+  pinMode(obsOnPin, OUTPUT);
   
   digitalWrite(stepPin, LOW);
   digitalWrite(stepDirPin, stepDir);
@@ -92,6 +94,7 @@ void setup() {
   digitalWrite(motorOffPin, LOW);
   digitalWrite(obstaclePin, LOW);
   digitalWrite(obsLightPin, LOW);
+  digitalWrite(obsOnPin, LOW);
 
 
   // initialiez random seed
@@ -160,6 +163,7 @@ void loop(){
       case 3:
         obstacleEngaged = true;
         digitalWrite(motorOffPin, LOW); // engages stepper motor driver
+        digitalWrite(obsOnPin, HIGH);
         startTracking();
         break;
       }
@@ -171,6 +175,7 @@ void loop(){
     obstacleEngaged = false;
     digitalWrite(obstaclePin, LOW);
     digitalWrite(obsLightPin, LOW);
+    digitalWrite(obsOnPin, LOW);
     obstacleInd++;
     setObsPos(obstacleInd);
     recalibrateLimits();
