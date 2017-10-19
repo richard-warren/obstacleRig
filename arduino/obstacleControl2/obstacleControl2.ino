@@ -17,7 +17,7 @@
 
 
 // user settings
-volatile int state = 2; // 1: no platform movement, no obstaacles, 2: platform movement, no obstacles, 3: platform movement and obstacles
+volatile int state = 1; // 1: no platform movement, no obstaacles, 2: platform movement, no obstacles, 3: platform movement and obstacles
 const int servoSwingTime = 300; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
 const int lookUpSteps = 800; // velocity increments linearly up to maxStepper speed // higher values means velocity increases for longer period of time
 volatile float rewardRotations = 9.01;
@@ -423,6 +423,15 @@ void getUserInput(){
         state = userInput;
         printMenuAndSettings();
         digitalWrite(obstaclePin, HIGH);
+
+        // reset wheel ticks
+        noInterrupts();
+        wheelTicks = 0;
+        interrupts();
+
+        // prepare first obstacle position
+        obstacleInd = 0;
+        obsPos = setObsPos(obstacleInd);
         break;
         
       // enter reward rotation number
