@@ -105,6 +105,9 @@ def process(value):
       <Expression xsi:type="MemberSelector">
         <Selector>Source.Timestamp.Millisecond</Selector>
       </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="Sample" />
+      </Expression>
     </Nodes>
     <Edges>
       <Edge>
@@ -148,6 +151,11 @@ def process(value):
         <Label>Source1</Label>
       </Edge>
       <Edge>
+        <From>6</From>
+        <To>18</To>
+        <Label>Source2</Label>
+      </Edge>
+      <Edge>
         <From>7</From>
         <To>8</To>
         <Label>Source1</Label>
@@ -179,17 +187,22 @@ def process(value):
       </Edge>
       <Edge>
         <From>16</From>
-        <To>15</To>
-        <Label>Source1</Label>
-      </Edge>
-      <Edge>
-        <From>16</From>
-        <To>14</To>
+        <To>18</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
         <From>17</From>
         <To>12</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>18</From>
+        <To>15</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>18</From>
+        <To>14</To>
         <Label>Source1</Label>
       </Edge>
     </Edges>
@@ -206,5 +219,6 @@ def process(value):
     <Type>Bonsai.Vision.Grayscale, Bonsai.Vision, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Vision.Crop, Bonsai.Vision, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Vision.CameraCapture, Bonsai.Vision, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.Sample, Bonsai.Core, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
   </ExtensionTypes>
 </WorkflowBuilder>
