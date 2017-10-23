@@ -18,14 +18,14 @@
 
 // user settings
 volatile int state = 1; // 1: no platform movement, no obstaacles, 2: platform movement, no obstacles, 3: platform movement and obstacles
-const int servoSwingTime = 300; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
+const int servoSwingTime = 200; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
 const int lookUpSteps = 800; // velocity increments linearly up to maxStepper speed // higher values means velocity increases for longer period of time
 volatile float rewardRotations = 9.01;
 const int startPositionMm = 5;
 const int endPositionMm = 25;
 const int waterDuration = 80; // milliseconds
 const double maxStepperSpeed = 1.5; // (m/s)
-volatile float callibrationSpeed = .5; // speed with motor moves plastform during callibration (m/s)
+volatile float callibrationSpeed = .6; // speed with motor moves plastform during callibration (m/s)
 const float obstacleLocations[] = {1.5, 4.5, 7.5, rewardRotations*20}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
 const int velocitySamples = 10; // each sample last about 500 microseconds
 const int obsPosJitter[] = {-100, 100}; // jitter range for the onset position of obstacles (mm)
