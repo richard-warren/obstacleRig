@@ -10,8 +10,8 @@ const int vidTtlPin = 13;
 
 
 // user settings
-const float engagedPosition =  63; // smaller numbers aim more towards stepper motor
-const int disengagedPosition = engagedPosition + 45 + 10;
+const float engagedPosition =  11; // smaller numbers aim more towards stepper motor
+const int disengagedPosition = 90;
 const int pwmMin = 553;
 const int pwmMax = 2450;
 const int vidTtlPulseDuration = 1;   // ms

@@ -30,7 +30,7 @@ const float obstacleLocations[] = {1.5, 4.5, 7.5, rewardRotations*20}; // expres
 const int velocitySamples = 10; // each sample last about 500 microseconds
 const int obsPosJitter[] = {-100, 100}; // jitter range for the onset position of obstacles (mm)
 const int startPosJitter = 20; // (mm)
-const float obsLightProbability = .75;
+const float obsLightProbability = 0;
 
 
 // rig characteristics
@@ -246,7 +246,7 @@ void startTracking(){
 
   // turn on obstacle light
   if (state==3){
-    if(random(0,100) <= obsLightProbability*100){
+    if(random(0,100) <= obsLightProbability*100.0){
       digitalWrite(obsLightPin, HIGH);
     }
   }
