@@ -27,7 +27,7 @@ from Bonsai.IO import PathHelper, PathSuffix
 filename = 'E:\\bonsaiVid\\runTop.mp4'
 
 def process(value):
-  os.system(r'ffmpeg -f rawvideo -vcodec rawvideo -y -s 416x456 -r 250 -pix_fmt gray -i \\.\pipe\video -vcodec mpeg4 -pix_fmt yuv420p -vb 2M -filter:v "crop=396:170:15:16" E:\\bonsaiVid\\runTop.mp4 -vcodec mpeg4 -pix_fmt yuv420p -vb 2M -filter:v "crop=396:222:15:219" E:\\bonsaiVid\\runBot.mp4')</q2:Script>
+  os.system(r'ffmpeg -f rawvideo -vcodec rawvideo -y -s 416x456 -r 250 -pix_fmt gray -i \\.\pipe\video -vcodec mpeg4 -pix_fmt yuv420p -vb 2M -filter:v "crop=396:180:15:3" E:\\bonsaiVid\\runTop.mp4 -vcodec mpeg4 -pix_fmt yuv420p -vb 2M -filter:v "crop=396:238:15:214" E:\\bonsaiVid\\runBot.mp4')</q2:Script>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="q3:FlyCapture">
@@ -108,31 +108,11 @@ def process(value):
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="Sample" />
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="q1:VideoWriter">
-          <q1:FileName>test.avi</q1:FileName>
-          <q1:Suffix>None</q1:Suffix>
-          <q1:Buffered>true</q1:Buffered>
-          <q1:Overwrite>false</q1:Overwrite>
-          <q1:FourCC>FMP4</q1:FourCC>
-          <q1:FrameRate>25</q1:FrameRate>
-          <q1:FrameSize>
-            <q1:Width>0</q1:Width>
-            <q1:Height>0</q1:Height>
-          </q1:FrameSize>
-          <q1:ResizeInterpolation>NearestNeighbor</q1:ResizeInterpolation>
-        </Combinator>
-      </Expression>
     </Nodes>
     <Edges>
       <Edge>
         <From>0</From>
         <To>1</To>
-        <Label>Source1</Label>
-      </Edge>
-      <Edge>
-        <From>0</From>
-        <To>19</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
