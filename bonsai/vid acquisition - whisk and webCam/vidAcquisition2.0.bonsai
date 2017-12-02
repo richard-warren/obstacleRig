@@ -59,18 +59,10 @@ def process(value):
         <Selector>Source.Metadata.embeddedTimeStamp</Selector>
       </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="q1:VideoWriter">
-          <q1:FileName>E:\bonsaiVid\webCam.avi</q1:FileName>
+        <Combinator xsi:type="q1:ImageWriter">
+          <q1:Path>\\.\pipe\video3</q1:Path>
           <q1:Suffix>None</q1:Suffix>
-          <q1:Buffered>true</q1:Buffered>
-          <q1:Overwrite>true</q1:Overwrite>
-          <q1:FourCC>FMP4</q1:FourCC>
-          <q1:FrameRate>30</q1:FrameRate>
-          <q1:FrameSize>
-            <q1:Width>0</q1:Width>
-            <q1:Height>0</q1:Height>
-          </q1:FrameSize>
-          <q1:ResizeInterpolation>NearestNeighbor</q1:ResizeInterpolation>
+          <q1:Overwrite>false</q1:Overwrite>
         </Combinator>
       </Expression>
       <Expression xsi:type="q4:CsvWriter">
@@ -345,7 +337,6 @@ def process(value):
     <Type>Bonsai.Reactive.Timestamp, Bonsai.Core, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Reactive.Zip, Bonsai.Core, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.IO.CsvWriter, Bonsai.System, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Vision.VideoWriter, Bonsai.Vision, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Vision.Grayscale, Bonsai.Vision, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Vision.Crop, Bonsai.Vision, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Vision.CameraCapture, Bonsai.Vision, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
