@@ -108,6 +108,55 @@ def process(value):
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="Sample" />
       </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q3:FlyCapture">
+          <q3:Index>1</q3:Index>
+          <q3:ColorFormat>Bgr</q3:ColorFormat>
+          <q3:ColorProcessing>Default</q3:ColorProcessing>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Source.Image</Selector>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q1:Flip">
+          <q1:Mode>Both</q1:Mode>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="Sample" />
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Source.Metadata.embeddedTimeStamp</Selector>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Source.Metadata.embeddedFrameCounter</Selector>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="Zip" />
+      </Expression>
+      <Expression xsi:type="q4:CsvWriter">
+        <q4:FileName>E:\bonsaiVid\wisk.csv</q4:FileName>
+        <q4:Append>false</q4:Append>
+        <q4:Overwrite>true</q4:Overwrite>
+        <q4:Suffix>None</q4:Suffix>
+        <q4:IncludeHeader>false</q4:IncludeHeader>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q1:VideoWriter">
+          <q1:FileName>E:\bonsaiVid\wisk.avi</q1:FileName>
+          <q1:Suffix>None</q1:Suffix>
+          <q1:Buffered>true</q1:Buffered>
+          <q1:Overwrite>true</q1:Overwrite>
+          <q1:FourCC>FMP4</q1:FourCC>
+          <q1:FrameRate>25</q1:FrameRate>
+          <q1:FrameSize>
+            <q1:Width>0</q1:Width>
+            <q1:Height>0</q1:Height>
+          </q1:FrameSize>
+          <q1:ResizeInterpolation>NearestNeighbor</q1:ResizeInterpolation>
+        </Combinator>
+      </Expression>
     </Nodes>
     <Edges>
       <Edge>
@@ -139,6 +188,11 @@ def process(value):
         <From>4</From>
         <To>10</To>
         <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>4</From>
+        <To>22</To>
+        <Label>Source2</Label>
       </Edge>
       <Edge>
         <From>5</From>
@@ -205,6 +259,51 @@ def process(value):
         <To>14</To>
         <Label>Source1</Label>
       </Edge>
+      <Edge>
+        <From>19</From>
+        <To>22</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>20</From>
+        <To>21</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>21</From>
+        <To>27</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>22</From>
+        <To>20</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>22</From>
+        <To>23</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>22</From>
+        <To>24</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>23</From>
+        <To>25</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>24</From>
+        <To>25</To>
+        <Label>Source2</Label>
+      </Edge>
+      <Edge>
+        <From>25</From>
+        <To>26</To>
+        <Label>Source1</Label>
+      </Edge>
     </Edges>
   </Workflow>
   <ExtensionTypes>
@@ -220,5 +319,6 @@ def process(value):
     <Type>Bonsai.Vision.Crop, Bonsai.Vision, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Vision.CameraCapture, Bonsai.Vision, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Reactive.Sample, Bonsai.Core, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.Flip, Bonsai.Vision, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
   </ExtensionTypes>
 </WorkflowBuilder>
