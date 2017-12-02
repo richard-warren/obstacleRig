@@ -157,6 +157,15 @@ def process(value):
           <q1:ResizeInterpolation>NearestNeighbor</q1:ResizeInterpolation>
         </Combinator>
       </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="Sample" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="Timestamp" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="Sample" />
+      </Expression>
     </Nodes>
     <Edges>
       <Edge>
@@ -195,6 +204,21 @@ def process(value):
         <Label>Source2</Label>
       </Edge>
       <Edge>
+        <From>4</From>
+        <To>18</To>
+        <Label>Source2</Label>
+      </Edge>
+      <Edge>
+        <From>4</From>
+        <To>28</To>
+        <Label>Source2</Label>
+      </Edge>
+      <Edge>
+        <From>4</From>
+        <To>30</To>
+        <Label>Source2</Label>
+      </Edge>
+      <Edge>
         <From>5</From>
         <To>8</To>
         <Label>Source2</Label>
@@ -203,11 +227,6 @@ def process(value):
         <From>6</From>
         <To>7</To>
         <Label>Source1</Label>
-      </Edge>
-      <Edge>
-        <From>6</From>
-        <To>18</To>
-        <Label>Source2</Label>
       </Edge>
       <Edge>
         <From>7</From>
@@ -231,7 +250,7 @@ def process(value):
       </Edge>
       <Edge>
         <From>14</From>
-        <To>17</To>
+        <To>28</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
@@ -245,6 +264,11 @@ def process(value):
         <Label>Source1</Label>
       </Edge>
       <Edge>
+        <From>16</From>
+        <To>14</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
         <From>17</From>
         <To>12</To>
         <Label>Source1</Label>
@@ -255,13 +279,13 @@ def process(value):
         <Label>Source1</Label>
       </Edge>
       <Edge>
-        <From>18</From>
-        <To>14</To>
+        <From>19</From>
+        <To>22</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
         <From>19</From>
-        <To>22</To>
+        <To>29</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
@@ -303,6 +327,21 @@ def process(value):
         <From>25</From>
         <To>26</To>
         <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>28</From>
+        <To>17</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>29</From>
+        <To>30</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>30</From>
+        <To>25</To>
+        <Label>Source3</Label>
       </Edge>
     </Edges>
   </Workflow>
