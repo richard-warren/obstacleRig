@@ -152,12 +152,6 @@ def process(value):
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="Sample" />
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="Timestamp" />
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="Sample" />
-      </Expression>
     </Nodes>
     <Edges>
       <Edge>
@@ -203,11 +197,6 @@ def process(value):
       <Edge>
         <From>4</From>
         <To>28</To>
-        <Label>Source2</Label>
-      </Edge>
-      <Edge>
-        <From>4</From>
-        <To>30</To>
         <Label>Source2</Label>
       </Edge>
       <Edge>
@@ -276,11 +265,6 @@ def process(value):
         <Label>Source1</Label>
       </Edge>
       <Edge>
-        <From>19</From>
-        <To>29</To>
-        <Label>Source1</Label>
-      </Edge>
-      <Edge>
         <From>20</From>
         <To>21</To>
         <Label>Source1</Label>
@@ -324,16 +308,6 @@ def process(value):
         <From>28</From>
         <To>17</To>
         <Label>Source1</Label>
-      </Edge>
-      <Edge>
-        <From>29</From>
-        <To>30</To>
-        <Label>Source1</Label>
-      </Edge>
-      <Edge>
-        <From>30</From>
-        <To>25</To>
-        <Label>Source3</Label>
       </Edge>
     </Edges>
   </Workflow>
