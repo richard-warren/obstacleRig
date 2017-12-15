@@ -121,8 +121,8 @@ function cropFinder
         ys = max(sort(linePosits(3:6)), 1);
         xs = max(sort(linePosits(1:2)), 1);
         disp('crop settings for ffmpeg:')
-        fprintf('top-> %d:%d:%d:%d\n', diff(xs), ys(2)-ys(1), xs(1), ys(1))
-        fprintf('bot-> %d:%d:%d:%d\n', diff(xs), ys(4)-ys(3), xs(1), ys(3))
+        fprintf('top-> %d:%d:%d:%d\n', diff(xs), ys(2)-ys(1) - mod(ys(2)-ys(1),2), xs(1), ys(1))
+        fprintf('bot-> %d:%d:%d:%d\n', diff(xs), ys(4)-ys(3) - mod(ys(4)-ys(3),2), xs(1), ys(3))
         
         isRunning = false;
         save('cropFinderPrevSettings.mat', 'linePosits')

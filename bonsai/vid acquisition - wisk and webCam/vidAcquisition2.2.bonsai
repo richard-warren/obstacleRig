@@ -27,7 +27,7 @@ from Bonsai.IO import PathHelper, PathSuffix
 filename = 'E:\\bonsaiVid\\runTop.mp4'
 
 def process(value):
-  os.system(r'ffmpeg -f rawvideo -vcodec rawvideo -y -s 416x456 -r 250 -pix_fmt gray -i \\.\pipe\video1 -f rawvideo -vcodec rawvideo -y -s 336x280 -r 250 -pix_fmt gray -i \\.\pipe\video2 -map 0 -vcodec mpeg4 -pix_fmt yuv420p -vb 4M -filter:v "crop=396:182:15:3" E:\\bonsaiVid\\runTop.mp4 -vcodec mpeg4 -pix_fmt yuv420p -vb 8M -filter:v "crop=396:230:15:221" E:\\bonsaiVid\\runBot.mp4 -map 1 -vcodec mpeg4 -pix_fmt yuv420p -vb 2M E:\\bonsaiVid\\runWisk.mp4')</q2:Script>
+  os.system(r'ffmpeg -f rawvideo -vcodec rawvideo -y -s 416x456 -r 250 -pix_fmt gray -i \\.\pipe\video1 -f rawvideo -vcodec rawvideo -y -s 336x280 -r 250 -pix_fmt gray -i \\.\pipe\video2 -map 0 -vcodec mpeg4 -pix_fmt yuv420p -vb 4M -filter:v "crop=396:178:15:7" E:\\bonsaiVid\\runTop.mp4 -vcodec mpeg4 -pix_fmt yuv420p -vb 8M -filter:v "crop=396:238:15:216" E:\\bonsaiVid\\runBot.mp4 -map 1 -vcodec mpeg4 -pix_fmt yuv420p -vb 2M E:\\bonsaiVid\\runWisk.mp4')</q2:Script>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="q3:FlyCapture">
