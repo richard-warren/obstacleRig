@@ -6,10 +6,9 @@ const int touchReceivePin = 4;
 const int isTouchingPin = 12;
 
 // user settings
-const int touchThresh = 600;
+const int touchThresh = 525;
 const int sensorSmps = 2;
 const int maxMeasurementTime = 4; // ms, capacitive touch reading times out after maxMeasurementTime
-const int maxTouchMeasurement = 4095; // maximum DAC value
 
 // other initializations
 CapacitiveSensor touchSensor = CapacitiveSensor(touchSendPin, touchReceivePin);
@@ -26,7 +25,7 @@ void setup(){
   // setup touch sensor
   touchSensor.set_CS_Timeout_Millis(maxMeasurementTime);
 
-//  Serial.begin(115200);
+  Serial.begin(115200);
   
 }
 
@@ -39,7 +38,7 @@ void loop(){
 
   // if overflowed, set to max value
   if (touchMeasurement<0){
-    touchMeasurement = maxTouchMeasurement;
+    touchMeasurement = touchThresh+1;
   
   // otherwise normalize by number of sensor samples
   }else{
@@ -54,8 +53,8 @@ void loop(){
     digitalWrite(isTouchingPin, LOW);
   }
 
-//  Serial.println(touchMeasurement);
-//  delay(1);
+  Serial.println(touchMeasurement);
+  delay(1);
 }
 
 
