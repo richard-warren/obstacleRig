@@ -5,11 +5,11 @@ function cropFinder
     % of code for doing the actual analysis that should be removed...
     
     % load video
-    [file, path] = uigetfile('C:\Users\sawtell\Desktop\github\obstacleRig\bonsai\vid acquisition - webCam\*.*', 'Select video file to analyze...');
+    [file, path] = uigetfile('C:\Users\sawtell\Desktop\*.*', 'Select video file to analyze...');
     vid = VideoReader([path file]);
 
     % prepare figure
-    frameInd = 1;
+    frameInd = 1000;
     frame = vid.read(1);
     figure('units', 'normalized', 'position', [0 0 1 1]);
     subplot(1,1,1);
