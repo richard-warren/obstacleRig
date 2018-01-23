@@ -27,7 +27,7 @@ from Bonsai.IO import PathHelper, PathSuffix
 filename = 'E:\\bonsaiVid\\runTop.mp4'
 
 def process(value):
-  os.system(r'ffmpeg -f rawvideo -vcodec rawvideo -y -s 416x456 -r 250 -pix_fmt gray -i \\.\pipe\video1 -f rawvideo -vcodec rawvideo -y -s 336x280 -r 250 -pix_fmt gray -i \\.\pipe\video2 -map 0 -vcodec mpeg4 -pix_fmt yuv420p -vb 4M -filter:v "crop=396:178:15:7" E:\\bonsaiVid\\runTop.mp4 -map 0 -vcodec mpeg4 -pix_fmt yuv420p -vb 6M -filter:v "crop=396:234:15:214" E:\\bonsaiVid\\runBot.mp4 -map 1 -vcodec mpeg4 -pix_fmt yuv420p -vb 6M -vf "lutrgb=y=negval:u=negval:v=negval" E:\\bonsaiVid\\runWisk.mp4')</q2:Script>
+  os.system(r'ffmpeg -f rawvideo -vcodec rawvideo -y -s 416x456 -r 250 -pix_fmt gray -i \\.\pipe\video1 -f rawvideo -vcodec rawvideo -y -s 336x280 -r 250 -pix_fmt gray -i \\.\pipe\video2 -map 0 -vcodec mpeg4 -pix_fmt yuv420p -vb 4M -filter:v "crop=396:172:15:7" E:\\bonsaiVid\\runTop.mp4 -map 0 -vcodec mpeg4 -pix_fmt yuv420p -vb 6M -filter:v "crop=396:230:15:208" E:\\bonsaiVid\\runBot.mp4 -map 1 -vcodec mpeg4 -pix_fmt yuv420p -vb 6M -vf "lutrgb=y=negval:u=negval:v=negval" E:\\bonsaiVid\\runWisk.mp4')</q2:Script>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="q3:FlyCapture">
@@ -149,11 +149,31 @@ def process(value):
       <Expression xsi:type="MemberSelector">
         <Selector>Source.Metadata.embeddedTimeStamp</Selector>
       </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q1:VideoWriter">
+          <q1:FileName>C:\Users\sawtell\Desktop\test.avi</q1:FileName>
+          <q1:Suffix>None</q1:Suffix>
+          <q1:Buffered>true</q1:Buffered>
+          <q1:Overwrite>true</q1:Overwrite>
+          <q1:FourCC>FMP4</q1:FourCC>
+          <q1:FrameRate>30</q1:FrameRate>
+          <q1:FrameSize>
+            <q1:Width>0</q1:Width>
+            <q1:Height>0</q1:Height>
+          </q1:FrameSize>
+          <q1:ResizeInterpolation>NearestNeighbor</q1:ResizeInterpolation>
+        </Combinator>
+      </Expression>
     </Nodes>
     <Edges>
       <Edge>
         <From>0</From>
         <To>1</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>0</From>
+        <To>28</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
