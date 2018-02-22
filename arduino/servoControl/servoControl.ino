@@ -7,10 +7,12 @@ const int servoInputPin = 2; // when this is high the servo is engaged; disengag
 const int rewardInputPin = 3;
 const int servoPin = 8;
 const int vidTtlPin = 13;
+const int servoPowerPin = 12;
 
 
 // user settings
-const float engagedPosition =  13; // smaller numbers aim more towards stepper motor
+const int servoPowerTime = 200; // how many ms to power the motor for when a position change request is made
+const float engagedPosition =  11; // smaller numbers aim more towards stepper motor
 const int disengagedPosition = engagedPosition + 60;
 const int pwmMin = 553;
 const int pwmMax = 2450;
@@ -25,7 +27,9 @@ volatile bool isTtlOn = false;
 volatile bool overHanging = false;
 volatile int vidTtlTimer = 0;
 volatile int overhangTimer = 0;
+volatile int servoPowerTimer = servoPowerTime;
 volatile int serialInput = 0;
+
 Servo obstacleServo;
 
 
@@ -38,11 +42,30 @@ void setup() {
   pinMode(servoInputPin, INPUT);
   pinMode(rewardInputPin, INPUT);
   pinMode(vidTtlPin, OUTPUT);
+  pinMode(servoPowerPin, OUTPUT);
   digitalWrite(vidTtlPin, LOW);
 
+  
   // initialize servo
   obstacleServo.attach(servoPin, pwmMin, pwmMax);
 
+  
+  // initialize hardware interrupts
+  attachInterrupt(digitalPinToInterrupt(servoInputPin), controlServo, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(rewardInputPin), rewardReached, RISING);
+
+  
+  // test obstacle positions
+  digitalWrite(servoPowerPin, HIGH);
+  obstacleServo.write(disengagedPosition);
+  delay(servoPowerTime);
+  obstacleServo.write(engagedPosition);
+  delay(servoPowerTime);
+  obstacleServo.write(disengagedPosition);
+  delay(servoPowerTime);
+  digitalWrite(servoPowerPin, LOW);
+  
+  
   // initialize 1kHz timer0 interrupt
   noInterrupts();
   TCCR0A = 0;// set entire TCCR0A register to 0
@@ -58,17 +81,7 @@ void setup() {
   TIMSK0 |= (1 << OCIE0A);
   interrupts();
   
-  // initialize hardware interrupts
-  attachInterrupt(digitalPinToInterrupt(servoInputPin), controlServo, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(rewardInputPin), rewardReached, RISING);
-
-  // test obstacle positionts
-  obstacleServo.write(disengagedPosition);
-  delay(1000);
-  obstacleServo.write(engagedPosition);
-  delay(1000);
-  obstacleServo.write(disengagedPosition);
-  
+    
   // begin serial communication
   Serial.begin(9600);
   Serial.println("1 = start video ttls");
@@ -103,6 +116,10 @@ void controlServo(){
   
   // read desired obstacle status
   isServoEngaged = digitalRead(servoInputPin);
+
+  // power servo and reset servoPowerTimer
+  digitalWrite(servoPowerPin, HIGH);
+  servoPowerTimer = 0;
 
 
   // set obstacle to desired position
@@ -160,6 +177,19 @@ ISR(TIMER0_COMPA_vect) {
         overHanging = false;
         break;
     }
+  }
+
+
+  // control servo power timer
+  servoPowerTimer++;
+
+  switch (servoPowerTimer){
+    case servoPowerTime:
+      digitalWrite(servoPowerPin, LOW);
+      break;
+    case servoPowerTime+1:
+      servoPowerTimer--;
+      break;  
   }
   
 }
