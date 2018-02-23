@@ -1,25 +1,15 @@
 <CEDResources>
 	<DocTime>
-		<ChanProc Chan="9" Count="2">
-			<p Type="-1" Args="0"/>
-			<p Type="1" Args="1">
-				<a Ty="1" D="0.01"/>
-			</p>
-		</ChanProc>
-		<ChanProc Chan="11" Count="2">
-			<p Type="-1" Args="0"/>
-			<p Type="1" Args="1">
-				<a Ty="1" D="0.01"/>
-			</p>
-		</ChanProc>
+		<VirtChan Chan="0" Int="0.001" Align="0" Scl="1" Ofs="0" Match="9" LastErr="0" Title="Virtual" Units="" Com="" Expr=""/>
 		<View>
-			<WPlace flags="2" showc="3" minx="-1" miny="-1" maxx="-8" maxy="-31" t="182" b="784" l="182" r="1816"/>
+			<WPlace flags="2" showc="3" minx="-1" miny="-1" maxx="-8" maxy="-31" t="46" b="648" l="68" r="1702"/>
 			<Font hgt="-11" wid="0" esc="0" or="0" wgt="400" itl="0" und="0" so="0" cset="0" oupre="0" clpre="0" qual="0" paf="16" fnam="Times New Roman"/>
+			<Chan Chan="700" DMode="11" DSubMd="2" Vis="1" Ax="1" AxMin="-5" AxMax="5" AdcAxMin="-5" AdcAxMax="5" FreqAxMax="250" AxType="1" ChType="9"/>
 			<Chan Chan="31" DMode="9" DTrig="-1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" ChType="5"/>
 			<Chan Chan="30" DMode="9" DTrig="-1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" FreqAxMax="2" ChType="5"/>
 			<Chan Chan="10" DMode="11" DSubMd="2" Vis="1" Ax="1" AxMin="-5" AxMax="5" AdcAxMin="-5" AdcAxMax="5" FreqAxMax="500" AxType="1" CWeight="0.60734463276836159" ChType="1" PriCol="1" PriOv="0"/>
-			<Chan Chan="9" DMode="11" DWidth="1" DBoth="1" DSubMd="2" Vis="1" Ax="1" AxMin="-0.045135498046875" AxMax="0.202606201171875" AdcAxMin="-0.045135498046875" AdcAxMax="0.202606201171875" FreqAxMax="500" AxType="1" ChType="1" PriCol="21" PriOv="33023"/>
-			<Chan Chan="11" DMode="11" DWidth="1" DBoth="1" DSubMd="2" DSFSz="4096" Vis="1" Ax="1" AxMin="0.24190349364985511" AxMax="0.015795366479716161" AdcAxMin="0.24190349364985511" AdcAxMax="0.015795366479716161" AxType="1" ChType="1" PriCol="21" PriOv="33023"/>
+			<Chan Chan="9" DMode="11" DWidth="1" DBoth="1" DSubMd="2" Vis="1" Ax="1" AxMin="-0.29999999999999999" AxMax="0.29999999999999999" AdcAxMin="-0.29999999999999999" AdcAxMax="0.29999999999999999" FreqAxMax="500" AxType="1" ChType="1" PriCol="21" PriOv="33023"/>
+			<Chan Chan="11" DMode="11" DWidth="1" DBoth="1" DSubMd="2" DSFSz="4096" Vis="1" Ax="1" AxMin="-0.29999999999999999" AxMax="0.29999999999999999" AdcAxMin="-0.29999999999999999" AdcAxMax="0.29999999999999999" AxType="1" ChType="1" PriCol="21" PriOv="33023"/>
 			<Chan Chan="8" DMode="11" DSubMd="2" Vis="1" Ax="1" AxMin="0" AxMax="5" AdcAxMax="5" FreqAxMax="500" AxType="1" CWeight="0.30219780219780218" ChType="1" PenWidth="2"/>
 			<Chan Chan="7" DMode="10" DTrig="-1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" FreqAxMax="20000" CWeight="1.6428571428571428" ChType="4"/>
 			<Chan Chan="6" DMode="6" DWidth="1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="1" AxMin="0" AxMax="1597.0423500857644" AdcAxMax="1" FreqAxMax="1597.0423500857644" AxType="2" ChType="4" PenWidth="2" PriCol="9" PriOv="32768"/>
@@ -29,25 +19,30 @@
 			<Chan Chan="2" DMode="6" DWidth="1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="1" AxMin="0" AxMax="2800" AdcAxMax="1" FreqAxMax="2800" AxType="2" CWeight="0.74858757062146897" ChType="4" PenWidth="2"/>
 			<Chan Chan="1" DMode="10" DWidth="0.099999999999999992" DTrig="4" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" FreqAxMax="8481.0126582278481" CWeight="1.8292682926829269" ChType="4"/>
 			<Chan Chan="0" DMode="10" DWidth="1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" FreqAxMax="22081.784386617106" RateAxMax="2399.9999999999995" CWeight="1.4227642276422765" ChType="3"/>
-			<XInfo Left="297.8943269833394" Right="653.92860420689965" XAxSmall="5" VCLabMode="2" HCLabMode="1" VCCount="2">
+			<XInfo Left="112.37059098008328" Right="824.31021757016106" XAxSmall="5" VCLabMode="2" HCLabMode="1" VCCount="2" HCCount="4">
 				<VCur id="0" Pos="2.7816959987046719" LabMode="2" LabPos="0.20000000000000001" Num="0" Chan="0" LabStr="" AMode="0"/>
 				<VCur id="1" Pos="0" LabMode="2" LabPos="0.20000000000000001" Num="1" Chan="0" LabStr="" AMode="0"/>
+				<HCur id="0" Pos="0.059999999999999998" LabMode="1" LabPos="0.20000000000000001" Num="1" Chan="11" LabStr=""/>
+				<HCur id="1" Pos="0.14036697247706423" LabMode="1" LabPos="0.20000000000000001" Num="2" Chan="11" LabStr=""/>
+				<HCur id="2" Pos="0.088888888888888878" LabMode="1" LabPos="0.20000000000000001" Num="3" Chan="9" LabStr=""/>
+				<HCur id="3" Pos="0.16111111111111109" LabMode="1" LabPos="0.20000000000000001" Num="4" Chan="9" LabStr=""/>
 			</XInfo>
-			<ChOrder Chans="14">
-				<c id="0" Chan="31"/>
-				<c id="1" Chan="30"/>
-				<c id="2" Chan="10"/>
-				<c id="3" Chan="9"/>
-				<c id="4" Chan="11"/>
-				<c id="5" Chan="8"/>
-				<c id="6" Chan="7"/>
-				<c id="7" Chan="6"/>
-				<c id="8" Chan="5"/>
-				<c id="9" Chan="4"/>
-				<c id="10" Chan="3"/>
-				<c id="11" Chan="2"/>
-				<c id="12" Chan="1"/>
-				<c id="13" Chan="0"/>
+			<ChOrder Chans="15">
+				<c id="0" Chan="700"/>
+				<c id="1" Chan="31"/>
+				<c id="2" Chan="30"/>
+				<c id="3" Chan="10"/>
+				<c id="4" Chan="9"/>
+				<c id="5" Chan="11"/>
+				<c id="6" Chan="8"/>
+				<c id="7" Chan="7"/>
+				<c id="8" Chan="6"/>
+				<c id="9" Chan="5"/>
+				<c id="10" Chan="4"/>
+				<c id="11" Chan="3"/>
+				<c id="12" Chan="2"/>
+				<c id="13" Chan="1"/>
+				<c id="14" Chan="0"/>
 			</ChOrder>
 			<CursVals XZero="0" YZero="0" Mode="0"/>
 			<CursRegs XZero="0" YZero="0" Mode="0"/>
@@ -55,7 +50,7 @@
 		</View>
 	</DocTime>
 	<Sample S2Ver="718" ARange="5">
-		<!--Sampling configuration saved to C:\Users\sawtell\Desktop\github\obstacleRig\spike\run_config6.s2cx on Wednesday, February 21, 2018 6:54:40 PM-->
+		<!--Sampling configuration saved to C:\Users\sawtell\Desktop\github\obstacleRig\spike\run_config6.s2cx on Thursday, February 22, 2018 7:03:38 PM-->
 		<Chans Chans="32" BigFile="0" IdealWMRate="20000" DigMode="0">
 			<Chan id="0" Type="3" Title="step" Port="4" Traces="0" Rate="10000" ActRate="100" Comment="" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0.0099999997764825821" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
 			<Chan id="1" Type="4" Title="obEncodA" Port="2" Traces="0" Rate="10000" ActRate="100" Comment="quadrature output channel A for rotary encoder on obstacle platform" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
@@ -143,8 +138,8 @@
 					</PulseList>
 					<PulseList id="9">
 						<Pulse id="0" Type="0" Name="A" Before="0" Length="0.10000000000000001" Flags="0" Delta="1" Amp="0" Dig="0" Frame="0.059999998658895493" Reps="1" Next="2"/>
-						<Pulse id="1" Type="8" Name="" Before="6.9999998435378067e-005" Length="9.9999997764825818e-006" Flags="0" Delta="1" Mode="5" Mask="10" Par1="3" Par2="0.99999997764825821"/>
-						<Pulse id="2" Type="9" Name="" Before="0.049929998883977533" Length="9.9999997764825818e-006" Flags="0" Delta="1" Mode="3" Mask="10" Par1="3" Par2="1" Target="2" TargNm=""/>
+						<Pulse id="1" Type="8" Name="" Before="6.9999998435378067e-005" Length="9.9999997764825818e-006" Flags="0" Delta="1" Mode="6" Mask="12" Par1="0.059999999999999998" Par2="0.99999997764825821"/>
+						<Pulse id="2" Type="9" Name="" Before="0.049929998883977533" Length="9.9999997764825818e-006" Flags="0" Delta="1" Mode="4" Mask="12" Par1="0.059999999999999998" Par2="1" Target="2" TargNm=""/>
 					</PulseList>
 				</State>
 				<State id="2" Com="">
