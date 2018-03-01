@@ -12,7 +12,7 @@ const int servoPowerPin = 12;
 
 // user settings
 const int servoPowerTime = 200; // how many ms to power the motor for when a position change request is made
-const float engagedPosition =  11; // smaller numbers aim more towards stepper motor
+const float engagedPosition =  10; // smaller numbers aim more towards stepper motor
 const int disengagedPosition = engagedPosition + 60;
 const int pwmMin = 553;
 const int pwmMax = 2450;
