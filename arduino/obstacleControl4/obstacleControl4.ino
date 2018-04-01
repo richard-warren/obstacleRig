@@ -18,6 +18,7 @@
 
 // user settings
 volatile int state = 3; // 1: no platform movement, no obstaacles, 2: platform movement, no obstacles, 3: platform movement and obstacles
+volatile float obsGain = 1.0;
 const int servoSwingTime = 200; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
 volatile float rewardRotations = 9.01;
 const int startPositionMm = 5;
@@ -57,7 +58,7 @@ volatile int stepperStopPosition; // value to be determined by call to initializ
 volatile int targetStepperTicks = startPositionBuffer;
 volatile int stepsToTake = 0; // when driving the motor, stepsToTake is how many motor ticks required to get to target position
 volatile int rewardPosition = rewardRotations * encoderSteps; // expressed in wheelTicks
-const double conversionFactor = (wheelRad / timingPulleyRad) * (float(motorSteps) / encoderSteps) * microStepping; // this converts from analogRead reading of wheel encoder to desired number of steps in stepper driver
+const double conversionFactor = (wheelRad / timingPulleyRad) * (float(motorSteps) / encoderSteps) * microStepping; // this converts from wheel encoder tics to desired number of steps in stepper driver
 volatile bool stepDir = HIGH;
 volatile bool obstacleEngaged = false;
 volatile long stepperDelayInd = 0;
@@ -207,7 +208,7 @@ void loop(){
   // compute and move to target stepper position
   if (obstacleEngaged){
     
-    targetStepperTicks = ((wheelTicksTemp - startingWheelTics) * conversionFactor) + startingStepperTics;
+    targetStepperTicks = ((wheelTicksTemp - startingWheelTics) * conversionFactor) * obsGain + startingStepperTics;
     targetStepperTicks = constrain(targetStepperTicks, startPositionBuffer, stepperStopPosition);
 
     stepsToTake = targetStepperTicks - stepperTicks;
@@ -227,7 +228,7 @@ void startTracking(){
   // set motor direction to forward
   digitalWrite(stepDirPin, HIGH);
 
-  targetStepDelay = getMotorDelayFromWheelDelay(deltaMicroSmps.getAverage());
+  targetStepDelay = getMotorDelayFromWheelDelay(deltaMicroSmps.getAverage()) / obsGain;
   stepperDelayInd = 0;
   stepDelay = stepperDelays[0];
 
@@ -288,7 +289,7 @@ void takeStep(int stepsToTake){
 
 
 // move stepper one step in stepDirection
-void takeAcceleratingStep(int stepsToTake, int accelDirection, int minDelay, int maxDelay){
+void takeAcceleratingStep(int stepsToTake, int accelDirection, int delayLimit){
 
   // set motor direction
   digitalWrite(stepDirPin, (stepsToTake>0));
@@ -296,12 +297,22 @@ void takeAcceleratingStep(int stepsToTake, int accelDirection, int minDelay, int
 
   for (int i = 0; i < abs(stepsToTake); i++){
 
-    // increment motor speed
-    if ((stepperDelays[stepperDelayInd]>=minDelay) && (stepperDelays[stepperDelayInd]<=maxDelay)){
-      stepperDelayInd = stepperDelayInd + accelDirection;
-      stepDelay = constrain(stepperDelays[stepperDelayInd], minDelay, maxDelay);
+    switch (accelDirection){
+
+      case -1:
+        if (stepperDelays[stepperDelayInd]<delayLimit){
+          stepperDelayInd--;
+          stepDelay = min(stepperDelays[stepperDelayInd], delayLimit);
+        }
+        break;
+        
+      case 1:
+        if (stepperDelays[stepperDelayInd]>delayLimit){
+          stepperDelayInd++;
+          stepDelay = max(stepperDelays[stepperDelayInd], delayLimit);
+        }
+        break;
     }
-    
 
     // take step
     digitalWrite(stepPin, HIGH);
@@ -312,9 +323,6 @@ void takeAcceleratingStep(int stepsToTake, int accelDirection, int minDelay, int
 
   stepperTicks += stepsToTake;
 }
-
-
-
 
 
 
@@ -346,7 +354,7 @@ void getStartLimit(){
   
   // find start limit
   while (digitalRead(startLimitPin)){
-    takeAcceleratingStep(-1, 1, callibrationDelay, stepperDelays[0]);
+    takeAcceleratingStep(-1, 1, callibrationDelay);
   }
   stepperTicks = 0;
   
@@ -360,7 +368,7 @@ void getEndLimit(){
 
   // find stop limit
   while (digitalRead(stopLimitPin)){
-    takeAcceleratingStep(1, 1, callibrationDelay, stepperDelays[0]);
+    takeAcceleratingStep(1, 1, callibrationDelay);
   }
   stepperStopPosition = stepperTicks - endPositionBuffer;
 
@@ -374,11 +382,10 @@ void initializeLimits(){
   getEndLimit();
   getStartLimit();
   stepperDelayInd = 0; // start at lowest velocity
-  takeAcceleratingStep(startPositionBuffer + getStartJitter(startPosJitter), 1, callibrationDelay, stepperDelays[0]); // move back to startPositionBuffer
+  takeAcceleratingStep(startPositionBuffer + getStartJitter(startPosJitter), 1, callibrationDelay); // move back to startPositionBuffer
   digitalWrite(motorOffPin, HIGH);
   
 }
-
 
 
 
@@ -398,7 +405,7 @@ void recalibrateLimits(){
 
   // return to starting position
   stepperDelayInd = 0; // start at lowest velocity
-  takeAcceleratingStep(startPositionBuffer + getStartJitter(startPosJitter), 1, callibrationDelay, stepperDelays[0]); // move back to startPositionBuffer
+  takeAcceleratingStep(startPositionBuffer + getStartJitter(startPosJitter), 1, callibrationDelay); // move back to startPositionBuffer
   digitalWrite(motorOffPin, HIGH); // disengage stepper motor driver
   
 }
@@ -414,6 +421,8 @@ void printMenuAndSettings(){
   Serial.println(conditionNames[state-1]);
   Serial.print("reward rotations: ");
   Serial.println(rewardRotations);
+  Serial.print("osbtacle gain: ");
+  Serial.println(obsGain);
   Serial.println("");
   delay(500);
 
@@ -423,7 +432,7 @@ void printMenuAndSettings(){
   Serial.println("2: set condition to platform, no obstacles");
   Serial.println("3: set condition to platform, with obstacles");
   Serial.println("4: set reward rotation number");
-  Serial.println("5: get current settings");
+  Serial.println("5: set obstacle gain");
   Serial.println("");
   delay(500);
   
@@ -487,6 +496,9 @@ void getUserInput(){
         
       // print settings
       case 5:
+        Serial.print("enter obstacle gain...\n\n");
+        while (Serial.available() == 0)  {}
+        obsGain = Serial.parseFloat();
         printMenuAndSettings();
         break;
     }
