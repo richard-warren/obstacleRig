@@ -17,7 +17,7 @@
 
 
 // user settings
-volatile int state = 3; // 1: no platform movement, no obstaacles, 2: platform movement, no obstacles, 3: platform movement and obstacles
+volatile int state = 1; // 1: no platform movement, no obstaacles, 2: platform movement, no obstacles, 3: platform movement and obstacles
 volatile float obsGain = 1.0;
 const int servoSwingTime = 200; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
 volatile float rewardRotations = 9.01;
@@ -57,7 +57,7 @@ volatile int stepperTicks = 0;
 volatile int stepperStopPosition; // value to be determined by call to initializeLimits in setup()
 volatile int targetStepperTicks = startPositionBuffer;
 volatile int stepsToTake = 0; // when driving the motor, stepsToTake is how many motor ticks required to get to target position
-volatile int rewardPosition = rewardRotations * encoderSteps; // expressed in wheelTicks
+volatile int rewardPosition = (rewardRotations * encoderSteps) / obsGain; // expressed in wheelTicks
 const double conversionFactor = (wheelRad / timingPulleyRad) * (float(motorSteps) / encoderSteps) * microStepping; // this converts from wheel encoder tics to desired number of steps in stepper driver
 volatile bool stepDir = HIGH;
 volatile bool obstacleEngaged = false;
@@ -134,11 +134,7 @@ void setup() {
 
   
   // initialize locations of obstacles
-  for (int i=0; i<sizeof(obstacleLocations); i++){
-    obstacleLocationSteps[i] = obstacleLocations[i] * encoderSteps;
-  }
-  setObsPos(0); // set first obstacle position
-   
+  initializeObsLocations();
   
   // initialize track limits and move to starting position
   initializeLimits();
@@ -191,7 +187,7 @@ void loop(){
     digitalWrite(obsLightPin, LOW);
     digitalWrite(obsOnPin, LOW);
     obstacleInd++;
-    setObsPos(obstacleInd);
+    obsPos = setObsPos(obstacleInd);
     recalibrateLimits();
     
   }
@@ -208,7 +204,7 @@ void loop(){
   // compute and move to target stepper position
   if (obstacleEngaged){
     
-    targetStepperTicks = ((wheelTicksTemp - startingWheelTics) * conversionFactor) * obsGain + startingStepperTics;
+    targetStepperTicks = ((wheelTicksTemp - startingWheelTics) * conversionFactor) / obsGain + startingStepperTics;
     targetStepperTicks = constrain(targetStepperTicks, startPositionBuffer, stepperStopPosition);
 
     stepsToTake = targetStepperTicks - stepperTicks;
@@ -491,14 +487,15 @@ void getUserInput(){
         while (Serial.available() == 0)  {}
         rewardRotations = Serial.parseFloat();
         printMenuAndSettings();
-        rewardPosition = rewardRotations * encoderSteps;
+        rewardPosition = (rewardRotations * encoderSteps) / obsGain;
         break;
         
-      // print settings
+      // set gain
       case 5:
         Serial.print("enter obstacle gain...\n\n");
         while (Serial.available() == 0)  {}
         obsGain = Serial.parseFloat();
+        initializeObsLocations();
         printMenuAndSettings();
         break;
     }
@@ -548,7 +545,7 @@ int getMotorDelayFromWheelDelay(int wheelDelay){
 int setObsPos(int index){
 
   static double ticsPerMm = (encoderSteps / (2*PI*wheelRad));
-  obsPos =  obstacleLocationSteps[index] + random(obsPosJitter[0]*ticsPerMm, obsPosJitter[1]*ticsPerMm); // initialize first position)
+  return obstacleLocationSteps[index] + random(obsPosJitter[0]*obsGain*ticsPerMm, obsPosJitter[1]*ticsPerMm); // initialize first position)
 
 }
 
@@ -560,4 +557,14 @@ int getStartJitter(int jitterMax){
   
 }
 
+
+
+void initializeObsLocations(){
+
+  for (int i=0; i<sizeof(obstacleLocations); i++){
+    obstacleLocationSteps[i] = (obstacleLocations[i] * encoderSteps) / obsGain;
+  }
+  obsPos = setObsPos(0); // set first obstacle position
+  
+}
 
