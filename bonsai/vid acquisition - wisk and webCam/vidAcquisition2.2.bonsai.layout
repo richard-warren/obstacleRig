@@ -3,12 +3,12 @@
   <DialogSettings>
     <Visible>true</Visible>
     <Location>
-      <X>-1207</X>
-      <Y>49</Y>
+      <X>90</X>
+      <Y>94</Y>
     </Location>
     <Size>
-      <Width>1026</Width>
-      <Height>975</Height>
+      <Width>684</Width>
+      <Height>657</Height>
     </Size>
     <WindowState>Normal</WindowState>
     <VisualizerTypeName>Bonsai.Vision.Design.IplImageVisualizer</VisualizerTypeName>
@@ -183,12 +183,12 @@
   <DialogSettings>
     <Visible>true</Visible>
     <Location>
-      <X>-1264</X>
-      <Y>521</Y>
+      <X>364</X>
+      <Y>520</Y>
     </Location>
     <Size>
-      <Width>1244</Width>
-      <Height>506</Height>
+      <Width>614</Width>
+      <Height>279</Height>
     </Size>
     <WindowState>Normal</WindowState>
     <VisualizerTypeName>Bonsai.Vision.Design.IplImageVisualizer</VisualizerTypeName>
@@ -295,12 +295,12 @@
   <DialogSettings>
     <Visible>true</Visible>
     <Location>
-      <X>-356</X>
-      <Y>92</Y>
+      <X>778</X>
+      <Y>239</Y>
     </Location>
     <Size>
-      <Width>352</Width>
-      <Height>319</Height>
+      <Width>336</Width>
+      <Height>279</Height>
     </Size>
     <WindowState>Normal</WindowState>
     <VisualizerTypeName>Bonsai.Vision.Design.IplImageVisualizer</VisualizerTypeName>
@@ -395,5 +395,17 @@
     <VisualizerSettings>
       <TimeSeriesVisualizer />
     </VisualizerSettings>
+  </DialogSettings>
+  <DialogSettings>
+    <Visible>false</Visible>
+    <Location>
+      <X>0</X>
+      <Y>0</Y>
+    </Location>
+    <Size>
+      <Width>0</Width>
+      <Height>0</Height>
+    </Size>
+    <WindowState>Normal</WindowState>
   </DialogSettings>
 </VisualizerLayout>
