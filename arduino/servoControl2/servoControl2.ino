@@ -1,14 +1,15 @@
-#include <Servo.h> // this takes over timer1 apparently (read 'according to the internet')
 
 
 
 // pin assignments
-const int servoInputPin = 2; // when this is high the servo is engaged; disengage when it goes low
+const int stepperInputPin = 2; // when this is high the stepper is engaged; disengage when it goes low
 const int rewardInputPin = 3;
-const int servoPin = 8;
+const int endStopPin = 7;
+const int stepperDirectionPin = 6;
+const int stepperStepPin = 5;
+const int stepperDisablePin = 4;
 const int vidTtlPin = 13;
-const int servoPowerPin = 12;
-const int obsHeightPin = 11; // don't change - i hack into timer0, timer1 is used by servo library, and pins 3,11 use timer2 on arduino uno
+const int obsHeightPin = 11; // don't change - i hack into timer0, timer1 is used by stepper library, and pins 3,11 use timer2 on arduino uno
 
 
 // user settings
@@ -16,29 +17,28 @@ const bool randomizeHeights = true;
 const float randObsHeightMin = 0.0;
 const float randObsHeightMax = 8.0;
 volatile float obsHeight = 5.0;  // (mm), height of bottom surface of obs
-const int servoPowerTime = 1000; // how many ms to power the motor for when a position change request is made
 volatile float tallShortProbability = 0.5; // probability that the obstacle will be high or low
-const float obsOnPosition = 88; // smaller number are more towards the stepper motor
-const float obsOffPosition = 130;
-const int pwmMin = 553;
-const int pwmMax = 2450;
+const float obsOnSteps = 180;
+const float obsOffSteps = 20;
 const int vidTtlPulseDuration = 1;   // ms
 const int vidTtlInterval = 4; // ms
 const int rewardTtlOverhang = 500; // ms to continue generating ttls for after reward reached // THIS SHOULD NOT BE DIVISIBLE BY 1000, SO THE TIMESTAMP INTERVAL BETWEEN FRAMES AT ENDAND BEGINNING OF NEXT TRIAL WILL BE DIFFERENT THAN 1/FS
 const int rewardTtlGap = 500; // ms pause in ttls after rewardTtlOverhang has passed
 const float obsHeightTravel = 15.0; // mm
+const int stepTtlDuration = 1; // ms
+const int stepTtlInterval = 2; // ms
+
 
 // initializations
-volatile bool isServoEngaged = false;
+volatile bool isStepperEngaged = false;
 volatile bool isTtlOn = false;
 volatile bool overHanging = false;
 volatile int vidTtlTimer = 0;
+volatile int stepperTtlTimer = 0;
 volatile int overhangTimer = 0;
-volatile int servoPowerTimer = servoPowerTime;
 volatile int serialInput = 0;
-
-Servo obstacleServo;
-
+volatile int stepsToTake = 0;
+volatile int stepsTaken = 0;
 
 
 
@@ -46,35 +46,30 @@ Servo obstacleServo;
 void setup() {
 
   // initialize pins
-  pinMode(servoInputPin, INPUT);
+  pinMode(stepperInputPin, INPUT);
   pinMode(rewardInputPin, INPUT);
   pinMode(vidTtlPin, OUTPUT);
-  pinMode(servoPowerPin, OUTPUT);
+  pinMode(stepperDisablePin, OUTPUT);
+  pinMode(stepperDirectionPin, OUTPUT);
+  pinMode(stepperStepPin, OUTPUT);
   pinMode(obsHeightPin, OUTPUT);
+  pinMode(endStopPin, INPUT_PULLUP);
+  
   digitalWrite(vidTtlPin, LOW);
+  digitalWrite(stepperDisablePin, LOW);
+  digitalWrite(stepperStepPin, LOW);
+  digitalWrite(stepperDirectionPin, HIGH);
   setObsHeight(obsHeight);
 
-
-  // initialize servo
-  obstacleServo.attach(servoPin, pwmMin, pwmMax);
 
   // initialiez random seed
   randomSeed(analogRead(0));
 
   // initialize hardware interrupts
-  attachInterrupt(digitalPinToInterrupt(servoInputPin), controlServo, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(stepperInputPin), controlstepper, CHANGE);
   attachInterrupt(digitalPinToInterrupt(rewardInputPin), rewardReached, RISING);
 
 
-  // test obstacle positions
-  digitalWrite(servoPowerPin, HIGH);
-  obstacleServo.write(obsOnPosition);
-  delay(servoPowerTime);
-  obstacleServo.write(obsOffPosition);
-  delay(servoPowerTime);
-  obstacleServo.write(obsOnPosition);
-  delay(servoPowerTime);
-  digitalWrite(servoPowerPin, LOW);
 
   // initialize 1kHz timer0 interrupt
   noInterrupts();
@@ -93,7 +88,7 @@ void setup() {
 
 
   // begin serial communication
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println("1: start video ttls");
   Serial.println("2: stop video ttls");
   Serial.println("3: set obstacle height");
@@ -128,30 +123,41 @@ void loop() {
 }
 
 
-// servo engage/disengage interrupts
-void controlServo() {
+// stepper engage/disengage interrupts
+void controlstepper() {
+  
+  // turn on motor
+//  digitalWrite(stepperDisablePin, LOW);
+  
+  // find the end stop
+  while (digitalRead(endStopPin)){
+    if (stepsTaken>=stepsToTake){
+      takeStep(-1);
+    }
+  }
 
   // read desired obstacle status
-  isServoEngaged = digitalRead(servoInputPin);
-
-  // power servo and reset servoPowerTimer
-  digitalWrite(servoPowerPin, HIGH);
-  servoPowerTimer = 0;
-
+  isStepperEngaged = digitalRead(stepperInputPin);
 
   // set obstacle to desired position
-  if (isServoEngaged) {
+  if (isStepperEngaged) {
 
     // set obstacle height
     if (randomizeHeights){
       obsHeight = random(randObsHeightMin*10, randObsHeightMax*10) / 10;
       setObsHeight(obsHeight);
     }
+
+    // engage obstacle
+    takeStep(obsOnSteps);
     
-    obstacleServo.write(obsOnPosition);
   } else {
-    obstacleServo.write(obsOffPosition);
+    // disengage obstacle
+    takeStep(obsOffSteps);
   }
+
+  // turn off driver
+//  digitalWrite(stepperDisablePin, HIGH);
 }
 
 
@@ -213,19 +219,48 @@ ISR(TIMER0_COMPA_vect) {
   }
 
 
-  // control servo power timer
-  servoPowerTimer++;
-
-  switch (servoPowerTimer) {
-    case servoPowerTime:
-      digitalWrite(servoPowerPin, LOW);
-      break;
-    case servoPowerTime+1:
-      servoPowerTimer--;
-      break;
+  // control stepper ttl timer
+  if (stepsTaken<stepsToTake){
+//    Serial.print(stepsTaken);
+//    Serial.println(stepsToTake);
+    
+    stepperTtlTimer++;
+  
+    switch (stepperTtlTimer) {
+      case 1:
+        digitalWrite(stepperStepPin, HIGH);
+        break;
+      case (1+stepTtlDuration):
+        digitalWrite(stepperStepPin, LOW);
+        break;
+      case (1+stepTtlDuration+stepTtlInterval):
+        stepperTtlTimer = 0;
+        stepsTaken++;
+        break;
+    }
   }
 }
 
+
+
+void takeStep(volatile int steps){
+  
+  // set direction
+  digitalWrite(stepperDirectionPin, steps>0);
+
+//  for (int i=0; i<abs(steps); i++){
+//    digitalWrite(stepperStepPin, HIGH);
+//    delay(1);
+//    digitalWrite(stepperStepPin, LOW);
+//    delay(1);
+//  }
+  
+
+//   reset step counter parameters
+  stepsToTake = abs(steps);
+  stepsTaken = 0;
+  stepperTtlTimer = 0;
+}
 
 
 

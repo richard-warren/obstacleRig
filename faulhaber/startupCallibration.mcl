@@ -1,0 +1,9 @@
+﻿                 
+ENPROG   ; to ensure this runs once on startup
+DI       ; disable motor to make sure it falls to the bottom
+DELAY200 ; wait so motor has time to reach the stator
+HO-1875  ; specify this position
+EN       ; re-enable motor              
+LA0                 
+M                          
+                               
