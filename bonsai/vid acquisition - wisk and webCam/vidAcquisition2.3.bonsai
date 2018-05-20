@@ -196,7 +196,9 @@ def process(value):
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="SkipUntil" />
+        <Combinator xsi:type="Skip">
+          <Count>2</Count>
+        </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="Timer">
@@ -209,16 +211,54 @@ def process(value):
           <q5:Filter>End</q5:Filter>
         </Combinator>
       </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="SubscribeWhen" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="Take">
+          <Count>1</Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="TakeUntil" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="TakeUntil" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="TakeUntil" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="TakeUntil" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="TakeUntil" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="TakeUntil" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="TakeUntil" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="TakeUntil" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="TakeUntil" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="TakeUntil" />
+      </Expression>
     </Nodes>
     <Edges>
       <Edge>
         <From>0</From>
-        <To>1</To>
+        <To>50</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
         <From>2</From>
-        <To>3</To>
+        <To>46</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
@@ -268,7 +308,7 @@ def process(value):
       </Edge>
       <Edge>
         <From>8</From>
-        <To>9</To>
+        <To>49</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
@@ -278,7 +318,7 @@ def process(value):
       </Edge>
       <Edge>
         <From>13</From>
-        <To>11</To>
+        <To>48</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
@@ -303,7 +343,7 @@ def process(value):
       </Edge>
       <Edge>
         <From>17</From>
-        <To>12</To>
+        <To>47</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
@@ -333,7 +373,7 @@ def process(value):
       </Edge>
       <Edge>
         <From>21</From>
-        <To>25</To>
+        <To>45</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
@@ -343,7 +383,7 @@ def process(value):
       </Edge>
       <Edge>
         <From>24</From>
-        <To>23</To>
+        <To>44</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
@@ -358,7 +398,7 @@ def process(value):
       </Edge>
       <Edge>
         <From>29</From>
-        <To>28</To>
+        <To>43</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
@@ -373,28 +413,138 @@ def process(value):
       </Edge>
       <Edge>
         <From>32</From>
-        <To>33</To>
+        <To>42</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
         <From>35</From>
-        <To>34</To>
+        <To>41</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
         <From>36</From>
-        <To>35</To>
+        <To>40</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
         <From>37</From>
-        <To>36</To>
+        <To>39</To>
         <Label>Source1</Label>
       </Edge>
       <Edge>
         <From>38</From>
-        <To>36</To>
+        <To>39</To>
         <Label>Source2</Label>
+      </Edge>
+      <Edge>
+        <From>39</From>
+        <To>35</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>39</From>
+        <To>36</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>40</From>
+        <To>41</To>
+        <Label>Source2</Label>
+      </Edge>
+      <Edge>
+        <From>40</From>
+        <To>42</To>
+        <Label>Source2</Label>
+      </Edge>
+      <Edge>
+        <From>40</From>
+        <To>43</To>
+        <Label>Source2</Label>
+      </Edge>
+      <Edge>
+        <From>40</From>
+        <To>44</To>
+        <Label>Source2</Label>
+      </Edge>
+      <Edge>
+        <From>40</From>
+        <To>45</To>
+        <Label>Source2</Label>
+      </Edge>
+      <Edge>
+        <From>40</From>
+        <To>47</To>
+        <Label>Source2</Label>
+      </Edge>
+      <Edge>
+        <From>40</From>
+        <To>48</To>
+        <Label>Source2</Label>
+      </Edge>
+      <Edge>
+        <From>40</From>
+        <To>49</To>
+        <Label>Source2</Label>
+      </Edge>
+      <Edge>
+        <From>40</From>
+        <To>50</To>
+        <Label>Source2</Label>
+      </Edge>
+      <Edge>
+        <From>40</From>
+        <To>46</To>
+        <Label>Source2</Label>
+      </Edge>
+      <Edge>
+        <From>41</From>
+        <To>34</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>42</From>
+        <To>33</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>43</From>
+        <To>28</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>44</From>
+        <To>23</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>45</From>
+        <To>25</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>46</From>
+        <To>3</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>47</From>
+        <To>12</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>48</From>
+        <To>11</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>49</From>
+        <To>9</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>50</From>
+        <To>1</To>
+        <Label>Source1</Label>
       </Edge>
     </Edges>
   </Workflow>
@@ -416,7 +566,9 @@ def process(value):
     <Type>Bonsai.Expressions.StringProperty, Bonsai.Core, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Reactive.Take, Bonsai.Core, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.IO.SerialStringRead, Bonsai.System, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Reactive.SkipUntil, Bonsai.Core, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.Skip, Bonsai.Core, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
     <Type>Bonsai.Windows.Input.KeyDown, Bonsai.Windows.Input, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.SubscribeWhen, Bonsai.Core, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.TakeUntil, Bonsai.Core, Version=2.3.0.0, Culture=neutral, PublicKeyToken=null</Type>
   </ExtensionTypes>
 </WorkflowBuilder>
