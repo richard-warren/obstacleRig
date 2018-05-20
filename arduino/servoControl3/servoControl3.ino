@@ -15,11 +15,11 @@ const int obsHeightPin = 11; // don't change - i hack into timer0, timer1 is use
 // user settings
 const bool randomizeHeights = true;
 const float randObsHeightMin = 0.0;
-const float randObsHeightMax = 8.0;
+const float randObsHeightMax = 15.0;
 volatile float obsHeight = 5.0;  // (mm), height of bottom surface of obs
 volatile float tallShortProbability = 0.5; // probability that the obstacle will be high or low
-const float obsOnSteps = 180;
-const float obsOffSteps = 20;
+const float obsOnSteps = 214;
+const float obsOffSteps = -160;
 const int vidTtlPulseDuration = 1;   // ms
 const int vidTtlInterval = 4; // ms
 const int rewardTtlOverhang = 500; // ms to continue generating ttls for after reward reached // THIS SHOULD NOT BE DIVISIBLE BY 1000, SO THE TIMESTAMP INTERVAL BETWEEN FRAMES AT ENDAND BEGINNING OF NEXT TRIAL WILL BE DIFFERENT THAN 1/FS
@@ -89,10 +89,10 @@ void setup() {
 
 
   // begin serial communication
-  Serial.begin(115200);
-  Serial.println("1: start video ttls");
-  Serial.println("2: stop video ttls");
-  Serial.println("3: set obstacle height");
+  Serial.begin(9600);
+//  Serial.println("1: start video ttls");
+//  Serial.println("2: stop video ttls");
+//  Serial.println("3: set obstacle height");
 }
 
 
@@ -111,12 +111,6 @@ void loop() {
       case 2:
         isTtlOn = false;
         overHanging = false;
-        break;
-      case 3:
-        Serial.print("enter obstacle height...\n\n");
-        while (Serial.available() == 0)  {}
-        obsHeight = Serial.parseFloat();
-        setObsHeight(obsHeight);
         break;
     }
   }
@@ -138,16 +132,16 @@ void controlstepper() {
 
     // set obstacle height
     if (randomizeHeights){
-      obsHeight = random(randObsHeightMin*10, randObsHeightMax*10) / 10;
+      obsHeight = random(randObsHeightMin*10, randObsHeightMax*10) / 10.0;
       setObsHeight(obsHeight);
     }
 
     // engage obstacle
-    takeStep(obsOnSteps);
+    takeStep(obsOnSteps, true);
     
   } else {
     // disengage obstacle
-    takeStep(obsOffSteps);
+    takeStep(obsOffSteps, false);
   }
 
   // turn off driver
@@ -170,7 +164,7 @@ void rewardReached() {
 void setObsHeight(float obsHeight) {
   int obsHeight8 = round(obsHeight * (255.0 / obsHeightTravel));
   analogWrite(obsHeightPin, obsHeight8);
-  Serial.print("obstacle height set to: ");
+//  Serial.print("obstacle height set to: ");
   Serial.println(obsHeight);
 }
 
@@ -239,12 +233,18 @@ ISR(TIMER0_COMPA_vect) {
 
 
 
-void takeStep(volatile int steps){
+void takeStep(volatile int steps, bool homeFirst){
   
   // set direction
-  digitalWrite(stepperDirectionPin, LOW);
-  digitalWrite(stepperStepPin, HIGH);
-  isZeroing = true;
+  if (homeFirst){
+    digitalWrite(stepperDirectionPin, LOW);
+    digitalWrite(stepperStepPin, HIGH);
+    isZeroing = true;
+  }else{
+    digitalWrite(stepperDirectionPin, steps>0);
+    digitalWrite(stepperStepPin, HIGH);
+    isZeroing = false;
+  }
   
   // reset step counter parameters
   stepsToTake = abs(steps);
