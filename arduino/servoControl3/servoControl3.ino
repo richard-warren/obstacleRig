@@ -40,6 +40,7 @@ volatile int serialInput = 0;
 volatile int stepsToTake = 0;
 volatile int stepsTaken = 0;
 volatile bool isZeroing = false;
+volatile bool disableAfterSteps = false;
 
 
 
@@ -57,7 +58,7 @@ void setup() {
   pinMode(endStopPin, INPUT_PULLUP);
   
   digitalWrite(vidTtlPin, LOW);
-  digitalWrite(stepperDisablePin, LOW);
+  digitalWrite(stepperDisablePin, HIGH);
   digitalWrite(stepperStepPin, LOW);
   digitalWrite(stepperDirectionPin, HIGH);
   setObsHeight(obsHeight);
@@ -121,9 +122,6 @@ void loop() {
 // stepper engage/disengage interrupts
 void controlstepper() {
   
-  // turn on motor
-//  digitalWrite(stepperDisablePin, LOW);
-  
   // read desired obstacle status
   isStepperEngaged = digitalRead(stepperInputPin);
 
@@ -143,9 +141,6 @@ void controlstepper() {
     // disengage obstacle
     takeStep(obsOffSteps, false);
   }
-
-  // turn off driver
-//  digitalWrite(stepperDisablePin, HIGH);
 }
 
 
@@ -228,6 +223,8 @@ ISR(TIMER0_COMPA_vect) {
         }
         break;
     }
+  }else if (disableAfterSteps){ // disable motor only after going home
+    digitalWrite(stepperDisablePin, HIGH);
   }
 }
 
@@ -235,15 +232,20 @@ ISR(TIMER0_COMPA_vect) {
 
 void takeStep(volatile int steps, bool homeFirst){
   
+  // turn on motor
+  digitalWrite(stepperDisablePin, LOW);
+  
   // set direction
   if (homeFirst){
     digitalWrite(stepperDirectionPin, LOW);
     digitalWrite(stepperStepPin, HIGH);
     isZeroing = true;
+    disableAfterSteps = false;
   }else{
     digitalWrite(stepperDirectionPin, steps>0);
     digitalWrite(stepperStepPin, HIGH);
     isZeroing = false;
+    disableAfterSteps = true; // !!!s
   }
   
   // reset step counter parameters
