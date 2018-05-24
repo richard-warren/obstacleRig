@@ -3,11 +3,11 @@
 // pin assignments
 const int touchSendPin = 8;
 const int touchReceivePin = 6;
-const int isTouchingPin = 13;
+const int isTouchingPin = 12;
 
 // user settings
-const int touchThresh = 1023; // 525;
-const int sensorSmps = 1;
+const int touchThresh = 500; // 525;
+const int sensorSmps = 2;
 const int maxMeasurementTime = 4; // ms, capacitive touch reading times out after maxMeasurementTime
 
 // other initializations
@@ -34,7 +34,7 @@ void setup(){
 void loop(){
 
   // get touch measurement
-  touchMeasurement = touchSensor.capacitiveSensor(sensorSmps);
+  touchMeasurement = touchSensor.capacitiveSensorRaw(sensorSmps);
 
   // if overflowed, set to max value
   if (touchMeasurement<0){
