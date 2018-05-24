@@ -13,9 +13,10 @@ const int obsHeightPin = 11; // don't change - i hack into timer0, timer1 is use
 
 
 // user settings
+const float obsThickness = 4.7625;
 const bool randomizeHeights = true;
-const float randObsHeightMin = 0.0;
-const float randObsHeightMax = 15.0;
+const float randObsHeightMin = obsThickness;
+const float randObsHeightMax = 10.0;
 volatile float obsHeight = 5.0;  // (mm), height of bottom surface of obs
 volatile float tallShortProbability = 0.5; // probability that the obstacle will be high or low
 const float obsOnSteps = 214;
@@ -130,7 +131,7 @@ void controlstepper() {
 
     // set obstacle height
     if (randomizeHeights){
-      obsHeight = random(randObsHeightMin*10, randObsHeightMax*10) / 10.0;
+      obsHeight = (random(randObsHeightMin*10.0, randObsHeightMax*10.0) / 10.0) - obsThickness;
       setObsHeight(obsHeight);
     }
 
@@ -160,7 +161,7 @@ void setObsHeight(float obsHeight) {
   int obsHeight8 = round(obsHeight * (255.0 / obsHeightTravel));
   analogWrite(obsHeightPin, obsHeight8);
 //  Serial.print("obstacle height set to: ");
-  Serial.println(obsHeight);
+  Serial.println(obsHeight+obsThickness);
 }
 
 

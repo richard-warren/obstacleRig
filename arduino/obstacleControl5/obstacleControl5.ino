@@ -13,6 +13,7 @@
 #define startLimitPin   9    // signal is LOW when engaged
 #define stopLimitPin    10   // signal is LOW when engaged
 #define obsLightPin     2    // controls when the light for the obstacle turns on
+#define obsLightPin2    6    // controls when the light for the obstacle turns on
 #define obsOnPin        3    // when the obstacle is engaged in a trial, i.e. tracking the mouse's position
 
 
@@ -25,13 +26,13 @@ const int startPositionMm = 5;
 const int endPositionMm = 20;
 const int waterDuration = 80; // milliseconds
 const double maxStepperSpeed = 1.5; // (m/s)
-const float acceleration = 8.0; //(m/s^2)
+const float acceleration = 6.0; //(m/s^2)
 volatile float callibrationSpeed = .6; // speed with motor moves plastform during callibration (m/s)
 const float obstacleLocations[] = {1.5, 4.5, 7.5, rewardRotations*20}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
 const int velocitySamples = 10; // each sample last about 500 microseconds
 const int obsPosJitter[] = {-100, 100}; // jitter range for the onset position of obstacles (mm)
 const int startPosJitter = 20; // (mm)
-const float obsLightProbability = 0.0;
+const float obsLightProbability = 1.0;
 const long delayLookupLength = 20000;
 
 
@@ -90,6 +91,7 @@ void setup() {
   pinMode(startLimitPin, INPUT_PULLUP);
   pinMode(stopLimitPin, INPUT_PULLUP);
   pinMode(obsLightPin, OUTPUT);
+  pinMode(obsLightPin2, OUTPUT);
   pinMode(obsOnPin, OUTPUT);
   
   digitalWrite(stepPin, LOW);
@@ -98,6 +100,7 @@ void setup() {
   digitalWrite(motorOffPin, LOW);
   digitalWrite(obstaclePin, LOW);
   digitalWrite(obsLightPin, LOW);
+  digitalWrite(obsLightPin2, LOW);
   digitalWrite(obsOnPin, LOW);
 
 
@@ -185,6 +188,7 @@ void loop(){
     obstacleEngaged = false;
     digitalWrite(obstaclePin, LOW);
     digitalWrite(obsLightPin, LOW);
+    digitalWrite(obsLightPin2, LOW);
     digitalWrite(obsOnPin, LOW);
     obstacleInd++;
     obsPos = setObsPos(obstacleInd);
@@ -256,6 +260,7 @@ void startTracking(){
   if (state==3){
     if(random(0,100) < obsLightProbability*100.0){
       digitalWrite(obsLightPin, HIGH);
+      digitalWrite(obsLightPin2, HIGH);
     }
   }
 }
