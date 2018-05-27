@@ -2,7 +2,7 @@
 DI        ; disable motor
 DELAY200  ; let stator fall to lowest point
 EN        ; re-enable motor
-HO-1875   ; set lowest point to -1875                
+HO1875   ; set lowest point to -1875                
 
 ; move to mid point
 LA0
@@ -12,4 +12,4 @@ M
 APCMOD
 SOR2
                        
-                        
+                                        

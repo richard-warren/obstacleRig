@@ -10,16 +10,17 @@ const int stepperStepPin = 5;
 const int stepperDisablePin = 4;
 const int vidTtlPin = 13;
 const int obsHeightPin = 11; // don't change - i hack into timer0, timer1 is used by stepper library, and pins 3,11 use timer2 on arduino uno
+const int minObsHeight = 2.5; // (mm) height of obs when it is flush with the floor of the wheel
 
 
 // user settings
-const float obsThickness = 4.7625;
+const float obsThickness = 3.175; // 4.7625;
 const bool randomizeHeights = true;
 const float randObsHeightMin = obsThickness;
 const float randObsHeightMax = 10.0;
-volatile float obsHeight = 5.0;  // (mm), height of bottom surface of obs
+volatile float obsHeight = 5.0;  // (mm), height of obs (top of wheel to top of obs)
 volatile float tallShortProbability = 0.5; // probability that the obstacle will be high or low
-const float obsOnSteps = 214;
+const float obsOnSteps = 202;
 const float obsOffSteps = -160;
 const int vidTtlPulseDuration = 1;   // ms
 const int vidTtlInterval = 4; // ms
@@ -131,8 +132,8 @@ void controlstepper() {
 
     // set obstacle height
     if (randomizeHeights){
-      obsHeight = (random(randObsHeightMin*10.0, randObsHeightMax*10.0) / 10.0) - obsThickness;
-      setObsHeight(obsHeight);
+      obsHeight = (random(randObsHeightMin*10.0, randObsHeightMax*10.0) / 10.0);
+      setObsHeight(max(0, obsHeight));
     }
 
     // engage obstacle
@@ -158,10 +159,10 @@ void rewardReached() {
 
 // set obstacle height
 void setObsHeight(float obsHeight) {
-  int obsHeight8 = round(obsHeight * (255.0 / obsHeightTravel));
-  analogWrite(obsHeightPin, obsHeight8);
+  int obsHeight8 = round((obsHeight-obsThickness+minObsHeight) * (255.0 / obsHeightTravel));
+  analogWrite(obsHeightPin, 255 - constrain(obsHeight8,0,255));
 //  Serial.print("obstacle height set to: ");
-  Serial.println(obsHeight+obsThickness);
+  Serial.println(obsHeight);
 }
 
 
@@ -246,7 +247,7 @@ void takeStep(volatile int steps, bool homeFirst){
     digitalWrite(stepperDirectionPin, steps>0);
     digitalWrite(stepperStepPin, HIGH);
     isZeroing = false;
-    disableAfterSteps = true; // !!!s
+    disableAfterSteps = true;
   }
   
   // reset step counter parameters

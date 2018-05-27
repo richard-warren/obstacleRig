@@ -6,7 +6,7 @@ const int touchReceivePin = 6;
 const int isTouchingPin = 12;
 
 // user settings
-const int touchThresh = 500; // 525;
+const int touchThresh = 375; // 525;
 const int sensorSmps = 2;
 const int maxMeasurementTime = 4; // ms, capacitive touch reading times out after maxMeasurementTime
 
