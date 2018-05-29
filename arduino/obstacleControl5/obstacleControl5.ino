@@ -32,7 +32,7 @@ const float obstacleLocations[] = {1.5, 4.5, 7.5, rewardRotations*20}; // expres
 const int velocitySamples = 10; // each sample last about 500 microseconds
 const int obsPosJitter[] = {-100, 100}; // jitter range for the onset position of obstacles (mm)
 const int startPosJitter = 20; // (mm)
-const float obsLightProbability = 1.0;
+const float obsLightProbability = 0.5;
 const long delayLookupLength = 20000;
 
 

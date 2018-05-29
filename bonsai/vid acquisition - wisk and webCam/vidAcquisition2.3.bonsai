@@ -208,7 +208,7 @@ def process(value):
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="q5:KeyDown">
-          <q5:Filter>End</q5:Filter>
+          <q5:Filter>F1</q5:Filter>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">

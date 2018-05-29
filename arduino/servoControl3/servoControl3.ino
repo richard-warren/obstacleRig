@@ -226,7 +226,7 @@ ISR(TIMER0_COMPA_vect) {
         break;
     }
   }else if (disableAfterSteps){ // disable motor only after going home
-    digitalWrite(stepperDisablePin, HIGH);
+//    digitalWrite(stepperDisablePin, HIGH);
   }
 }
 
