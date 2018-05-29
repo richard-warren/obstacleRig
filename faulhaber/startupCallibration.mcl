@@ -1,9 +1,21 @@
-﻿                 
-ENPROG   ; to ensure this runs once on startup
-DI       ; disable motor to make sure it falls to the bottom
-DELAY200 ; wait so motor has time to reach the stator
-HO1875  ; specify that this is the current position
-EN       ; re-enable motor              
-LA0                 
-M                          
-                               
+﻿; calibrate
+
+; disable, let start fall as low as possible, and re-enable
+DI        ; disable motor
+DELAY200  ; let stator fall to lowest point
+HO-1875   ; tell the motor it is currently at the highest position
+EN        ; re-enable motor  
+             
+; move motor as low as possible
+LA1875                        
+M              
+DELAY200
+        
+; tell motor it is now at the lowest position
+HO1875 
+
+; configure for pwm control
+APCMOD              
+SOR2
+                       
+                                         
