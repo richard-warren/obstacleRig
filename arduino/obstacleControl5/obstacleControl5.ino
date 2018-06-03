@@ -18,7 +18,7 @@
 
 
 // user settings
-volatile int state = 1; // 1: no platform movement, no obstaacles, 2: platform movement, no obstacles, 3: platform movement and obstacles
+volatile int state = 1; // 1: no platform movement, no obstacles, 2: platform movement, no obstacles, 3: platform movement and obstacles
 volatile float obsGain = 1.0;
 const int servoSwingTime = 200; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
 volatile float rewardRotations = 9.01;
