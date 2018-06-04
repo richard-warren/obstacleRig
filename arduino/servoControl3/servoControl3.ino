@@ -14,7 +14,7 @@ const int minObsHeight = 3.0; // (mm) height of obs when it is flush with the fl
 
 
 // user settings
-const float obsThickness = 3.175; // 4.7625;
+const float obsThickness = 3.175 + 0.5; // the latter term takes care of measurement offset - without it obs is set higher than intended
 const bool randomizeHeights = true;
 const float randObsHeightMin = obsThickness;
 const float randObsHeightMax = 10.0;
