@@ -10,17 +10,18 @@ const int stepperStepPin = 5;
 const int stepperDisablePin = 4;
 const int vidTtlPin = 13;
 const int obsHeightPin = 11; // don't change - i hack into timer0, timer1 is used by stepper library, and pins 3,11 use timer2 on arduino uno
-const int minObsHeight = 3.0; // (mm) height of obs when it is flush with the floor of the wheel
+const int minObsHeight = 2.5; // (mm) height of obs when it is flush with the floor of the wheel
 
 
 // user settings
-const float obsThickness = 3.175 + 0.5; // the latter term takes care of measurement offset - without it obs is set higher than intended
+const float obsOffset = .9;
+const float obsThickness = 3.175 + obsOffset; // the latter term takes care of measurement offset - without it obs is set higher than intended
 const bool randomizeHeights = true;
 const float randObsHeightMin = obsThickness;
 const float randObsHeightMax = 10.0;
-volatile float obsHeight = 5.0;  // (mm), height of obs (top of wheel to top of obs)
+volatile float obsHeight = 8.5;  // (mm), height of obs (top of wheel to top of obs)
 volatile float tallShortProbability = 0.5; // probability that the obstacle will be high or low
-const float obsOnSteps = 217;
+const float obsOnSteps = 204; // number of steps to take from the end stop (use to adjust obstacle alignment)
 const float obsOffSteps = -180;
 const int vidTtlPulseDuration = 1;   // ms
 const int vidTtlInterval = 4; // ms
@@ -135,6 +136,7 @@ void controlstepper() {
       obsHeight = (random(randObsHeightMin*10.0, randObsHeightMax*10.0) / 10.0);
       setObsHeight(max(0, obsHeight));
     }
+     Serial.println(obsHeight);
 
     // engage obstacle
     takeStep(obsOnSteps, true);
@@ -162,7 +164,7 @@ void setObsHeight(float obsHeight) {
   int obsHeight8 = round((obsHeight-obsThickness+minObsHeight) * (255.0 / obsHeightTravel));
   analogWrite(obsHeightPin, 255 - constrain(obsHeight8,0,255));
 //  Serial.print("obstacle height set to: ");
-  Serial.println(obsHeight);
+ 
 }
 
 

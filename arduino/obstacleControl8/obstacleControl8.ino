@@ -6,7 +6,7 @@
 #define stepPin            4
 #define stepDirPin         5
 #define encoderPinA        20   // don't change encoderPins, because direct port manipulation is used that assumes 20 and 21 are used for encoder pins
-#define encoderPinB        21
+#define encoderPinB        21 
 #define waterPin           7
 #define obstaclePin        13   // signals whether the obstacle is engaged... this is sent to an arduino that controls the obstacle servo
 #define motorOffPin        8    // turns on stepper motor driver
@@ -21,20 +21,20 @@
 // user settings
 volatile int state = 1; // 1: no platform movement, no obstacles, 2: platform movement, no obstacles, 3: platform movement and obstacles
 volatile float obsGain = 1.0;
-const int servoSwingTime = 200; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
+const int servoSwingTime = 150; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
 volatile float rewardRotations = 9.01;
 const int startPositionMm = 5;
 const int endPositionMm = 20;
-const int waterDuration = 80; // milliseconds
-const double maxStepperSpeed = 1.5; // (m/s)
+volatile int waterDuration = 80; // milliseconds
+const double maxStepperSpeed = 1.6; // (m/s)
 const float acceleration = 8.0; //(m/s^2)
-volatile float callibrationSpeed = .6; // speed with motor moves plastform during callibration (m/s)
+volatile float callibrationSpeed = .8; // speed with motor moves plastform during callibration (m/s) // note: changed from .6 to .8 on 180722 because sen6 is so fast it didnt get back in time
 const float obstacleLocations[] = {1.5, 4.5, 7.5, rewardRotations*20}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
 const int velocitySamples = 10; // each sample last about 500 microseconds
 const int obsPosJitter[] = {-100, 100}; // jitter range for the onset position of obstacles (mm)
-const int touchSensorOnLimits[] = {100, 420}; // mm, distance from beginning of track to turn on and off touch sensor
+const int touchSensorOnLimits[] = {200, 385}; // mm, distance from beginning of track to turn on and off touch sensor
 const int startPosJitter = 20; // (mm)
-const float obsLightProbability = 0.5;
+volatile float obsLightProbability = 0.5;
 const long delayLookupLength = 20000;
 
 
@@ -147,7 +147,7 @@ void setup() {
   initializeObsLocations();
   
   // initialize track limits and move to starting position
-  initializeLimits();
+  initializeLimits(.5);
 }
 
 
@@ -227,7 +227,7 @@ void loop(){
   // compute and move to target stepper position
   if (obstacleEngaged){
     
-    targetStepperTicks = ((wheelTicksTemp - startingWheelTics) * conversionFactor) / obsGain + startingStepperTics;
+    targetStepperTicks = ((wheelTicksTemp - startingWheelTics) * conversionFactor) * obsGain + startingStepperTics;
     targetStepperTicks = constrain(targetStepperTicks, startPositionBuffer, stepperStopPosition);
 
     stepsToTake = targetStepperTicks - stepperTicks;
@@ -368,13 +368,13 @@ void encoder_isr() {
 
 
 
-void getStartLimit(){
+void getStartLimit(float slowDownFactor){
 
   stepperDelayInd = 0; // start at lowest velocity
   
   // find start limit
   while (digitalRead(startLimitPin)){
-    takeAcceleratingStep(-1, 1, callibrationDelay);
+    takeAcceleratingStep(-1, 1, long(callibrationDelay/slowDownFactor));
   }
   stepperTicks = 0;
   
@@ -382,13 +382,13 @@ void getStartLimit(){
 
 
 
-void getEndLimit(){
+void getEndLimit(float slowDownFactor){
 
   stepperDelayInd = 0; // start at lowest velocity
 
   // find stop limit
   while (digitalRead(stopLimitPin)){
-    takeAcceleratingStep(1, 1, callibrationDelay);
+    takeAcceleratingStep(1, 1, long(callibrationDelay/slowDownFactor));
   }
   stepperStopPosition = stepperTicks - endPositionBuffer;
 
@@ -396,11 +396,14 @@ void getEndLimit(){
 
 
 
-void initializeLimits(){
+void initializeLimits(float slowDownFactor){
 
-  getStartLimit();
-  getEndLimit();
-  getStartLimit();
+  getStartLimit(slowDownFactor);
+  digitalWrite(motorOffPin, HIGH); delay(50); digitalWrite(motorOffPin, LOW); // turni
+  getEndLimit(slowDownFactor);
+  digitalWrite(motorOffPin, HIGH); delay(50); digitalWrite(motorOffPin, LOW);
+  getStartLimit(slowDownFactor);
+  digitalWrite(motorOffPin, HIGH); delay(50); digitalWrite(motorOffPin, LOW);
   stepperDelayInd = 0; // start at lowest velocity
   takeAcceleratingStep(startPositionBuffer + getStartJitter(startPosJitter), 1, callibrationDelay); // move back to startPositionBuffer
   digitalWrite(motorOffPin, HIGH);
@@ -418,7 +421,7 @@ void recalibrateLimits(){
 
   // return to beginning of track
   delay(servoSwingTime); // delay before returning the platform to avoid whacking the mouse in the butt
-  getStartLimit();
+  getStartLimit(1.0);
   if (state==3){
     digitalWrite(obstaclePin, HIGH);
   }
@@ -443,6 +446,10 @@ void printMenuAndSettings(){
   Serial.println(rewardRotations);
   Serial.print("osbtacle gain: ");
   Serial.println(obsGain);
+  Serial.print("water duration: ");
+  Serial.println(waterDuration);
+  Serial.print("light on probability: ");
+  Serial.println(obsLightProbability);
   Serial.println("");
   delay(500);
 
@@ -453,6 +460,8 @@ void printMenuAndSettings(){
   Serial.println("3: set condition to platform, with obstacles");
   Serial.println("4: set reward rotation number");
   Serial.println("5: set obstacle gain");
+  Serial.println("6: set water duration");
+  Serial.println("7: set obstacle light on probability");
   Serial.println("");
   delay(500);
   
@@ -522,6 +531,22 @@ void getUserInput(){
         initializeObsLocations();
         printMenuAndSettings();
         break;
+
+      // enter water duration
+      case 6:
+        Serial.print("enter water duration...\n\n");
+        while (Serial.available() == 0)  {}
+        waterDuration = Serial.parseInt();
+        printMenuAndSettings();
+        break;
+      
+      // enter obs light on probability
+      case 7:
+        Serial.print("enter light on probability...\n\n");
+        while (Serial.available() == 0)  {}
+        obsLightProbability = Serial.parseFloat();
+        printMenuAndSettings();
+        break;
     }
   }
 }
@@ -569,7 +594,7 @@ int getMotorDelayFromWheelDelay(int wheelDelay){
 int setObsPos(int index){
 
   static double ticsPerMm = (encoderSteps / (2*PI*wheelRad));
-  return obstacleLocationSteps[index] + random(obsPosJitter[0]*obsGain*ticsPerMm, obsPosJitter[1]*ticsPerMm); // initialize first position)
+  return obstacleLocationSteps[index] + random(obsPosJitter[0]*(1/obsGain)*ticsPerMm, obsPosJitter[1]*ticsPerMm); // initialize first position)
 
 }
 
