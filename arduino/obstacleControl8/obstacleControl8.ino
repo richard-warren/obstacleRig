@@ -28,7 +28,7 @@ const int endPositionMm = 20;
 volatile int waterDuration = 80; // milliseconds
 const double maxStepperSpeed = 1.6; // (m/s)
 const float acceleration = 8.0; //(m/s^2)
-volatile float callibrationSpeed = .8; // speed with motor moves plastform during callibration (m/s) // note: changed from .6 to .8 on 180722 because sen6 is so fast it didnt get back in time
+volatile float callibrationSpeed = .6; // speed with motor moves plastform during callibration (m/s) // note: changed back from .8 to .6 because anything above .6 fails to initialize to the correct starting position, instead just pausing at the end of the track
 const float obstacleLocations[] = {1.5, 4.5, 7.5, rewardRotations*20}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
 const int velocitySamples = 10; // each sample last about 500 microseconds
 const int obsPosJitter[] = {-100, 100}; // jitter range for the onset position of obstacles (mm)
@@ -425,6 +425,9 @@ void recalibrateLimits(){
   if (state==3){
     digitalWrite(obstaclePin, HIGH);
   }
+
+  // brief delay to make sure motor is able to successfully get back to start position
+  delay(100);
 
   // return to starting position
   stepperDelayInd = 0; // start at lowest velocity
