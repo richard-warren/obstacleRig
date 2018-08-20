@@ -14,14 +14,14 @@ const int minObsHeight = 2.5; // (mm) height of obs when it is flush with the fl
 
 
 // user settings
-const float obsOffset = .9;
+const float obsOffset = 0.0;
 const float obsThickness = 3.175 + obsOffset; // the latter term takes care of measurement offset - without it obs is set higher than intended
 const bool randomizeHeights = true;
 const float randObsHeightMin = obsThickness;
 const float randObsHeightMax = 10.0;
 volatile float obsHeight = 8.5;  // (mm), height of obs (top of wheel to top of obs)
 volatile float tallShortProbability = 0.5; // probability that the obstacle will be high or low
-const float obsOnSteps = 204; // number of steps to take from the end stop (use to adjust obstacle alignment)
+const float obsOnSteps = 205; // number of steps to take from the end stop (use to adjust obstacle alignment)
 const float obsOffSteps = -180;
 const int vidTtlPulseDuration = 1;   // ms
 const int vidTtlInterval = 4; // ms
