@@ -1,0 +1,38 @@
+'' asdfasdf
+
+' user settings
+var wheelChan% := 7; ' either channel of wheel rotary encoder
+var wheelCircumference := 0.5984734005; ' meters
+var encoderTicks := 1440; ' how many encoder ticks per rotation on a single encoder output (720 cpr * 2)
+var velThresh := .1;
+
+
+' get dts, time differences between wheel tic events
+var numEvents% := Count(wheelChan%, 0, MaxTime());
+var dts[numEvents%];
+ChanData(wheelChan%, dts, 0, MaxTime());
+ArrDiff(dts);
+
+' convert to velocity (m/s)
+var velocity[numEvents%], i%;
+for i%:= 0 to numEvents%-1 step 1 do velocity[i%] := (wheelCircumference/encoderTicks) / dts[i%]; next;
+
+' remove velocities beneathe threshold
+var velocityThreshed[numEvents%];
+var velInd% := 0;
+for i%:= 0 to numEvents%-1 step 1 do
+    if velocity[i%] > velThresh then
+        velocityThreshed[velInd%] := velocity[i%];
+        velInd% += 1;
+    endif;
+next;
+resize velocityThreshed[velInd%];
+
+' get average velocity
+var velAvg;
+ArrSum(velocityThreshed, velAvg);
+
+
+' report results
+PrintLog("velocity: ", velAvg);
+
