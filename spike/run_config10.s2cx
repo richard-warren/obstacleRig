@@ -1,7 +1,7 @@
 <CEDResources>
 	<DocTime>
 		<View>
-			<WPlace flags="0" showc="1" minx="-1" miny="-1" maxx="-1" maxy="-1" t="104" b="415" l="104" r="685"/>
+			<WPlace flags="0" showc="1" minx="-1" miny="-1" maxx="-8" maxy="-31" t="0" b="476" l="0" r="765"/>
 			<Font hgt="-11" wid="0" esc="0" or="0" wgt="400" itl="0" und="0" so="0" cset="0" oupre="0" clpre="0" qual="0" paf="16" fnam="Times New Roman"/>
 			<Chan Chan="400" DMode="10" DTrig="-1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" ChType="3"/>
 			<Chan Chan="31" DMode="9" DTrig="-1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" ChType="5"/>
@@ -17,8 +17,8 @@
 			<Chan Chan="2" DMode="6" DWidth="1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="1" AxMin="0" AxMax="2800" AdcAxMax="1" FreqAxMax="2800" AxType="2" CWeight="0.74858757062146897" ChType="4" PenWidth="2"/>
 			<Chan Chan="1" DMode="10" DWidth="0.099999999999999992" DTrig="4" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" FreqAxMax="8481.0126582278481" CWeight="1.8292682926829269" ChType="4"/>
 			<Chan Chan="0" DMode="10" DWidth="1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" FreqAxMax="22081.784386617106" RateAxMax="2399.9999999999995" CWeight="1.4227642276422765" ChType="3"/>
-			<XInfo Left="0" Right="131.89972276730293" XAxSmall="5" VCLabMode="2" HCLabMode="1" VCCount="2">
-				<VCur id="0" Pos="1782.4537579999999" LabMode="2" LabPos="0.20000000000000001" Num="0" Chan="0" LabStr="" AMode="0"/>
+			<XInfo Left="0" Right="131.93349131092202" XAxSmall="5" VCLabMode="2" HCLabMode="1" VCCount="2">
+				<VCur id="0" Pos="3615.437762" LabMode="2" LabPos="0.20000000000000001" Num="0" Chan="0" LabStr="" AMode="0"/>
 				<VCur id="1" Pos="0" LabMode="2" LabPos="0.20000000000000001" Num="1" Chan="0" LabStr="" AMode="0"/>
 			</XInfo>
 			<ChOrder Chans="14">
@@ -42,7 +42,7 @@
 			<OvDraw3d YProp="0.5" XScale="0.5" YScale="0.5"/>
 		</View>
 		<ProcC Name="MeasureToChan" Type="2">
-			<MeasureToChan Chans="1" ComX="1" Pause="0" ITTy="7" ITCh="8" ITLim="4250.7169979999999" ITCont="0" ITLev1="2.5" ITLev2="0" ITHyst="0" ITWid="0" ITMin="0" ITCnt="1" Expr="Cursor(0) + 2" Qual="" Lev1="2.5" Lev2="0.0" ChType="3" MemChan="1" ChNum="400">
+			<MeasureToChan Chans="1" ComX="1" Pause="0" ITTy="7" ITCh="8" ITLim="6.5839979999999994" ITCont="0" ITLev1="2.5" ITLev2="0" ITHyst="0" ITWid="0" ITMin="0" ITCnt="1" Expr="Cursor(0) + 2" Qual="" Lev1="2.5" Lev2="0.0" ChType="3" MemChan="1" ChNum="400">
 				<c id="0" XSrc="0" YSrc="0" XTim="Cursor(0)" XRef="0" YTim="Cursor(0)" YRef="0" NPts="0" XTyp="2" YTyp="0" XWid="0" YWid="0" XFitC="1" YFitC="1" CNam="rewards"/>
 			</MeasureToChan>
 			<m Start="0.0" End="13.7119" ClBins="0" Opt="1"/>
@@ -50,7 +50,7 @@
 		</ProcC>
 	</DocTime>
 	<Sample S2Ver="718" ARange="5">
-		<!--Sampling configuration saved to C:\Users\sawtell\Desktop\github\obstacleRig\spike\run_config10.s2cx on Wednesday, January 23, 2019 2:41:04 PM-->
+		<!--Sampling configuration saved to C:\Users\sawtell\Desktop\github\obstacleRig\spike\run_config10.s2cx on Thursday, February 14, 2019 11:49:12 AM-->
 		<Chans Chans="32" BigFile="0" IdealWMRate="20000" DigMode="0">
 			<Chan id="0" Type="3" Title="step" Port="4" Traces="0" Rate="10000" ActRate="100" Comment="" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0.0099999997764825821" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
 			<Chan id="1" Type="4" Title="obEncodA" Port="2" Traces="0" Rate="10000" ActRate="100" Comment="quadrature output channel A for rotary encoder on obstacle platform" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
@@ -218,11 +218,11 @@
 		</CondPorts>
 		<ForceOP SetDAC0="0" DAC0="0" SetDAC1="0" DAC1="0" SetDAC2="0" DAC2="0" SetDAC3="0" DAC3="0" SetDAC4="0" DAC4="0" SetDAC5="0" DAC5="0" SetDAC6="0" DAC6="0" SetDAC7="0" DAC7="0" DigOut="0" DigLow="0" RampT="0" OnLoad="0" OnStart="0" OnFinish="0"/>
 		<Talkers/>
-		<SampCtl t="545" b="0" l="1095" r="2"/>
-		<SeqCtl t="545" b="0" l="1376" r="2"/>
-		<SampSta t="485" b="0" l="1546" r="2"/>
+		<SampCtl t="518" b="0" l="1035" r="2"/>
+		<SeqCtl t="518" b="0" l="1316" r="2"/>
+		<SampSta t="458" b="0" l="1421" r="2"/>
 	</Sample>
 	<App>
-		<WPlace flags="0" showc="1" minx="-32000" miny="-32000" maxx="-1" maxy="-1" t="434" b="1047" l="1089" r="1820"/>
+		<WPlace flags="0" showc="1" minx="-1" miny="-1" maxx="-1" maxy="-1" t="407" b="1047" l="1029" r="1814"/>
 	</App>
 </CEDResources>

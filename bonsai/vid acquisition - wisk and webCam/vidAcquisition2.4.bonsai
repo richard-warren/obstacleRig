@@ -89,8 +89,8 @@ def process(value):
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="q1:Crop">
           <q1:RegionOfInterest>
-            <q1:X>8</q1:X>
-            <q1:Y>160</q1:Y>
+            <q1:X>0</q1:X>
+            <q1:Y>178</q1:Y>
             <q1:Width>632</q1:Width>
             <q1:Height>234</q1:Height>
           </q1:RegionOfInterest>

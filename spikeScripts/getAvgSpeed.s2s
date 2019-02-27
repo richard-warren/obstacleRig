@@ -6,10 +6,11 @@ var wheelChan% := 7; ' can be either channel of wheel rotary encoder
 var wheelCircumference := 0.5984734005; ' circumference of wheel in meters
 var encoderTicks := 1440; ' how many encoder ticks per rotation on a single encoder output (720 cpr * 2 (to account from high and low transitions))
 var velThresh := .1; ' exclude velocities beneathe velThresh (m/s)
+var maximumTime% := 20*60; 'only compute velocity from beggining of session to maximumTime (seconds) 
 
 
 ' get dts, time differences between wheel tic events
-var numEvents% := Count(wheelChan%, 0, MaxTime());
+var numEvents% := Count(wheelChan%, 0, maximumTime%);
 var dts[numEvents%];
 ChanData(wheelChan%, dts, 0, MaxTime());
 ArrDiff(dts);
