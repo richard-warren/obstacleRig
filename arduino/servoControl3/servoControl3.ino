@@ -14,7 +14,7 @@ const int minObsHeight = 3.75; // (mm) height of obs when it is flush with the f
 
 
 // user settings
-const float obsOffset = 0.5;
+const float obsOffset = 1.0; // if arduino reading is too low, increase this number, and vice versa
 const float obsThickness = 3.175 + obsOffset; // the latter term takes care of measurement offset - without it obs is set higher than intended
 const bool randomizeHeights = true;
 const float randObsHeightMin = obsThickness;
