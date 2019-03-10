@@ -6,8 +6,8 @@ const float hz = 40; // frequency of sine wave
 const int maxLightTime = 3000; // ms
 const int rampDownTime = 100; // ms
 const int testStimDuration = 500; // ms
-const float lightProbability = 1;
-volatile float laserPower = .2;
+volatile float lightProbability = 0;
+volatile float lightPower = .2;
 
 
 // initializations
@@ -24,6 +24,7 @@ volatile bool isLightOn = true;
 volatile bool testPulse = false;
 volatile int currentStimDuration = maxLightTime;
 volatile int userInput;
+volatile bool constantLightOn = false;
 Adafruit_MCP4725 dac;
 
 
@@ -50,8 +51,8 @@ void setup() {
   randomSeed(analogRead(0)); // initialiez random seed
   attachInterrupt(digitalPinToInterrupt(obstaclePin), lightOnOff, CHANGE);
   Serial.begin(115200);
-  Serial.println("1: test light stimulation");
-  Serial.println("2: set fraction LED power");
+  showMenu();
+  
 }
 
 
@@ -62,7 +63,7 @@ ISR(TIMER0_COMPA_vect){
   // update sin table index
   if (isLightOn){
     
-    newValue = constrain(round(sinLookup[min(round(sinIndex), sinSmps-1)] * bitConversion * laserPower), 0, 4095);
+    newValue = constrain(round(sinLookup[min(round(sinIndex), sinSmps-1)] * bitConversion * lightPower), 0, 4095);
     newValue = newValue * float(constrain(currentStimDuration+rampDownTime - lightTimer,0,rampDownTime)) / rampDownTime; // ramp that shit down!
     updated = true;
 
@@ -82,7 +83,8 @@ void loop(){
   // update LED output
   if (updated){
     dac.setVoltage(newValue, false);
-//    Serial.println(newValue);
+//    dac.setVoltage(0, false);
+//    Serial.println(newValue); // prints output signal to serial port // use for debugging
     updated = false;
   }
 
@@ -93,22 +95,40 @@ void loop(){
     
     switch (userInput){
 
-      // test laser output
+      // test light output
       case 1:
         currentStimDuration = testStimDuration;
         testPulse = true;
         lightOnOff();
-        Serial.print("delivering light with power: ");
-        Serial.println(laserPower);
         break;
 
-      // set laser power
+      // set light power
       case 2:
         Serial.println("enter light power (0-1)...");
         while (Serial.available() == 0)  {}
-        laserPower = Serial.parseFloat();
-        Serial.print("laser power set to: ");
-        Serial.println(laserPower);
+        lightPower = Serial.parseFloat();
+        showMenu();
+        break;
+
+      // set light on probability
+      case 3:
+        Serial.println("enter light probability (0-1)...");
+        while (Serial.available() == 0)  {}
+        lightProbability = Serial.parseFloat();
+        showMenu();
+        break;
+
+      // turn constant light on/off
+      case 4:
+        if (constantLightOn){
+          newValue = 0;
+          constantLightOn = false;
+        }else{
+          newValue = 4095.0 * lightPower;
+          constantLightOn = true;
+        }
+        updated = true;
+        showMenu();
         break;
     }
     
@@ -128,3 +148,20 @@ void lightOnOff(){
     lightTimer = currentStimDuration;
   }
 }
+
+
+
+void showMenu(){
+  Serial.println("\n-------------------------");
+  Serial.println("1: test light stimulation");
+  Serial.print("2: set fraction light power: ");
+  Serial.println(lightPower);
+  Serial.print("3: set light probability: ");
+  Serial.println(lightProbability);
+  if (constantLightOn){
+    Serial.println("4: turn constant light OFF");
+  }else{
+    Serial.println("4: turn constant light ON");
+  }
+}
+
