@@ -25,6 +25,7 @@ volatile bool testPulse = false;
 volatile int currentStimDuration = maxLightTime;
 volatile int userInput;
 volatile bool constantLightOn = false;
+volatile bool isStepping = false;
 Adafruit_MCP4725 dac;
 
 
@@ -74,6 +75,15 @@ ISR(TIMER0_COMPA_vect){
       isLightOn = false;
       currentStimDuration = maxLightTime;
     } 
+  }
+
+  else if (isStepping){
+    lightTimer++;
+    if (lightTimer>testStimDuration){
+      newValue = 0;
+      updated = true;
+      isStepping = false;
+    }
   }
 }
 
@@ -130,6 +140,15 @@ void loop(){
         updated = true;
         showMenu();
         break;
+
+      // deliver step pulse of light
+      case 5:
+        newValue = 4095 * lightPower;
+        updated = true;
+        isStepping = true;
+        lightTimer = 0;
+        showMenu();
+        break;
     }
     
   }
@@ -163,5 +182,6 @@ void showMenu(){
   }else{
     Serial.println("4: turn constant light ON");
   }
+  Serial.println("5: step pulse");
 }
 
