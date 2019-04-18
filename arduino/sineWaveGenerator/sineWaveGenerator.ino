@@ -1,3 +1,4 @@
+
 #include "Adafruit_MCP4725.h"
 
 // settings
@@ -5,9 +6,10 @@ const int obstaclePin = 2; // must be either 2 or 3 (these are interrupt pins on
 const float hz = 40; // frequency of sine wave
 const int maxLightTime = 3000; // ms
 const int rampDownTime = 100; // ms
-const int testStimDuration = 500; // ms
+const int rampUpTime = 100; // ms
+const int testStimDuration = 5000; // ms
 volatile float lightProbability = 0;
-volatile float lightPower = .2;
+volatile float lightPower = .01;
 
 
 // initializations
@@ -65,6 +67,11 @@ ISR(TIMER0_COMPA_vect){
   if (isLightOn){
     
     newValue = constrain(round(sinLookup[min(round(sinIndex), sinSmps-1)] * bitConversion * lightPower), 0, 4095);
+    
+    // ramp up
+    newValue = newValue * constrain(float(lightTimer)/rampUpTime, 0, 1);
+    
+    // ramp down
     newValue = newValue * float(constrain(currentStimDuration+rampDownTime - lightTimer,0,rampDownTime)) / rampDownTime; // ramp that shit down!
     updated = true;
 
@@ -174,7 +181,7 @@ void showMenu(){
   Serial.println("\n-------------------------");
   Serial.println("1: test light stimulation");
   Serial.print("2: set fraction light power: ");
-  Serial.println(lightPower);
+  Serial.println(lightPower, 3); // second argument is number of decimals
   Serial.print("3: set light probability: ");
   Serial.println(lightProbability);
   if (constantLightOn){

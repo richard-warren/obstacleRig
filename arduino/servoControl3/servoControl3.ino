@@ -10,18 +10,18 @@ const int stepperStepPin = 5;
 const int stepperDisablePin = 4;
 const int vidTtlPin = 13;
 const int obsHeightPin = 11; // don't change - i hack into timer0, timer1 is used by stepper library, and pins 3,11 use timer2 on arduino uno
-const int minObsHeight = 3.75; // (mm) height of obs when it is flush with the floor of the wheel
+const int minObsHeight = 3.0; // (mm) height of obs when it is flush with the floor of the wheel
 
 
 // user settings
-const float obsOffset = 1.0; // if arduino reading is too low, increase this number, and vice versa
+const float obsOffset = 0.7; // if arduino reading is too low, increase this number, and vice versa
 const float obsThickness = 3.175 + obsOffset; // the latter term takes care of measurement offset - without it obs is set higher than intended
 const bool randomizeHeights = true;
 const float randObsHeightMin = obsThickness;
 const float randObsHeightMax = 10.0;
 volatile float obsHeight = 10.0;  // (mm), height of obs (top of wheel to top of obs) // this is used when randomizeHeights=false
 volatile float tallShortProbability = 0.5; // probability that the obstacle will be high or low
-const float obsOnSteps = 205; // number of steps to take from the end stop (use to adjust obstacle alignment)
+const float obsOnSteps = 202; // number of steps to take from the end stop (use to adjust obstacle alignment)
 const float obsOffSteps = -180;
 const int vidTtlPulseDuration = 1;   // ms
 const int vidTtlInterval = 4; // ms
