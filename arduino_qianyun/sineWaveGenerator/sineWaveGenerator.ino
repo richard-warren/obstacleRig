@@ -37,6 +37,7 @@ void setup() {
 
   pinMode(obstaclePin, INPUT);
   
+  
   // INITIALIZE TIMER INTERRUPTS
   cli();//disable interrupts
   TCCR0A = 0;// set entire TCCR0A register to 0
@@ -195,12 +196,3 @@ void showMenu(){
   }
   Serial.println("5: step pulse");
 }
-
-
-
-
-
-
-
-
-

@@ -10,26 +10,23 @@ const int stepperStepPin = 5;
 const int stepperDisablePin = 4;
 const int vidTtlPin = 13;
 const int obsHeightPin = 11; // don't change - i hack into timer0, timer1 is used by stepper library, and pins 3,11 use timer2 on arduino uno
-const int minObsHeight = 3.0; // (mm) height of obs when it is flush with the floor of the wheel
 
 
 // user settings
-const float obsOffset = 0.7; // if arduino reading is too low, increase this number, and vice versa
-const float obsThickness = 3.175 + obsOffset; // the latter term takes care of measurement offset - without it obs is set higher than intended
 const bool randomizeHeights = true;
-const float randObsHeightMin = obsThickness;
-const float randObsHeightMax = 10.0;
-volatile float obsHeight = 10.0;  // (mm), height of obs (top of wheel to top of obs) // this is used when randomizeHeights=false
+const float randObsHeightMin = 0.0;
+const float randObsHeightMax = 8.0;
+volatile float obsHeight = 5.0;  // (mm), height of bottom surface of obs
 volatile float tallShortProbability = 0.5; // probability that the obstacle will be high or low
-const float obsOnSteps = 198; // number of steps to take from the end stop (use to adjust obstacle alignment)
-const float obsOffSteps = -180;
+const float obsOnSteps = 180;
+const float obsOffSteps = 20;
 const int vidTtlPulseDuration = 1;   // ms
 const int vidTtlInterval = 4; // ms
 const int rewardTtlOverhang = 500; // ms to continue generating ttls for after reward reached // THIS SHOULD NOT BE DIVISIBLE BY 1000, SO THE TIMESTAMP INTERVAL BETWEEN FRAMES AT ENDAND BEGINNING OF NEXT TRIAL WILL BE DIFFERENT THAN 1/FS
 const int rewardTtlGap = 500; // ms pause in ttls after rewardTtlOverhang has passed
 const float obsHeightTravel = 15.0; // mm
 const int stepTtlDuration = 1; // ms
-const int stepTtlInterval = 1; // ms
+const int stepTtlInterval = 2; // ms
 
 
 // initializations
@@ -42,8 +39,6 @@ volatile int overhangTimer = 0;
 volatile int serialInput = 0;
 volatile int stepsToTake = 0;
 volatile int stepsTaken = 0;
-volatile bool isZeroing = false;
-volatile bool disableAfterSteps = false;
 
 
 
@@ -61,7 +56,7 @@ void setup() {
   pinMode(endStopPin, INPUT_PULLUP);
   
   digitalWrite(vidTtlPin, LOW);
-  digitalWrite(stepperDisablePin, HIGH);
+  digitalWrite(stepperDisablePin, LOW);
   digitalWrite(stepperStepPin, LOW);
   digitalWrite(stepperDirectionPin, HIGH);
   setObsHeight(obsHeight);
@@ -93,10 +88,10 @@ void setup() {
 
 
   // begin serial communication
-  Serial.begin(9600);
-//  Serial.println("1: start video ttls");
-//  Serial.println("2: stop video ttls");
-//  Serial.println("3: set obstacle height");
+  Serial.begin(115200);
+  Serial.println("1: start video ttls");
+  Serial.println("2: stop video ttls");
+  Serial.println("3: set obstacle height");
 }
 
 
@@ -116,6 +111,12 @@ void loop() {
         isTtlOn = false;
         overHanging = false;
         break;
+      case 3:
+        Serial.print("enter obstacle height...\n\n");
+        while (Serial.available() == 0)  {}
+        obsHeight = Serial.parseFloat();
+        setObsHeight(obsHeight);
+        break;
     }
   }
 
@@ -125,6 +126,16 @@ void loop() {
 // stepper engage/disengage interrupts
 void controlstepper() {
   
+  // turn on motor
+//  digitalWrite(stepperDisablePin, LOW);
+  
+  // find the end stop
+  while (digitalRead(endStopPin)){
+    if (stepsTaken>=stepsToTake){
+      takeStep(-1);
+    }
+  }
+
   // read desired obstacle status
   isStepperEngaged = digitalRead(stepperInputPin);
 
@@ -133,18 +144,20 @@ void controlstepper() {
 
     // set obstacle height
     if (randomizeHeights){
-      obsHeight = (random(randObsHeightMin*10.0, randObsHeightMax*10.0) / 10.0);
-      setObsHeight(max(0, obsHeight));
+      obsHeight = random(randObsHeightMin*10, randObsHeightMax*10) / 10;
+      setObsHeight(obsHeight);
     }
-     Serial.println(obsHeight);
 
     // engage obstacle
-    takeStep(obsOnSteps, true);
+    takeStep(obsOnSteps);
     
   } else {
     // disengage obstacle
-    takeStep(obsOffSteps, false);
+    takeStep(obsOffSteps);
   }
+
+  // turn off driver
+//  digitalWrite(stepperDisablePin, HIGH);
 }
 
 
@@ -161,10 +174,10 @@ void rewardReached() {
 
 // set obstacle height
 void setObsHeight(float obsHeight) {
-  int obsHeight8 = round((obsHeight-obsThickness+minObsHeight) * (255.0 / obsHeightTravel));
-  analogWrite(obsHeightPin, 255 - constrain(obsHeight8,0,255));
-//  Serial.print("obstacle height set to: ");
- 
+  int obsHeight8 = round(obsHeight * (255.0 / obsHeightTravel));
+  analogWrite(obsHeightPin, obsHeight8);
+  Serial.print("obstacle height set to: ");
+  Serial.println(obsHeight);
 }
 
 
@@ -207,52 +220,43 @@ ISR(TIMER0_COMPA_vect) {
 
 
   // control stepper ttl timer
-  if (stepsTaken<stepsToTake){    
+  if (stepsTaken<stepsToTake){
+//    Serial.print(stepsTaken);
+//    Serial.println(stepsToTake);
+    
     stepperTtlTimer++;
   
     switch (stepperTtlTimer) {
-      case stepTtlDuration:
+      case 1:
+        digitalWrite(stepperStepPin, HIGH);
+        break;
+      case (1+stepTtlDuration):
         digitalWrite(stepperStepPin, LOW);
         break;
-      case stepTtlDuration+stepTtlInterval:
-        digitalWrite(stepperStepPin, HIGH);
+      case (1+stepTtlDuration+stepTtlInterval):
         stepperTtlTimer = 0;
-        if (isZeroing){
-          if (!digitalRead(endStopPin)){
-            isZeroing = false;
-            digitalWrite(stepperDirectionPin, HIGH);
-          }
-        }else{
-          stepsTaken++;
-        }
+        stepsTaken++;
         break;
     }
-  }else if (disableAfterSteps){ // disable motor only after going home
-    digitalWrite(stepperDisablePin, HIGH);
   }
 }
 
 
 
-void takeStep(volatile int steps, bool homeFirst){
-  
-  // turn on motor
-  digitalWrite(stepperDisablePin, LOW);
+void takeStep(volatile int steps){
   
   // set direction
-  if (homeFirst){
-    digitalWrite(stepperDirectionPin, LOW);
-    digitalWrite(stepperStepPin, HIGH);
-    isZeroing = true;
-    disableAfterSteps = false;
-  }else{
-    digitalWrite(stepperDirectionPin, steps>0);
-    digitalWrite(stepperStepPin, HIGH);
-    isZeroing = false;
-    disableAfterSteps = true;
-  }
+  digitalWrite(stepperDirectionPin, steps>0);
+
+//  for (int i=0; i<abs(steps); i++){
+//    digitalWrite(stepperStepPin, HIGH);
+//    delay(1);
+//    digitalWrite(stepperStepPin, LOW);
+//    delay(1);
+//  }
   
-  // reset step counter parameters
+
+//   reset step counter parameters
   stepsToTake = abs(steps);
   stepsTaken = 0;
   stepperTtlTimer = 0;
