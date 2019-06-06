@@ -18,6 +18,7 @@ volatile long signalTimer = signalDuration;  // timer for the duration of the si
 volatile long pulseTimer = 0; // keeps track of interstimulus interval in the pulse condition
 volatile bool isSignalOn = false;
 volatile int userInput;
+const String stimTypes[] = {"sin", "step", "pulse"};
 Adafruit_MCP4725 dac;
 
 

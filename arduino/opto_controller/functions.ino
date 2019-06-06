@@ -27,7 +27,7 @@ ISR(TIMER0_COMPA_vect){
         else{newValue = 0;}
         
         pulseTimer++;
-        if (pulseTimer>=pulseDuration){pulseTimer = 0;}
+        if (pulseTimer>=interPulseInterval){pulseTimer = 0;}
         break;
     }
   
@@ -76,84 +76,5 @@ void startSignal(){
 
 void setFrequency(){
    deltaIndex = sinSmps*hz/fs; // how much to advance in the sin lookup table every ms
-   interPulseInterval = 1/hz;
-}
-
-
-
-void getUserInput(){
-  // check for user input
-  
-  if (Serial.available()){
-    
-    userInput = Serial.read() - 48; // parseInt freezes for some reason
-    
-    switch (userInput){
-
-      // deliver stimulus
-      case 1:
-        startSignal();
-        break;
-
-      // set light power
-      case 2:
-        Serial.println("enter signal power (0-1)...");
-        while (Serial.available() == 0)  {}
-        signalPower = Serial.parseFloat();
-        showMenu();
-        break;
-
-      // set light on probability
-      case 3:
-        Serial.println("enter signal probability (0-1)...");
-        while (Serial.available() == 0)  {}
-        signalProbability = Serial.parseFloat();
-        showMenu();
-        break;
-
-      // set signal duration
-      case 4:
-        Serial.println("enter signal duration (ms)...");
-        while (Serial.available() == 0)  {}
-        signalDuration = Serial.parseInt();
-        showMenu();
-        break;
-
-      // set stimulus type
-      case 5:
-        Serial.println("enter stimulus type (0: sin, 1: step, 2: pulse)...");
-        while (Serial.available() == 0)  {}
-        stimType = Serial.parseInt();
-        showMenu();
-        break;
-
-      // set stimulus frequency
-      case 6:
-        Serial.println("enter stimulus frequency (hz)...");
-        while (Serial.available() == 0)  {}
-        hz = Serial.parseInt();
-        setFrequency();
-        showMenu();
-        break;
-    }
-  }
-}
-
-
-
-void showMenu(){
-  // shows serial menu
-  
-  Serial.println("\n-------------------------");
-  Serial.println("1: deliver stimulus");
-  Serial.print("2: set stimulus power: ");
-  Serial.println(signalPower, 3); // second argument is number of decimals
-  Serial.print("3: set signal probability: ");
-  Serial.println(signalProbability, 3);
-  Serial.print("4: set signal duration: ");
-  Serial.println(signalDuration);
-  Serial.print("5: set stimulus type: ");
-  Serial.println(stimType);
-  Serial.print("6: set stimulus frequency: ");
-  Serial.println(hz);
+   interPulseInterval = round(1.0/hz*1000);
 }
