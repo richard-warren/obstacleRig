@@ -1,0 +1,159 @@
+// t0 interrupt (every 1 ms monitor stimulus duration and update stimulus power)
+ISR(TIMER0_COMPA_vect){
+
+  // update sin table index
+  if (isSignalOn){
+
+    // update output based on type of stimulus
+    oldValue = newValue;
+
+    switch (stimType){
+      
+      // sine wave
+      case 0:
+        newValue = sinLookup[min(round(sinIndex), sinSmps-1)]; // get new value for stimulus power from sin lookup table
+        sinIndex += deltaIndex;
+        if (sinIndex>sinSmps){sinIndex -= sinSmps;}
+        break;
+
+      // step
+      case 1:
+        newValue = 255;
+        break;
+
+      // pulse
+      case 2:
+        if (pulseTimer<pulseDuration){newValue = 255;}
+        else{newValue = 0;}
+        
+        pulseTimer++;
+        if (pulseTimer>=pulseDuration){pulseTimer = 0;}
+        break;
+    }
+  
+    // ramp up and down
+    if (rampUpTime>0){
+      newValue = newValue * constrain(float(signalTimer)/rampUpTime, 0, 1); // ramp up
+    }
+    if (rampDownTime>0){
+      newValue = newValue * constrain(float(signalDuration-signalTimer)/rampDownTime, 0, 1); // ramp down
+    }
+
+    // check whether light should be turned off
+    signalTimer++;
+    if (signalTimer>signalDuration){
+      isSignalOn = false;
+      newValue = 0;
+    }
+
+    // record whether value has been updated
+    if (oldValue != newValue){updated = true;}
+  }
+}
+
+
+
+// turns on light when pin goes high, and turns off light when pin goes low
+void stimulusOnOff(){
+  if ((digitalRead(triggerPin) && random(0,100)<(signalProbability*100.0))){
+    startSignal();
+    
+  }else if (signalTimer<signalDuration && !constantSignalDuration){ // only do this when triggerPin is low
+    signalTimer = signalDuration-rampDownTime; // begin ramp down
+  }
+}
+
+
+
+// begins light delivery
+void startSignal(){
+  signalTimer = 0;
+  sinIndex = 0;
+  isSignalOn = true;
+}
+
+
+
+void setFrequency(){
+   deltaIndex = sinSmps*hz/fs; // how much to advance in the sin lookup table every ms
+   interPulseInterval = 1/hz;
+}
+
+
+
+void getUserInput(){
+  // check for user input
+  
+  if (Serial.available()){
+    
+    userInput = Serial.read() - 48; // parseInt freezes for some reason
+    
+    switch (userInput){
+
+      // deliver stimulus
+      case 1:
+        startSignal();
+        break;
+
+      // set light power
+      case 2:
+        Serial.println("enter signal power (0-1)...");
+        while (Serial.available() == 0)  {}
+        signalPower = Serial.parseFloat();
+        showMenu();
+        break;
+
+      // set light on probability
+      case 3:
+        Serial.println("enter signal probability (0-1)...");
+        while (Serial.available() == 0)  {}
+        signalProbability = Serial.parseFloat();
+        showMenu();
+        break;
+
+      // set signal duration
+      case 4:
+        Serial.println("enter signal duration (ms)...");
+        while (Serial.available() == 0)  {}
+        signalDuration = Serial.parseInt();
+        showMenu();
+        break;
+
+      // set stimulus type
+      case 5:
+        Serial.println("enter stimulus type (0: sin, 1: step, 2: pulse)...");
+        while (Serial.available() == 0)  {}
+        stimType = Serial.parseInt();
+        showMenu();
+        break;
+
+      // set stimulus frequency
+      case 6:
+        Serial.println("enter stimulus frequency (hz)...");
+        while (Serial.available() == 0)  {}
+        hz = Serial.parseInt();
+        setFrequency();
+        showMenu();
+        break;
+    }
+  }
+}
+
+
+
+void showMenu(){
+  // shows serial menu
+  
+  Serial.println("\n-------------------------");
+  Serial.println("1: deliver stimulus");
+  Serial.print("2: set stimulus power: ");
+  Serial.println(signalPower, 3); // second argument is number of decimals
+  Serial.print("3: set signal probability: ");
+  Serial.println(signalProbability, 3);
+  Serial.print("4: set signal duration: ");
+  Serial.println(signalDuration);
+  Serial.print("5: set stimulus type: ");
+  Serial.println(stimType);
+  Serial.print("6: set stimulus frequency: ");
+  Serial.println(hz);
+}

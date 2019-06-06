@@ -1,15 +1,11 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CEDResources>
 	<DocTime>
 		<View>
-			<WPlace flags="0" showc="1" minx="-1" miny="-1" maxx="-8" maxy="-31" t="0" b="469" l="0" r="784"/>
+			<WPlace flags="0" showc="1" minx="-1" miny="-1" maxx="-1" maxy="-1" t="0" b="469" l="0" r="784"/>
 			<Font hgt="-11" wid="0" esc="0" or="0" wgt="400" itl="0" und="0" so="0" cset="0" oupre="0" clpre="0" qual="0" paf="16" fnam="Times New Roman"/>
-			<Chan Chan="400" DMode="10" DTrig="-1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" ChType="3"/>
 			<Chan Chan="31" DMode="9" DTrig="-1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" ChType="5"/>
 			<Chan Chan="30" DMode="9" DTrig="-1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" FreqAxMax="2" ChType="5"/>
-			<Chan Chan="10" DMode="11" DSubMd="2" Vis="1" Ax="1" AxMin="-5" AxMax="5" AdcAxMin="-5" AdcAxMax="5" FreqAxMax="500" AxType="1" CWeight="0.60734463276836159" ChType="1" PriCol="1" PriOv="0"/>
 			<Chan Chan="9" DMode="11" DWidth="1" DBoth="1" DSubMd="2" Vis="1" Ax="1" AxMin="-0.8625030517578125" AxMax="5.2790069580078125" AdcAxMin="-0.8625030517578125" AdcAxMax="5.2790069580078125" FreqAxMax="500" AxType="1" ChType="1" PriCol="21" PriOv="33023"/>
-			<Chan Chan="8" DMode="11" DSubMd="2" Vis="1" Ax="1" AxMin="0" AxMax="5" AdcAxMax="5" FreqAxMax="500" AxType="1" CWeight="0.30219780219780218" ChType="1" PenWidth="2"/>
 			<Chan Chan="7" DMode="10" DTrig="-1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" FreqAxMax="20000" CWeight="1.6428571428571428" ChType="4"/>
 			<Chan Chan="6" DMode="6" DWidth="1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="1" AxMin="0" AxMax="1597.0423500857644" AdcAxMax="1" FreqAxMax="1597.0423500857644" AxType="2" ChType="4" PenWidth="2" PriCol="9" PriOv="32768"/>
 			<Chan Chan="5" DMode="10" DTrig="-1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" FreqAxMax="20000" ChType="3"/>
@@ -17,60 +13,47 @@
 			<Chan Chan="3" DMode="10" DTrig="-1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" FreqAxMax="20000" CWeight="8.5" ChType="4"/>
 			<Chan Chan="2" DMode="6" DWidth="1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="1" AxMin="0" AxMax="2800" AdcAxMax="1" FreqAxMax="2800" AxType="2" CWeight="0.74858757062146897" ChType="4" PenWidth="2"/>
 			<Chan Chan="1" DMode="10" DWidth="0.099999999999999992" DTrig="4" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" FreqAxMax="8481.0126582278481" CWeight="1.8292682926829269" ChType="4"/>
-			<Chan Chan="0" DMode="10" DWidth="1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" FreqAxMax="22081.784386617106" RateAxMax="2399.9999999999995" CWeight="1.4227642276422765" ChType="3"/>
-			<Chan Chan="11" DMode="11" DSubMd="2" Vis="1" Ax="1" AxMin="0" AxMax="5" AdcAxMax="5" FreqAxMax="500" AxType="1" ChType="1"/>
-			<XInfo Left="1203.7467781401347" Right="1306.0259161520414" XAxSmall="5" VCLabMode="2" HCLabMode="1" VCCount="2">
-				<VCur id="0" Pos="1298.860762" LabMode="2" LabPos="0.20000000000000001" Num="0" Chan="0" LabStr="" AMode="0"/>
-				<VCur id="1" Pos="0" LabMode="2" LabPos="0.20000000000000001" Num="1" Chan="0" LabStr="" AMode="0"/>
+			<Chan Chan="0" DMode="10" DTrig="-1" DBoth="1" DHLine="1" DSubMd="2" Vis="1" Ax="0" AxMin="0" AxMax="1" AdcAxMax="1" FreqAxMax="2000" ChType="4"/>
+			<Chan Chan="11" DMode="11" DSubMd="2" Vis="1" Ax="1" AxMin="-1.7021276595744679" AxMax="1.0638297872340428" AdcAxMin="-1.7021276595744679" AdcAxMax="1.0638297872340428" FreqAxMax="500" AxType="1" ChType="1"/>
+			<XInfo Left="0" Right="38.294545166714812" XAxSmall="5" VCLabMode="2" HCLabMode="1" VCCount="1">
+				<VCur id="0" Pos="1705.061078" LabMode="2" LabPos="0.20000000000000001" Num="0" Chan="0" LabStr="" AMode="0"/>
 			</XInfo>
-			<ChOrder Chans="15">
-				<c id="0" Chan="400"/>
-				<c id="1" Chan="31"/>
-				<c id="2" Chan="30"/>
-				<c id="3" Chan="10"/>
-				<c id="4" Chan="9"/>
-				<c id="5" Chan="8"/>
-				<c id="6" Chan="7"/>
-				<c id="7" Chan="6"/>
-				<c id="8" Chan="5"/>
-				<c id="9" Chan="4"/>
-				<c id="10" Chan="3"/>
-				<c id="11" Chan="2"/>
-				<c id="12" Chan="1"/>
-				<c id="13" Chan="0"/>
-				<c id="14" Chan="11"/>
+			<ChOrder Chans="12">
+				<c id="0" Chan="31"/>
+				<c id="1" Chan="30"/>
+				<c id="2" Chan="9"/>
+				<c id="3" Chan="7"/>
+				<c id="4" Chan="6"/>
+				<c id="5" Chan="5"/>
+				<c id="6" Chan="4"/>
+				<c id="7" Chan="3"/>
+				<c id="8" Chan="2"/>
+				<c id="9" Chan="1"/>
+				<c id="10" Chan="0"/>
+				<c id="11" Chan="11"/>
 			</ChOrder>
 			<CursVals XZero="0" YZero="0" Mode="0"/>
 			<CursRegs XZero="0" YZero="0" Mode="0"/>
 			<OvDraw3d YProp="0.5" XScale="0.5" YScale="0.5"/>
 		</View>
-		<ProcC Name="MeasureToChan" Type="2">
-			<MeasureToChan Chans="1" ComX="1" Pause="0" ITTy="7" ITCh="8" ITLim="1305.628684" ITCont="0" ITLev1="2.5" ITLev2="0" ITHyst="0" ITWid="0" ITMin="0" ITCnt="1" Expr="Cursor(0) + 2" Qual="" Lev1="2.5" Lev2="0.0" ChType="3" MemChan="1" ChNum="400">
-				<c id="0" XSrc="0" YSrc="0" XTim="Cursor(0)" XRef="0" YTim="Cursor(0)" YRef="0" NPts="0" XTyp="2" YTyp="0" XWid="0" YWid="0" XFitC="1" YFitC="1" CNam="rewards"/>
-			</MeasureToChan>
-			<m Start="0.0" End="13.7119" ClBins="0" Opt="1"/>
-			<u Mode="0" Per="1" Len="10" LastN="0" SwpLen="1.5" PreTrig="0.5" TrChan="-1" TrCode="-1" PrePost="0.5"/>
-		</ProcC>
 	</DocTime>
 	<Sample S2Ver="718" ARange="5">
-		<!--Sampling configuration saved to C:\Users\sawtell\Desktop\github\obstacleRig\spike\run_config11.s2cx on Thursday, March 07, 2019 7:45:22 PM-->
+		<!--Sampling configuration saved to C:\Users\sawtell\Desktop\github\obstacleRig\spike\run_config12.s2cx on Sunday, May 26, 2019 2:31:23 PM-->
 		<Chans Chans="32" BigFile="0" IdealWMRate="20000" DigMode="0">
-			<Chan id="0" Type="3" Title="step" Port="4" Traces="0" Rate="10000" ActRate="100" Comment="" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0.0099999997764825821" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
+			<Chan id="0" Type="4" Title="reward" Port="4" Traces="0" Rate="1000" ActRate="100" Comment="" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0.0099999997764825821" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
 			<Chan id="1" Type="4" Title="obEncodA" Port="2" Traces="0" Rate="10000" ActRate="100" Comment="quadrature output channel A for rotary encoder on obstacle platform" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
 			<Chan id="2" Type="4" Title="obEncodB" Port="7" Traces="0" Rate="10000" ActRate="100" Comment="" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
-			<Chan id="3" Type="4" Title="stepDir" Port="6" Traces="0" Rate="10000" ActRate="100" Comment="" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
+			<Chan id="3" Type="4" Title="obsLight" Port="6" Traces="0" Rate="1000" ActRate="100" Comment="" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
 			<Chan id="4" Type="4" Title="obsOn" Port="3" Traces="0" Rate="100" ActRate="100" Comment="" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
 			<Chan id="5" Type="3" Title="exposure" Port="5" Traces="0" Rate="10000" ActRate="100" Comment="" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0.10000000149011612" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
 			<Chan id="6" Type="4" Title="whEncodA" Port="0" Traces="0" Rate="10000" ActRate="100" Comment="" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
 			<Chan id="7" Type="4" Title="whEncodB" Port="1" Traces="0" Rate="10000" ActRate="100" Comment="" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
-			<Chan id="8" Type="1" Title="reward" Port="3" Traces="0" Rate="1000" ActRate="1000" Comment="" Units="" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="4" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
-			<Chan id="9" Type="1" Title="touch" Port="1" Traces="0" Rate="1000" ActRate="1000" Comment="" Units="V" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="4" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
-			<Chan id="10" Type="1" Title="obsLight" Port="0" Traces="0" Rate="1000" ActRate="1000" Comment="on when obstacle light is turned on... realy a digital channel" Units="" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="4" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
-			<Chan id="11" Type="1" Title="stimulus" Port="2" Traces="0" Rate="1000" ActRate="1000" Comment="" Units="" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="4" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
+			<Chan id="9" Type="1" Title="touch" Port="1" Traces="0" Rate="1000" ActRate="1000" Comment="" Units="V" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="2" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
+			<Chan id="11" Type="1" Title="ephys" Port="2" Traces="0" Rate="1000" ActRate="1000" Comment="" Units="" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="2" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
 			<Chan id="30" Type="5" Title="Keyboard" Port="0" Traces="0" Rate="1" ActRate="100" Comment="No comment" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
 			<Chan id="31" Type="5" Title="breaks" Port="0" Traces="0" Rate="50" ActRate="100" Comment="record times of wheel breaks" Units=" Volt" Scale="1" Offs="0" Pts="32" PreTrig="10" DBounce="0" Divide="0" AType="0" SerTerm="" SerBaud="9600" SerBits="0" SerStop="0" SerHand="1" Source="0" InTalk="0" Talker="" TalkVer="0" TalkChID=""/>
 		</Chans>
-		<Resol uspt="2" tpa="125" recalc="0" Assume1401="8" TenMHz="0" OptMeth="1" OptUSFrom="2" OptUSTo="50" GrpRates="1" QuickDum="0" CompFlgs="0" Burst="0"/>
+		<Resol uspt="2" tpa="250" recalc="0" Assume1401="8" TenMHz="0" OptMeth="1" OptUSFrom="2" OptUSTo="50" GrpRates="1" QuickDum="0" CompFlgs="0" Burst="0"/>
 		<Mode Mode="0" For="30" ForUn="1" Every="120" EveryUn="1">
 			<Trigs id="0" Chan="30" Code="-1" Pre="0" Post="1" Chans="-1" Mask="0" List=""/>
 			<Trigs id="1" Chan="-4" Code="-1" Pre="0" Post="1" Chans="-1" Mask="0" List=""/>
@@ -222,11 +205,11 @@
 		</CondPorts>
 		<ForceOP SetDAC0="0" DAC0="0" SetDAC1="0" DAC1="0" SetDAC2="0" DAC2="0" SetDAC3="0" DAC3="0" SetDAC4="0" DAC4="0" SetDAC5="0" DAC5="0" SetDAC6="0" DAC6="0" SetDAC7="0" DAC7="0" DigOut="0" DigLow="0" RampT="0" OnLoad="0" OnStart="0" OnFinish="0"/>
 		<Talkers/>
-		<SampCtl t="515" b="0" l="1121" r="2"/>
-		<SeqCtl t="515" b="0" l="1403" r="2"/>
-		<SampSta t="455" b="0" l="1508" r="2"/>
+		<SampCtl t="513" b="0" l="973" r="2"/>
+		<SeqCtl t="513" b="0" l="1260" r="2"/>
+		<SampSta t="453" b="0" l="1357" r="2"/>
 	</Sample>
 	<App>
-		<WPlace flags="0" showc="1" minx="-1" miny="-1" maxx="-1" maxy="-1" t="404" b="1045" l="1114" r="1918"/>
+		<WPlace flags="0" showc="1" minx="-1" miny="-1" maxx="-1" maxy="-1" t="402" b="1043" l="966" r="1770"/>
 	</App>
 </CEDResources>

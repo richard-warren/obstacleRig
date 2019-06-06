@@ -8,7 +8,7 @@ const int maxLightTime = 3000; // ms
 const int rampDownTime = 100; // ms
 const int rampUpTime = 100; // ms
 const int testStimDuration = 1000; // ms
-const bool stopWhenPinLow = false; // should you discontinue light when the triggering pin goes low?
+const bool stopWhenPinLow = false; // should you discontinue light when the triggering pin goes low? // otherwise discontinues after specified duration
 volatile float lightProbability = 0;
 volatile float lightPower = .01;
 
