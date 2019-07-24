@@ -64,7 +64,7 @@ void getUserInput(){
 
       // set ramp up time
       case 8:
-        Serial.println("enter ramp down time (ms)...");
+        Serial.println("enter ramp up time (ms)...");
         while (Serial.available() == 0)  {}
         rampUpTime = Serial.parseInt();
         showMenu();
@@ -72,7 +72,7 @@ void getUserInput(){
 
       // set ramp down time
       case 9:
-        Serial.println("enter ramp up time (ms)...");
+        Serial.println("enter ramp down time (ms)...");
         while (Serial.available() == 0)  {}
         rampDownTime = Serial.parseInt();
         showMenu();

@@ -21,7 +21,7 @@ const float randObsHeightMin = obsThickness;
 const float randObsHeightMax = 10.0;
 volatile float obsHeight = 10.0;  // (mm), height of obs (top of wheel to top of obs) // this is used when randomizeHeights=false
 volatile float tallShortProbability = 0.5; // probability that the obstacle will be high or low
-const float obsOnSteps = 198; // number of steps to take from the end stop (use to adjust obstacle alignment)
+const float obsOnSteps = 204; // number of steps to take from the end stop (use to adjust obstacle alignment)
 const float obsOffSteps = -180;
 const int vidTtlPulseDuration = 1;   // ms
 const int vidTtlInterval = 4; // ms
@@ -257,6 +257,3 @@ void takeStep(volatile int steps, bool homeFirst){
   stepsTaken = 0;
   stepperTtlTimer = 0;
 }
-
-
-

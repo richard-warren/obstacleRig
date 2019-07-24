@@ -18,7 +18,7 @@ volatile long signalTimer = signalDuration;  // timer for the duration of the si
 volatile long pulseTimer = 0; // keeps track of interstimulus interval in the pulse condition
 volatile bool isSignalOn = false;
 volatile int userInput;
-const String stimTypes[] = {"sin", "step", "pulse"};
+const String stimTypes[] = {"SIN", "STEP", "PULSE"};
 Adafruit_MCP4725 dac;
 
 
@@ -46,7 +46,9 @@ void setup() {
   dac.begin(0x62); // begin communication with DAC
   dac.setVoltage(0, false);
   randomSeed(analogRead(0)); // initialize random seed
-  attachInterrupt(digitalPinToInterrupt(triggerPin), stimulusOnOff  , CHANGE);
+  if (externalTrigger){
+    attachInterrupt(digitalPinToInterrupt(triggerPin), stimulusOnOff, CHANGE);
+  }
   Serial.begin(115200);
   setFrequency();
   showMenu();
@@ -61,6 +63,7 @@ void loop(){
   if (updated){
     dac.setVoltage(constrain(round(newValue*bitConversion*signalPower), 0, 4095), false);
     analogWrite(referencePin, newValue);
+    // analogWrite(referencePin, 0);
     updated = false;
   }
 
