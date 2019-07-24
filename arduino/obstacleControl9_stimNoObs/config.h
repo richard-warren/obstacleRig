@@ -36,7 +36,6 @@ volatile float obsLightProbability = 0.5;
 const long delayLookupLength = 20000;
 
 volatile float stimulusPosition = 320; // (mm) distance from beginning of track at which opto stimulus should be triggered // this will be overwritten if stimInsteadOfObstacles is true
-volatile const stimWithObstacles = true; // if true, always delivers stim when obstacles are on (ignores stimulus position)
 
 
 // rig characteristics

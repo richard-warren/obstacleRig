@@ -1,6 +1,5 @@
 // OBSTACLE CONTROL
-// this version of the code delivers a TTL from stimulusPin when the obstacle reaches stimulusPosition
-// the pin goes LOW when the obstacle is disengaged at the end of the track
+// this version of the code delivers a TTL from stimulusPin at the times the obstacle would otherwise have been engaged / disengaged WITHOUT actually moving the obstacle
 
 #include "config.h"
 #include <RunningMedian.h>
@@ -9,7 +8,6 @@
 
 
 // initializations
-volatile bool stimulusOn = false;
 const float mmPerMotorTic = ((2*PI*timingPulleyRad) / (motorSteps*microStepping));
 const int startPositionBuffer = startPositionMm * ((motorSteps*microStepping) / (2*PI*timingPulleyRad));
 const int endPositionBuffer = endPositionMm  * ((motorSteps*microStepping) / (2*PI*timingPulleyRad)); // motor stops endPositionBuffer steps before the beginning and end of the track
@@ -143,67 +141,57 @@ void loop(){
   if (!obstacleEngaged & (wheelTicksTemp >= obsPos)){
 
     switch (state){
-      
-      // platform, no obstacles
-      case 2:
-        obstacleEngaged = true;
-        stimulusOn = true;
-        digitalWrite(stimulusPin, HIGH);
-        digitalWrite(motorOffPin, LOW); // engages stepper motor driver
-        startTracking();
-        break;
 
       // platform, with obstacles
       case 3:
         obstacleEngaged = true;
-        digitalWrite(motorOffPin, LOW); // engages stepper motor driver
-        digitalWrite(obsOnPin, HIGH);
-        startTracking();
+        digitalWrite(stimulusPin, HIGH);
+//        digitalWrite(motorOffPin, LOW); // engages stepper motor driver
+//        digitalWrite(obsOnPin, HIGH);
+//        startTracking();
         break;
       }
   }
    
-  // turn on touch sensor
-  else if (obstacleEngaged & !touchSensorOn & (stepperTicks >= touchSensorOnSteps) & (stepperTicks < touchSensorOffSteps)){
-    touchSensorOn = true;
-    digitalWrite(touchSensorOnPin, HIGH);
-  }
-
-  // send stimulus ttl
-  else if (!stimulusOn & (stepperTicks >= stimulusMotorTics)){
-    stimulusOn = true;
-    digitalWrite(stimulusPin, HIGH);
-  }
-
-  // turn off touch sensor
-  else if (obstacleEngaged & touchSensorOn & ((stepperTicks >= touchSensorOffSteps) | (stepperTicks < touchSensorOnSteps))){
-    touchSensorOn = false;
-    digitalWrite(touchSensorOnPin, LOW);
-  }
+//  // turn on touch sensor
+//  else if (obstacleEngaged & !touchSensorOn & (stepperTicks >= touchSensorOnSteps) & (stepperTicks < touchSensorOffSteps)){
+//    touchSensorOn = true;
+//    digitalWrite(touchSensorOnPin, HIGH);
+//  }
+//
+//  // send stimulus ttl
+//  else if (!stimulusOn & (stepperTicks >= stimulusMotorTics)){
+//    stimulusOn = true;
+//    digitalWrite(stimulusPin, HIGH);
+//  }
+//
+//  // turn off touch sensor
+//  else if (obstacleEngaged & touchSensorOn & ((stepperTicks >= touchSensorOffSteps) | (stepperTicks < touchSensorOnSteps))){
+//    touchSensorOn = false;
+//    digitalWrite(touchSensorOnPin, LOW);
+//  }
   
   // disengage:
   else if (obstacleEngaged & (stepperTicks >= stepperStopPosition)){
     
     obstacleEngaged = false;
-    digitalWrite(obstaclePin, LOW);
-    digitalWrite(obsLightPin, LOW);
-    digitalWrite(obsLightPin2, LOW);
+//    digitalWrite(obstaclePin, LOW);
+//    digitalWrite(obsLightPin, LOW);
+//    digitalWrite(obsLightPin2, LOW);
     digitalWrite(obsOnPin, LOW);
     digitalWrite(stimulusPin, LOW);
-    stimulusOn = false;
     obstacleInd++;
     obsPos = setObsPos(obstacleInd);
-    recalibrateLimits();
+    stepperTicks = startPositionBuffer + getStartJitter(startPosJitter);
+//    recalibrateLimits();
   }
        
-
 
   // give water if reward location reached
   if (wheelTicksTemp > rewardPosition){
     giveReward();
   }
   
-
   
   // compute and move to target stepper position
   if (obstacleEngaged){
