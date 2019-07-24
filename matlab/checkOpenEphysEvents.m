@@ -1,4 +1,4 @@
-function checkOpenEphysEvents(spikeFile, openEphysDir, spikeChannelName)
+    function checkOpenEphysEvents(spikeFile, openEphysDir, spikeChannelName)
 
 % sometimes the same digital input split into spike and open ephys results
 % in different numbers of events in the two systems // given an open ephys

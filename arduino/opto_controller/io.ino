@@ -4,12 +4,13 @@ void getUserInput(){
   
   if (Serial.available()){
     
-    userInput = Serial.read() - 48; // parseInt freezes for some reason
+    userInput = Serial.read() - 48;
     
     switch (userInput){
 
       // deliver stimulus
       case 1:
+        signalPowerTemp = signalPower;
         startSignal();
         break;
 

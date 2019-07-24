@@ -57,6 +57,11 @@ ISR(TIMER0_COMPA_vect){
 void stimulusOnOff(){
   if (digitalRead(triggerPin)){
     if (random(0,100)<(signalProbability*100.0)){
+      if (randomizeTriggeredPower){
+        signalPowerTemp = signalPowers[random(sizeof(signalPowers)/4)];  // divide by 4 because 4 bytes in float
+      }else{
+        signalPowerTemp = signalPower;
+      }
       startSignal();
     }
   }else if (signalTimer<(signalDuration-rampDownTime) && !constantSignalDuration){ // only do this when triggerPin is low
