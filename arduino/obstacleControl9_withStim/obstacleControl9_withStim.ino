@@ -1,6 +1,7 @@
 // OBSTACLE CONTROL
 // this version of the code delivers a TTL from stimulusPin when the obstacle reaches stimulusPosition
 // the pin goes LOW when the obstacle is disengaged at the end of the track
+// if stimWithObstacles set to true, then stimulusPosition is ignored and TTL always start when obstacle is engaged and stops when it is desengaged
 
 #include "config.h"
 #include <RunningMedian.h>
@@ -158,6 +159,10 @@ void loop(){
         obstacleEngaged = true;
         digitalWrite(motorOffPin, LOW); // engages stepper motor driver
         digitalWrite(obsOnPin, HIGH);
+        if (stimWithObstacles){
+          stimulusOn = true;
+          digitalWrite(stimulusPin, HIGH);
+        }
         startTracking();
         break;
       }
