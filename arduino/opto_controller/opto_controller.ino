@@ -12,8 +12,8 @@ volatile float interPulseInterval;
 volatile float sinIndex = 0;
 volatile float bitConversion = 4095 / 255;
 volatile bool updated = false; // keeps track of whether the desired value for the ADC has been updated
-volatile uint16_t oldValue = 0;
-volatile uint16_t newValue = 0;
+volatile uint8_t oldValue = 0;
+volatile uint8_t newValue = 0;
 volatile long signalTimer = signalDuration;  // timer for the duration of the signal // initialize the timer at a high value - setting it to 0 causes the stimulus to be delivered
 volatile long pulseTimer = 0; // keeps track of interstimulus interval in the pulse condition
 volatile bool isSignalOn = false;
@@ -63,7 +63,6 @@ void loop(){
   if (updated){
     dac.setVoltage(constrain(round(newValue*bitConversion*signalPowerTemp), 0, 4095), false);
     analogWrite(referencePin, newValue);
-    // analogWrite(referencePin, 0);
     updated = false;
   }
 
