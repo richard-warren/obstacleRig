@@ -4,29 +4,29 @@
 // move stepper one step in stepDirection
 void startTracking(){
 
-  // set motor direction to forward
-  digitalWrite(stepDirPin, HIGH);
-
-  targetStepDelay = getMotorDelayFromWheelDelay(deltaMicroSmps.getAverage()) / obsGain;
-  stepperDelayInd = 0;
-  stepDelay = stepperDelays[0];
-
-  while (stepDelay >= targetStepDelay){
-    
-    // increment motor speed
-    stepperDelayInd = min(stepperDelayInd+1, maxStepperDelayInd);
-    stepDelay = max(stepperDelays[stepperDelayInd], targetStepDelay);
-
-    // take step
-    digitalWrite(stepPin, HIGH);
-    delayMicroseconds(stepDelay);
-    digitalWrite(stepPin, LOW);
-    delayMicroseconds(stepDelay);
-    stepperTicks++;
-
-    // update target delay based on current wheel speed
-    targetStepDelay = getMotorDelayFromWheelDelay(deltaMicroSmps.getAverage());
-  }
+//  // set motor direction to forward
+//  digitalWrite(stepDirPin, HIGH);
+//
+//  targetStepDelay = getMotorDelayFromWheelDelay(deltaMicroSmps.getAverage()) / obsGain;
+//  stepperDelayInd = 0;
+//  stepDelay = stepperDelays[0];
+//
+//  while (stepDelay >= targetStepDelay){
+//    
+//    // increment motor speed
+//    stepperDelayInd = min(stepperDelayInd+1, maxStepperDelayInd);
+//    stepDelay = max(stepperDelays[stepperDelayInd], targetStepDelay);
+//
+//    // take step
+//    digitalWrite(stepPin, HIGH);
+//    delayMicroseconds(stepDelay);
+//    digitalWrite(stepPin, LOW);
+//    delayMicroseconds(stepDelay);
+//    stepperTicks++;
+//
+//    // update target delay based on current wheel speed
+//    targetStepDelay = getMotorDelayFromWheelDelay(deltaMicroSmps.getAverage());
+//  }
 
   // record wheel and motor positions at the start of positional tracking  
   noInterrupts();
@@ -35,13 +35,13 @@ void startTracking(){
   startingWheelTics = wheelTicksTemp;
   startingStepperTics = stepperTicks;
 
-  // turn on obstacle light
-  if (state==3){
-    if(random(0,100) < obsLightProbability*100.0){
-      digitalWrite(obsLightPin, HIGH);
-      digitalWrite(obsLightPin2, HIGH);
-    }
-  }
+//  // turn on obstacle light
+//  if (state==3){
+//    if(random(0,100) < obsLightProbability*100.0){
+//      digitalWrite(obsLightPin, HIGH);
+//      digitalWrite(obsLightPin2, HIGH);
+//    }
+//  }
 }
 
 

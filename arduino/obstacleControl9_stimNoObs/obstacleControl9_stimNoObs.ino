@@ -148,7 +148,7 @@ void loop(){
         digitalWrite(stimulusPin, HIGH);
 //        digitalWrite(motorOffPin, LOW); // engages stepper motor driver
         digitalWrite(obsOnPin, HIGH);
-//        startTracking();
+        startTracking();
         break;
       }
   }

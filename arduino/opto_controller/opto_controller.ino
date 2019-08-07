@@ -32,7 +32,7 @@ void setup() {
   pinMode(referencePin, OUTPUT);
   analogWrite(referencePin, 0);
   
-  // initialize timer interrupt
+  // initialize timer0 interrupt
   cli();//disable interrupts
   TCCR0A = 0;// set entire TCCR0A register to 0
   TCCR0B = 0;// same for TCCR0B
@@ -61,8 +61,8 @@ void loop(){
   
   // update LED output if value has changed
   if (updated){
-    dac.setVoltage(constrain(round(newValue*bitConversion*signalPowerTemp), 0, 4095), false);
     analogWrite(referencePin, newValue);
+    dac.setVoltage(constrain(round(newValue*bitConversion*signalPowerTemp), 0, 4095), false);
     updated = false;
   }
 

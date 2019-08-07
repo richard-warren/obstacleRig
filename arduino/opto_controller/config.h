@@ -9,12 +9,12 @@
 
 // pin assignments
 const int triggerPin = 2; // pin that triggers stimulation (must be an interrupt pin on Arduino Uno)
-const int referencePin = 3; // PWM output pins that delivers signal modulated the same as DAC, but scaled from 0-5V (use this to power a reference LED that can be captured in videos, for example)
+const int referencePin = 11; // don't change (can't use PWM pins that rely on timer0, which is hijacked in this script) // PWM output pins that delivers signal modulated the same as DAC, but scaled from 0-5V (use this to power a reference LED that can be captured in videos, for example)
 
 const bool externalTrigger = true; // whether or not triggerPin should trigger signal // otherwise, signal can only be triggered via serial communication
 volatile int stimType = 0; // 0: sin, 1: step, 2: pulse train
 volatile float hz = 40; // frequency of sine wave
-volatile int signalDuration = 10000; // ms (includes ramp up and ramp down times) // also serves as the max stimulus time when stim is externally triggered
+volatile int signalDuration = 2000; // ms (includes ramp up and ramp down times) // also serves as the max stimulus time when stim is externally triggered
 volatile int rampUpTime = 200; // ms
 volatile int rampDownTime = 200; // ms
 const bool constantSignalDuration = false; // if true, stimulus duration is stimDuration+rampDownTime // if false, stim continues until triggerPin goes low

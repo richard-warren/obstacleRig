@@ -21,7 +21,7 @@ volatile float obsGain = 1.0;
 const int servoSwingTime = 150; // ms, approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back, to avoid it whacking the guy in the butt!
 volatile float rewardRotations = 9.01;
 const int startPositionMm = 5;
-const int endPositionMm = 20;
+const int endPositionMm = 40;
 volatile int waterDuration = 80; // milliseconds
 const double maxStepperSpeed = 1.6; // (m/s)
 const float acceleration = 8.0; // (m/s^2)
@@ -42,4 +42,3 @@ const int motorSteps = 200;
 const int encoderSteps = 2880; // 720cpr * 4
 const double timingPulleyRad = 15.2789; // (mm)
 const double wheelRad = 95.25; // (m)
-
