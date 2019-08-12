@@ -12,7 +12,7 @@ const float mmPerMotorTic = ((2*PI*timingPulleyRad) / (motorSteps*microStepping)
 const int startPositionBuffer = startPositionMm * ((motorSteps*microStepping) / (2*PI*timingPulleyRad));
 const int endPositionBuffer = endPositionMm  * ((motorSteps*microStepping) / (2*PI*timingPulleyRad)); // motor stops endPositionBuffer steps before the beginning and end of the track
 volatile int stepperDelays[delayLookupLength];
-char* conditionNames[] = {"rewards only", "platform, no obstacles", "platform, with obstacles"};
+char* conditionNames[] = {"rewards only", "", "stimulus, no obstacles"};
 volatile int userInput;
 volatile int wheelTicks = 0;
 volatile int wheelTicksTemp = 0; // this variable temporarily copies wheelTicks in the main code to avoid having to access it multiple times, potentially colliding with its access in the interrupt

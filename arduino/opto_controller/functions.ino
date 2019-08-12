@@ -55,15 +55,23 @@ ISR(TIMER0_COMPA_vect){
 
 // turns on light when pin goes high, and turns off light when pin goes low
 void stimulusOnOff(){
+  
+  // triggerPin goes HIGH
   if (digitalRead(triggerPin)){
-    if (random(0,100)<(signalProbability*100.0)){
+    
+    if (random(0,100)<(signalProbability*100.0) & !isSignalOn){  // start signal with signalProbability only when it is not already on
+      
+      // set stimulus power
       if (randomizeTriggeredPower){
         signalPowerTemp = signalPowers[random(sizeof(signalPowers)/4)];  // divide by 4 because 4 bytes in float
       }else{
         signalPowerTemp = signalPower;
       }
+      
       startSignal();
     }
+  
+  // triggerPin goes LOW
   }else if (signalTimer<(signalDuration-rampDownTime) && !constantSignalDuration){ // only do this when triggerPin is low
     signalTimer = signalDuration-rampDownTime; // begin ramp down
   }
