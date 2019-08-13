@@ -21,5 +21,5 @@ const bool constantSignalDuration = true; // if true, stimulus duration is stimD
 volatile int pulseDuration = 10; // ms
 volatile float signalProbability = .75; // probability of delivering stimulus when trigger is received
 volatile float signalPower = .01; // fraction of light power
-const float signalPowers[] = {0.12, 0.35, 1.0}; // randomly select among these powers ONLY WHEN STIMULUS IS EXTERNALLY TRIGGERED AND randomizeTriggeredPower IS TRUE
+const float signalPowers[] = {0.10, 0.22, .5}; // randomly select among these powers ONLY WHEN STIMULUS IS EXTERNALLY TRIGGERED AND randomizeTriggeredPower IS TRUE
 const bool randomizeTriggeredPower = true; // if true, randomly select among signalPowers when signal is triggered from external input
