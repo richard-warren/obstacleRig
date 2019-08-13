@@ -242,7 +242,6 @@ void printMenuAndSettings(){
   Serial.println("7: set obstacle light on probability");
   Serial.println("");
   delay(500);
-  
 }
 
 
@@ -342,7 +341,6 @@ void giveReward(){
 
     obstacleInd = 0;
     obsPos = setObsPos(obstacleInd);
-//    if (stimulusAtObsPositions){stimulusPosition = obsPos;}
     digitalWrite(waterPin, HIGH);
     delay(waterDuration);
     digitalWrite(waterPin, LOW);

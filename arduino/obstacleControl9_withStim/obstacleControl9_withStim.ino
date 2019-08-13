@@ -49,6 +49,7 @@ const float touchSensorOffSteps = touchSensorOnLimits[1] * ((microStepping*motor
 volatile int ticsBeforeStartLimitToSlowDown; // tbd in setup
 const int stimulusMotorTics = stimulusPosition / mmPerMotorTic;
 RunningMedian deltaMicroSmps = RunningMedian(5);
+const int preObsStimDistance = mBeforeObs * (encoderSteps / ((2*PI*wheelRad)/1000));  // wheel ticks before obstsalce to turn on stimulus
 
 
 
@@ -137,19 +138,20 @@ void loop(){
   wheelTicksTemp = wheelTicks;
   interrupts();
 
-  
-  // check if obstacle should be engaged or disengaged  
+ 
+  // engage stimulus:
+  if (state==3 & stimWithObstacles & !stimulusOn & (wheelTicksTemp >= (obsPos-preObsStimDistance))){
+      stimulusOn = true;
+      digitalWrite(stimulusPin, HIGH);
+  }
   
   // engage obstacle:
-  if (!obstacleEngaged & (wheelTicksTemp >= obsPos)){
-
+  else if (!obstacleEngaged & (wheelTicksTemp >= obsPos)){
     switch (state){
       
       // platform, no obstacles
       case 2:
         obstacleEngaged = true;
-        stimulusOn = true;
-        digitalWrite(stimulusPin, HIGH);
         digitalWrite(motorOffPin, LOW); // engages stepper motor driver
         startTracking();
         break;
@@ -159,10 +161,6 @@ void loop(){
         obstacleEngaged = true;
         digitalWrite(motorOffPin, LOW); // engages stepper motor driver
         digitalWrite(obsOnPin, HIGH);
-        if (stimWithObstacles){
-          stimulusOn = true;
-          digitalWrite(stimulusPin, HIGH);
-        }
         startTracking();
         break;
       }
@@ -175,7 +173,7 @@ void loop(){
   }
 
   // send stimulus ttl
-  else if (!stimulusOn & (stepperTicks >= stimulusMotorTics)){
+  else if (!stimWithObstacles & !stimulusOn & (stepperTicks >= stimulusMotorTics)){
     stimulusOn = true;
     digitalWrite(stimulusPin, HIGH);
   }

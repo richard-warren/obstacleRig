@@ -10,7 +10,7 @@
 #define stopLimitPin       10   // signal is LOW when engaged
 #define obsLightPin        2    // controls when the light for the obstacle turns on
 #define obsLightPin2       6    // controls when the light for the obstacle turns on
-#define obsOnPin           3    // when the obstacle is engaged in a trial, i.e. tracking the mouse's position
+#define obsOnPin           3    // when the obstacle is engaged in a trial, i.e. tracking the mouse's position  
 #define touchSensorOnPin   12   // powers the touch sensor only when obs is within range of paws
 #define stimulusPin        14   // this will trigger opto stimulation when obstalce reaches certain position
 
@@ -33,13 +33,13 @@ const int velocitySamples = 10; // each sample last about 500 microseconds
 const int obsPosJitter[] = {-100, 100}; // jitter range for the onset position of obstacles (mm)
 const int touchSensorOnLimits[] = {200, 385}; // mm, distance from beginning of track to turn on and off touch sensor
 const int startPosJitter = 20; // (mm)
-volatile float obsLightProbability = 0.5;
+volatile float obsLightProbability = 0.0;
 const long delayLookupLength = 20000;
 
 // stimulus settings
 volatile float stimulusPosition = 320; // (mm) distance from beginning of track at which opto stimulus should be triggered // this will be overwritten if stimInsteadOfObstacles is true
 const bool stimWithObstacles = true; // if true, always delivers stim when obstacles are on (ignores stimulus position)
-const float mBefore Obs = .8; // how many meters before obstacle to turn on stimulusPin
+const float mBeforeObs = .6; // how many meters before obstacle to turn on stimulusPin (only when stimWithObstacles is true) // ~0.5984734005 m to wheel rotation
 
 
 // rig characteristics
@@ -47,4 +47,4 @@ const int microStepping = 16; // only (1/microStepping) steps per pulse // this 
 const int motorSteps = 200;
 const int encoderSteps = 2880; // 720cpr * 4
 const double timingPulleyRad = 15.2789; // (mm)
-const double wheelRad = 95.25; // (m)
+const double wheelRad = 95.25; // (mm)
