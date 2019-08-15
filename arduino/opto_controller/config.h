@@ -13,13 +13,15 @@ const int referencePin = 11; // don't change (can't use PWM pins that rely on ti
 
 const bool externalTrigger = true; // whether or not triggerPin should trigger signal // otherwise, signal can only be triggered via serial communication
 const bool constantSignalDuration = false; // if true, stimulus duration is stimDuration+rampDownTime // if false, stim continues until triggerPin goes low
+const bool randomizeTriggeredPower = true; // if true, randomly select among signalPowers when signal is triggered from external input
+const bool preventSuccessiveTrials = true;  // if true, triggerPin will not deliver stimulus when previous triggerPin resulted in stimulus
+
 volatile int stimType = 0; // 0: sin, 1: step, 2: pulse train
 volatile float hz = 40; // frequency of sine wave
 volatile int signalDuration = 4000; // ms (includes ramp up and ramp down times) // also serves as the max stimulus time when stim is externally triggered
 volatile int rampUpTime = 200; // ms
 volatile int rampDownTime = 200; // ms
 volatile int pulseDuration = 10; // ms
-volatile float signalProbability = .75; // probability of delivering stimulus when trigger is received
+volatile float signalProbability = .5; // probability of delivering stimulus when trigger is received
 volatile float signalPower = .01; // fraction of light power
-const float signalPowers[] = {0.10, 0.22, .5}; // randomly select among these powers ONLY WHEN STIMULUS IS EXTERNALLY TRIGGERED AND randomizeTriggeredPower IS TRUE
-const bool randomizeTriggeredPower = true; // if true, randomly select among signalPowers when signal is triggered from external input
+const float signalPowers[] = {0.10, 0.27, .75}; // randomly select among these powers ONLY WHEN STIMULUS IS EXTERNALLY TRIGGERED AND randomizeTriggeredPower IS TRUE

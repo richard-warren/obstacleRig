@@ -20,6 +20,7 @@ volatile bool isSignalOn = false;
 volatile int userInput;
 volatile float signalPowerTemp = signalPower; // the power of the current stimulus, which may vary trial to trial depending on randomization
 const String stimTypes[] = {"SIN", "STEP", "PULSE"};
+volatile bool previousTrialStim = false;  // whether triggerPin triggered stimulus on previous trigger
 Adafruit_MCP4725 dac;
 
 

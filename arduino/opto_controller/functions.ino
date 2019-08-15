@@ -58,22 +58,37 @@ void stimulusOnOff(){
   
   // triggerPin goes HIGH
   if (digitalRead(triggerPin)){
+//    Serial.println("trigged high");
     
-    if (random(0,100)<(signalProbability*100.0) & !isSignalOn){  // start signal with signalProbability only when it is not already on
-      
-      // set stimulus power
-      if (randomizeTriggeredPower){
-        signalPowerTemp = signalPowers[random(sizeof(signalPowers)/4)];  // divide by 4 because 4 bytes in float
-      }else{
-        signalPowerTemp = signalPower;
+    if (!isSignalOn){
+
+      // deliver stim with signalProbabolity (only if no stim on previous trial when preventSuccessiveTrials is true)
+      if ( (preventSuccessiveTrials && !previousTrialStim) || (!preventSuccessiveTrials) ){
+        if (random(0,100)<(signalProbability*100.0)){
+          
+          // set stimulus power
+          if (randomizeTriggeredPower){
+            signalPowerTemp = signalPowers[random(sizeof(signalPowers)/4)];  // divide by 4 because 4 bytes in float
+          }else{
+            signalPowerTemp = signalPower;
+          }
+    
+          // deliver stimulus
+          startSignal();
+          previousTrialStim = true;
+        }
+      } else{
+        Serial.println("prevented successive stimuli... muahahaha");
+        previousTrialStim = false;
       }
-      
-      startSignal();
     }
   
   // triggerPin goes LOW
-  }else if (signalTimer<(signalDuration-rampDownTime) && !constantSignalDuration){ // only do this when triggerPin is low
-    signalTimer = signalDuration-rampDownTime; // begin ramp down
+  } else{
+//    Serial.println("trigged low");
+    if (signalTimer<(signalDuration-rampDownTime) && !constantSignalDuration & isSignalOn){ // only do this when triggerPin is low
+      signalTimer = signalDuration-rampDownTime; // begin ramp down
+    }
   }
 }
 

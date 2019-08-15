@@ -41,7 +41,6 @@ volatile float stimulusPosition = 320; // (mm) distance from beginning of track 
 const bool stimWithObstacles = true; // if true, always delivers stim when obstacles are on (ignores stimulus position)
 const float mBeforeObs = .6; // how many meters before obstacle to turn on stimulusPin (only when stimWithObstacles is true) // ~0.5984734005 m to wheel rotation
 
-
 // rig characteristics
 const int microStepping = 16; // only (1/microStepping) steps per pulse // this should correspond to the setting on the stepper motor driver, which is set by 3 digital inputs
 const int motorSteps = 200;
