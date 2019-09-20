@@ -64,7 +64,7 @@ void stimulusOnOff(){
 
       // deliver stim with signalProbabolity (only if no stim on previous trial when preventSuccessiveTrials is true)
       if ( (preventSuccessiveTrials && !previousTrialStim) || (!preventSuccessiveTrials) ){
-        if (random(0,100)<(signalProbability*100.0)){
+        if (random(0,100)<long(signalProbability*100.0)){
           
           // set stimulus power
           if (randomizeTriggeredPower){
@@ -78,7 +78,7 @@ void stimulusOnOff(){
           previousTrialStim = true;
         }
       } else{
-        Serial.println("prevented successive stimuli... muahahaha");
+//        Serial.println("prevented successive stimuli... muahahaha");
         previousTrialStim = false;
       }
     }

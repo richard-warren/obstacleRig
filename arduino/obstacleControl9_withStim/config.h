@@ -24,7 +24,7 @@ const int startPositionMm = 5;
 const int endPositionMm = 40;
 volatile int waterDuration = 80; // milliseconds
 const double maxStepperSpeed = 1.6; // (m/s)
-const float acceleration = 8.0; // (m/s^2)
+const float acceleration = 8.0; // (m/s^2) // 8.0
 volatile float callibrationSpeed = 1.0; // speed with motor moves plastform during callibration (m/s) // note: changed back from .8 to .6 because anything above .6 fails to initialize to the correct starting position, instead just pausing at the end of the track
 volatile float minCallibrationSpeed = .2; // motor slows down to this speed as it approaches the end of the track
 //const float obstacleLocations[] = {1.5, 4.5, 7.5, rewardRotations*20}; // expressed in wheel ticks // the last element is a hack... the index goes up and the wheel position will never reach the last value, which is the desired behavior
@@ -39,7 +39,7 @@ const long delayLookupLength = 20000;
 // stimulus settings
 volatile float stimulusPosition = 320; // (mm) distance from beginning of track at which opto stimulus should be triggered // this will be overwritten if stimInsteadOfObstacles is true
 const bool stimWithObstacles = true; // if true, always delivers stim when obstacles are on (ignores stimulus position)
-const float mBeforeObs = .6; // how many meters before obstacle to turn on stimulusPin (only when stimWithObstacles is true) // ~0.5984734005 m to wheel rotation
+const float mBeforeObs = .4; // how many meters before obstacle to turn on stimulusPin (only when stimWithObstacles is true) // ~0.5984734005 m to wheel rotation
 
 // rig characteristics
 const int microStepping = 16; // only (1/microStepping) steps per pulse // this should correspond to the setting on the stepper motor driver, which is set by 3 digital inputs
