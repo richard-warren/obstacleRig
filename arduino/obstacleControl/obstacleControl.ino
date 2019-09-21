@@ -1,13 +1,13 @@
 /* OBSTACLE CONTROL
 
 todo:
-figure out wheel velocity computation
+improve acceleration computation
+try microstepping adjustment
+startTracking
+
 add jitter and other things things that need to be initialized after rewards and/or obs offs... // should i still offset obs?
-add default args to takeSteps
 only check for user input when obs not on, and disable interrupts when user input is being collected...
-add description of units: meters, wheelTics, motorTics
-integrate startTracking and takeSteps?
-check that water distance is greater than last obstacle distance
+document, including description of units used
 avoid hack with having one too many entries in obsLocations
 */
 
@@ -23,8 +23,7 @@ bool isObsOn = false;            // whether state is water only, or water with o
 bool isObsTracking = false;      // whether obs is currently tracking wheel movements
 bool stepDir = HIGH;             // direction in which stepper motor is moving
 int obsInd = 0;                  // which obstacle is next
-enum motorDirection {FORWARD, REVERSE};  // used to encode motor direction, which is forward (0) or reverse (1)
-
+  
 // user input
 char inputChar;              // user input for characters
 int inputInt;                // user input for ints
@@ -44,14 +43,16 @@ int motorTics = 0;           // tics of stepper motor
 int startingMotorTics;       // motor tics at the moment obstacle starts tracking the wheel (after initial velocity matching period)
 int targetMotorTics;         // how many tics should the motor have moved to match the movement of the wheel
 
-// speed
+// motor speed
 float motorSpeed;            // (m/s) speed of stepper motor
 int motorDelay;              // (microseconds) delay between motor steps corresponding to desired motorSpeed
-float wheelSpeed;            // (m/s) speed of wheel
-long currentMicros = 0;      // 'Micros' variables are used to measure wheel velocity, estimated using time between successive wheel tics
-long lastMicros = 0;
-int deltaMicros = 0;
 
+// wheel speed
+long lastMicros = 0;
+const int dtSz = int(wheelSpeedDistance/mPerWheelTic);
+int wheelDts[dtSz];          // (microseconds) running list of intervals between wheel rotary encoder tics
+int dtInd = 0;               // index for wheelDeltas
+int dtSum = 0;               // sum of values in wheelDeltas
 
 
 void setup() {
@@ -126,17 +127,23 @@ void loop(){
   // obstacle disengage
   else if (isObsTracking && motorTics>=((trackEndPosition-obsStopPos)/mPerMotorTic)){
     
+    // turn off obstacle
     isObsTracking = false;
-    // todo: should we slow down here first?
-    digitalWrite(obsOutPin, LOW);  // swing obstacle out of the way
-    delay(servoSwingTime);
-    findLimit(REVERSE, callibrationSpeeds[0], callibrationSpeeds[1]);
-    takeSteps(obsStartPos/mPerMotorTic);  // moving back to start position
-    digitalWrite(obsOutPin, HIGH);  // swing obstacle out again
-    digitalWrite(motorOffPin, HIGH);
     digitalWrite(obsLightPin1, LOW);
     digitalWrite(obsLightPin2, LOW);
     obsInd++;
+    
+    // reset stepper motor driver while disengaging obstacle
+    digitalWrite(motorOffPin, HIGH);
+    digitalWrite(obsOutPin, LOW);  // swing obstacle out of the way
+    delay(servoSwingTime);
+    digitalWrite(motorOffPin, LOW);
+    
+    // find the start limit switch and move back to starting position
+    findStartLimit(callibrationSpeeds[0], callibrationSpeeds[1]);
+    digitalWrite(obsOutPin, HIGH);  // swing obstacle out again
+    takeAcceleratingSteps(obsStartPos/mPerMotorTic, obsAcceleration, callibrationSpeeds[0], callibrationSpeeds[1]);  // moving back to start position
+    digitalWrite(motorOffPin, HIGH);
   }
 
   
@@ -153,4 +160,6 @@ void loop(){
     targetMotorTics = constrain(targetMotorTics, 0, trackEndPosition/mPerMotorTic)  - motorTics;
     if (targetMotorTics!=0){takeSteps(targetMotorTics);}
   }
+
+  Serial.println(getWheelSpeed());
 }

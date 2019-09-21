@@ -19,7 +19,7 @@
 float waterDistance = 5.4;                          // (m) distance between rewards
 const float obsLocations[] = {.9, 2.7, 4.5, 100};   // (m) positions at which obstacles are engaged with respect to previous water locations=
 const float obsLocationJitter = .1;                 // (m) jitter to be applied to obsLocations on every trial
-const float obsStartPos = .05;                      // (m) position at which obstacle starts relative to the start limit switch
+const float obsStartPos = .02;                      // (m) position at which obstacle starts relative to the start limit switch
 const float obsStopPos = .04;                       // (m) position at which obstacle stops relative to thhe end limit switch
 const float obsStartPosJitter = .02;                // (m) jitter in the starting position of the obstacle on the track relative to the start limit
 
@@ -28,9 +28,9 @@ volatile int waterDuration = 80;                 // (ms) time that water solenoi
 const int servoSwingTime = 150;                  // (ms) approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back to avoid it whacking the guy in the butt!
 
 // speed
-const int velComputationTime = 27;               // (us) this is a temporary hack // this amount of time is subracted from the motor delay to compensate for the time it takes to update the velocity
-const double trackingSpeeds[] = {.2, 1.6};       // (m/s) starting and maximum speed while obstacle is tracking wheel movements
-const double callibrationSpeeds[] = {.2, 1.6};   // (m/s) min and max speeds during callibration
+const float wheelSpeedDistance = .020;           // (m) wheel speed is contnuously measured over this distance
+const double trackingSpeeds[] = {.4, 1.6};       // (m/s) starting and maximum speed while obstacle is tracking wheel movements
+const double callibrationSpeeds[] = {.4, 1.6};   // (m/s) min and max speeds during callibration
 const double obsAcceleration = 8.0;              // (m/s^2) obstacle acceleration (used when obstacle is starting up or stopping)
 const int speedSamples = 10;                     // successeive samples of wheel soeed to measure (samples are separated by about 500 microseconds)
 

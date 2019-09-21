@@ -166,8 +166,8 @@ void controlServo() {
     // set obstacle height
     if (randomizeHeights) {
       obsHeight = random(obsHeightMin * 10, obsHeightMax * 10) / 10.0;
-      setObsHeight(obsHeight);
     }
+    setObsHeight(obsHeight);
     obstacleServo.write(obsOnPosition);
 
     // disengage obstacle
