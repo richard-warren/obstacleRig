@@ -394,4 +394,3 @@ void initializeObsLocations(){
   obsPos = setObsPos(0); // set first obstacle position
   
 }
-

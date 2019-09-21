@@ -7,7 +7,7 @@ void printMenu(){
   Serial.println("CURRENT SETTINGS:");
 
   // condition
-  Serial.print("(o)bstacle status: ");
+  Serial.print("1: set obstacle status: ");
   if (isObsOn){
     Serial.println("ON");
   }else{
@@ -15,15 +15,15 @@ void printMenu(){
   }
   
   // water distance
-  Serial.print("water (d)istance: ");
+  Serial.print("2: set water distance (meters): ");
   Serial.println(waterDistance);
 
   // water duration
-  Serial.print("water (t)ime: ");
+  Serial.print("3: water duration (milliseconds): ");
   Serial.println(waterDuration);
   
   // light on probability
-  Serial.print("(l)ight on probability: ");
+  Serial.print("4: set light on probability: ");
   Serial.println(obsLightProbability);
   Serial.println("");
   
@@ -44,7 +44,7 @@ void getUserInput(){
     switch (inputChar){
 
       // turn obstacle on/off
-      case 'o':
+      case '1':
         isObsOn = !isObsOn;
         digitalWrite(obsOutPin, isObsOn);
 
@@ -58,7 +58,7 @@ void getUserInput(){
         
       
       // set water distance
-      case 'd':
+      case '2':
         Serial.println(F("Enter water distance (meters)..."));
         while (Serial.available() == 0)  {}
         inputFloat = Serial.parseFloat();
@@ -73,7 +73,7 @@ void getUserInput(){
         
       
       // set water duration
-      case 't':
+      case '3':
         Serial.println(F("Enter water time (milliseconds)..."));
         while (Serial.available() == 0)  {}
         inputInt = Serial.parseInt();
@@ -88,7 +88,7 @@ void getUserInput(){
 
       
       // set light on probability
-      case 'l':
+      case '4':
         Serial.println(F("Enter light on probability..."));
         while (Serial.available() == 0)  {}
         inputFloat = Serial.parseFloat();

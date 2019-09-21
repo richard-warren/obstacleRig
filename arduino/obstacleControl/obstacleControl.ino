@@ -1,14 +1,14 @@
 /* OBSTACLE CONTROL
 
 todo:
-
-replace runningmedian with delay list, and cmopoute delay by summing across list...
-reset stepper motor after trial...
+figure out wheel velocity computation
 add jitter and other things things that need to be initialized after rewards and/or obs offs... // should i still offset obs?
 add default args to takeSteps
 only check for user input when obs not on, and disable interrupts when user input is being collected...
 add description of units: meters, wheelTics, motorTics
 integrate startTracking and takeSteps?
+check that water distance is greater than last obstacle distance
+avoid hack with having one too many entries in obsLocations
 */
 
 
@@ -17,13 +17,13 @@ integrate startTracking and takeSteps?
 
 // imports
 #include "config.h"
-#include <RunningMedian.h>  // https://playground.arduino.cc/Main/RunningMedian/
 
 // state variables
-bool isObsOn = false;        // whether state is water only, or water with obstacles (does NOT keep track of whether obstacle is CURRENTLY moving)
-bool isObsTracking = false;  // whether obs is currently tracking wheel movements
-bool stepDir = HIGH;         // direction in which stepper motor is moving
-int obsInd = 0;              // which obstacle is next
+bool isObsOn = false;            // whether state is water only, or water with obstacles (does NOT keep track of whether obstacle is CURRENTLY moving)
+bool isObsTracking = false;      // whether obs is currently tracking wheel movements
+bool stepDir = HIGH;             // direction in which stepper motor is moving
+int obsInd = 0;                  // which obstacle is next
+enum motorDirection {FORWARD, REVERSE};  // used to encode motor direction, which is forward (0) or reverse (1)
 
 // user input
 char inputChar;              // user input for characters
@@ -51,16 +51,14 @@ float wheelSpeed;            // (m/s) speed of wheel
 long currentMicros = 0;      // 'Micros' variables are used to measure wheel velocity, estimated using time between successive wheel tics
 long lastMicros = 0;
 int deltaMicros = 0;
-RunningMedian deltaMicroSmps = RunningMedian(speedSamples);  // running list of microsecond intervals between wheel tics // used to estimate wheel velocity
 
 
 
 void setup() {
   
   // begin serial communication
-  Serial.begin(9600);
+  Serial.begin(115200);
   while (!Serial) {}; // wait for serial port to connect
-//  printMenu();
   
   // prepare ins and outs
   pinMode(stepPin, OUTPUT);
@@ -83,7 +81,7 @@ void setup() {
   digitalWrite(obsLightPin2, LOW);
   digitalWrite(obsTrackingPin, LOW);
 
-  // initialiez random seed
+  // initialize random seed
   randomSeed(analogRead(0));
   
   // initialize encoder hardware interrupt
@@ -91,6 +89,7 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(encoderPinB), encoder_isr, CHANGE);
   
   initializeLimits();
+  printMenu();
 }
 
 
@@ -109,10 +108,11 @@ void loop(){
 
   
   // obstacle engage
-  if (!isObsTracking & (wheelTicsTemp >= (obsLocations[obsInd]/mPerWheelTic))){
-    if (debug){Serial.println("engaging obstacle");}
+  if (isObsOn && !isObsTracking && (wheelTicsTemp>=(obsLocations[obsInd]/mPerWheelTic))){
     
     // ramp up obstacle velocity to match wheel velocity
+    digitalWrite(motorOffPin, LOW); // engages stepper motor driver
+    isObsTracking = true;
     startTracking();
     
     // turn on obstacle light
@@ -124,26 +124,33 @@ void loop(){
   
   
   // obstacle disengage
-  else if (isObsTracking & motorTics >= (trackEndPosition/mPerMotorTic)){
-    if (debug){Serial.println("disengaging obstacle");}
-
+  else if (isObsTracking && motorTics>=((trackEndPosition-obsStopPos)/mPerMotorTic)){
+    
+    isObsTracking = false;
     // todo: should we slow down here first?
-    findStartLimit(callibrationSpeedMax); // find start limit again
-    // todo: move to start position?
+    digitalWrite(obsOutPin, LOW);  // swing obstacle out of the way
+    delay(servoSwingTime);
+    findLimit(REVERSE, callibrationSpeeds[0], callibrationSpeeds[1]);
+    takeSteps(obsStartPos/mPerMotorTic);  // moving back to start position
+    digitalWrite(obsOutPin, HIGH);  // swing obstacle out again
+    digitalWrite(motorOffPin, HIGH);
+    digitalWrite(obsLightPin1, LOW);
+    digitalWrite(obsLightPin2, LOW);
+    obsInd++;
   }
 
   
   // water delivery
   else if (wheelTicsTemp >= (waterDistance/mPerWheelTic)){
-    if (debug){Serial.println("delivering water");}
+    Serial.println("delivering water");
     giveWater();
   }
   
   
   // obstacle position update
   else if (isObsTracking){
-    targetMotorTics = (wheelTicsTemp - startingWheelTics)*motorTicsPerWheelTic + startingMotorTics;
-    targetMotorTics = constrain(targetMotorTics, 0, trackEndPosition/mPerMotorTic);
-    takeSteps(targetMotorTics - motorTics, 1, obsSpeedMax, obsSpeedMax, obsSpeedMax, false);
+    targetMotorTics = (wheelTicsTemp-startingWheelTics)*motorTicsPerWheelTic + startingMotorTics;
+    targetMotorTics = constrain(targetMotorTics, 0, trackEndPosition/mPerMotorTic)  - motorTics;
+    if (targetMotorTics!=0){takeSteps(targetMotorTics);}
   }
 }
