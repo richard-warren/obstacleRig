@@ -24,7 +24,7 @@ const float obsStartPosJitter = .015;            // (m) jitter in the starting p
 const float obsLocationJitter = .1;              // (m) jitter to be applied to obsLocations for every obstacle
 
 // durations
-volatile int waterDuration = 80;                 // (ms) time that water solenoid is open for
+volatile int waterDuration = 120;                // (ms) time that water solenoid is open for
 const int servoSwingTime = 150;                  // (ms) approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back to avoid it whacking the guy in the butt!
 
 // speed

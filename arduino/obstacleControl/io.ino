@@ -2,7 +2,7 @@
 void printMenu(){
 
   // print settings
-  Serial.println("CURRENT SETTINGS:");
+  Serial.println("\nCURRENT SETTINGS:");
 
   // condition
   Serial.print("1: obstacle status: ");
@@ -138,5 +138,5 @@ void printInitializations(){
     Serial.print("\n  To fix, increase 'bufferSize', increase 'obsAcceleration', or reduce velocity range.\n");
   }
 
-  Serial.print("--------------\n\n");
+  Serial.print("--------------\n");
 }
