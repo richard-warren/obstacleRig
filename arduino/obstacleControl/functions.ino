@@ -7,6 +7,13 @@ float getMotorDelay(float motorSpeed){
 
 
 
+float getJitter(float jitter){
+  return random(-jitter*pow(10,3), jitter*pow(10,3)) * pow(10,-3);
+}
+
+
+
+
 // move motor
 void takeSteps(int stepsToTake, accel a, float speedMin, float speedMax){
 
@@ -138,11 +145,11 @@ float getWheelSpeed(){
 
 void initializeLimits(){
     
-  static float slowDown = 1.0;  // (0->1) how much to slow down initial limit check relative to callibrationSpeed
+  static float slowDown = 0.5;  // (0->1) how much to slow down initial limit check relative to callibrationSpeed
   findStartLimit(obsSpeedStart, obsSpeedStop, callibrationSpeed*slowDown);
   findStopLimit(obsSpeedStart, obsSpeedStop, callibrationSpeed*slowDown);
   findStartLimit(obsSpeedStart, obsSpeedStop, callibrationSpeed*slowDown);
-  takeSteps(obsStartPos/mPerMotorTic, ACCELERATE, obsSpeedStart, callibrationSpeed);  // moving back to start position
+  takeSteps(max((obsStartPos+getJitter(obsStartPosJitter))/mPerMotorTic,0), ACCELERATE, obsSpeedStart, callibrationSpeed);  // move back to start position
   digitalWrite(motorOffPin, HIGH);
 }
 

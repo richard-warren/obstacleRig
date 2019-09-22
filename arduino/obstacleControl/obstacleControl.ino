@@ -2,11 +2,10 @@
 /* OBSTACLE CONTROL
 
 todo:
+only check for user input when obs not on, and disable interrupts when user input is being collected...
+
 fix assumption that obsSpeedStart is less than obsSpeedMin
 could reduce discrepancy btwn estimated and actual motor speed by making separate accel and decel functions, and also changing direction before accel or decel, so you don't need to check every time if t his needs to happen...
-try microstepping adjustment
-add jitter and other things things that need to be initialized after rewards and/or obs offs... // should i still offset obs?
-only check for user input when obs not on, and disable interrupts when user input is being collected...
 checks for user settings
 */
 
@@ -41,7 +40,7 @@ int startingWheelTics;       // wheel tics at the moment obstacle starts trackin
 int motorTics = 0;           // tics of stepper motor
 int startingMotorTics;       // motor tics at the moment obstacle starts tracking the wheel (after initial velocity matching period)
 int targetMotorTics;         // how many tics should the motor have moved to match the movement of the wheel
-float obsLocation = obsLocations[0];  // keeps track of starting location of next obstacle
+float obsLocation;           // keeps track of starting location of next obstacle
 
 // motor speed
 const int bufferSize = 10000;
@@ -175,12 +174,12 @@ void loop(){
     // find the start limit switch and move back to starting position
     findStartLimit(obsSpeedStart, obsSpeedStop, callibrationSpeed);
     digitalWrite(obsOutPin, HIGH);  // swing obstacle out again
-    takeSteps(obsStartPos/mPerMotorTic, ACCELERATE, obsSpeedStart, callibrationSpeed);  // moving back to start position
+    takeSteps(max((obsStartPos+getJitter(obsStartPosJitter))/mPerMotorTic,0), ACCELERATE, obsSpeedStart, callibrationSpeed);  // moving back to start position
     digitalWrite(motorOffPin, HIGH);
 
     // determine next obstacle location
     if (obsInd<(sizeof(obsLocations)/4)){  // sizeof(obsLocations)/4 gives number of obstacles, as there are 4 bytes per float
-      obsLocation = obsLocations[obsInd];
+      obsLocation = obsLocations[obsInd] + getJitter(obsLocationJitter);
     }else{
       obsLocation = waterDistance*2;  // this makes the obstacle unreachable until after reward delivery
     }
@@ -196,7 +195,7 @@ void loop(){
   // obstacle position update
   else if (isObsTracking){
     targetMotorTics = (wheelTicsTemp-startingWheelTics)*motorTicsPerWheelTic + startingMotorTics;
-    targetMotorTics = constrain(targetMotorTics, 0, (trackEndPosition-trackEndBuffer)/mPerMotorTic) - motorTics;
+    targetMotorTics = constrain(targetMotorTics, 0, (trackEndPosition-obsStopPos)/mPerMotorTic+1) - motorTics;  // +1 is needed because the motor tics must EXCEED the threshold for the obstacle to be disengaged
     if (targetMotorTics!=0){
       takeStepsFast(targetMotorTics);
     }

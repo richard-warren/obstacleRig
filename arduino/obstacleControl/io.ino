@@ -45,11 +45,15 @@ void getUserInput(){
       case '1':
         isObsOn = !isObsOn;
         digitalWrite(obsOutPin, isObsOn);
-
+        
         // reset wheel ticks
         noInterrupts();
         wheelTics = 0;
         interrupts();
+
+        // set initial obstacle location
+        obsInd = 0;
+        obsLocation = obsLocations[obsInd] + getJitter(obsLocationJitter);
 
         printMenu();
         break;
