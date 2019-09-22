@@ -109,26 +109,24 @@ void printInitializations(){
   Serial.println("INITIALIZATIONS");
   Serial.println("---------------");
   
-  Serial.print("end limit switch (meters): ");
+  Serial.print("track length (meters): ");
   Serial.println(trackEndPosition);
 
-  Serial.print("microns per wheel tick: ");
+  Serial.print("deceleration distance (meters): ");  // distance from limit switch at which obstcle starts slowing down
+  Serial.print((pow(callibrationSpeed,2)-pow(obsSpeedStop,2)) / (2*obsAcceleration), 3);
+  Serial.print("\n");
+
+  Serial.print("wheel tick distance (microns): ");
   Serial.println(mPerWheelTic*pow(10,6));
 
-  Serial.print("microns per motor step: ");
+  Serial.print("wheel tick distance (microns): ");
   Serial.println(mPerMotorTic*pow(10,6));
 
-  Serial.print("speed lookup table length: ");
+  Serial.print("motor speed lookup table size: ");
   Serial.println(maxSpeedInd+1);
 
-  Serial.print("sizeof(obsLocations): ");
-  Serial.println(sizeof(obsLocations));
-
-  Serial.print("deceleration distance: ");  // distance from limit switch at which obstcle starts slowing down
-  Serial.println((pow(callibrationSpeed,2)-pow(obsSpeedMin,2)) / (2*obsAcceleration));
-
-  Serial.print("delay for speed 2.0: ");  // distance from limit switch at which obstcle starts slowing down
-  Serial.println(getMotorDelay(2.0));
+  Serial.print("wheel speed buffer size: ");
+  Serial.println(dtSz);
 
   if (maxSpeedInd==(bufferSize-1)){
     Serial.print("WARNING! 'speeds' + 'delays' lookup tables could not fit in buffer of size: ");

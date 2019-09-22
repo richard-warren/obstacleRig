@@ -19,7 +19,7 @@
 float waterDistance = 5.4;                       // (m) distance between rewards
 const float obsLocations[] = {.9, 2.7, 4.5};     // (m) positions at which obstacles are engaged with respect to previous water locations
 const float obsLocationJitter = .1;              // (m) jitter to be applied to obsLocations on every trial
-const float obsStartPos = .02;                   // (m) position at which obstacle starts relative to the start limit switch
+const float obsStartPos = .01;                   // (m) position at which obstacle starts relative to the start limit switch
 const float obsStopPos = .04;                    // (m) position at which obstacle stops relative to thhe end limit switch
 const float obsStartPosJitter = .02;             // (m) jitter in the starting position of the obstacle on the track relative to the start limit
 
@@ -29,20 +29,20 @@ const int servoSwingTime = 150;                  // (ms) approximate amount of t
 
 // speed
 const float wheelSpeedDistance = .020;           // (m) wheel speed is contnuously measured over this distance
-const double obsSpeedMin = .2;                   // (m/s) starting speed of obstacle when it speeds up, and minimum speed when it slows down
-const double trackingSpeed = 1.6;                // (m/s) max speed of obstacle when tracking wheel position
-const double callibrationSpeed = 1.6;            // (m/s) max speed of obstacle when looking for limit switches
-const double obsAcceleration = 12.0;             // (m/s^2) obstacle acceleration (used when obstacle is starting up or stopping)
+const double obsSpeedStart = .1;                 // (m/s) speed of obstacle when it starts up
+const double obsSpeedStop = .3;                  // (m/s) min speed of obstacle as it approaches end limit // MUST BE >= THAN OBS SPEED START
+const double trackingSpeed = 2.0;                // (m/s) max speed of obstacle when tracking wheel position
+const double callibrationSpeed = 2.0;            // (m/s) max speed of obstacle when looking for limit switches
+const double obsAcceleration = 20.0;             // (m/s^2) obstacle acceleration (used when obstacle is starting up or stopping)
 
 // obstacle light
 float obsLightProbability = 1.0;                 // probability of obstacle light turning on
-float obstacleBrightness = .5;                   // (0->1) fraction of total brightness for obstacle LEDs
+float obstacleBrightness = .2;                   // (0->1) fraction of total brightness for obstacle LEDs
 
 // rig characteristics
 const double timingPulleyRad = .0152789;         // (mm) radius of timing pulley on stepper motor
 const double wheelRad = 0.09525;                 // (m) wheel radius
-const double trackStartBuffer = .1;              // (m) distance between start limit switch and position at which obstacle slows down
-const double trackEndBuffer = .05;               // (m) distance between end limit switch and position at which obstacle should stop
+const double trackEndBuffer = .02;               // (m) distance between end limit switch and position at which obstacle should stop
 const int microStepping = 16;                    // stepper motor only moves (1/microStepping) steps per pulse // this should match the setting on the stepper motor driver, which is set by 3 digital inputs
 const int motorSteps = 200;                      // steps per revolution for the obstacle stepper motor
 const int encoderSteps = 2880;                   // steps per revolution on the wheel rotary encoder (720cpr * 4)

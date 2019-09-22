@@ -2,9 +2,8 @@
 /* OBSTACLE CONTROL
 
 todo:
-***make sure moves fast!
-
-add touch sensor on/off
+fix assumption that obsSpeedStart is less than obsSpeedMin
+could reduce discrepancy btwn estimated and actual motor speed by making separate accel and decel functions, and also changing direction before accel or decel, so you don't need to check every time if t his needs to happen...
 try microstepping adjustment
 add jitter and other things things that need to be initialized after rewards and/or obs offs... // should i still offset obs?
 only check for user input when obs not on, and disable interrupts when user input is being collected...
@@ -81,6 +80,7 @@ void setup() {
   pinMode(obsLightPin1, OUTPUT);
   pinMode(obsLightPin2, OUTPUT);
   pinMode(obsTrackingPin, OUTPUT);
+  pinMode(touchSensorOnPin, OUTPUT);
   
   digitalWrite(stepPin, LOW);
   digitalWrite(stepDirPin, stepDir);
@@ -90,6 +90,7 @@ void setup() {
   digitalWrite(obsLightPin1, LOW);
   digitalWrite(obsLightPin2, LOW);
   digitalWrite(obsTrackingPin, LOW);
+  digitalWrite(touchSensorOnPin, LOW);
 
   
   // initialize encoder hardware interrupt
@@ -98,14 +99,16 @@ void setup() {
 
 
   // initialize lookup table for stepper speeds
+  speeds[0] = obsSpeedStart;
+  delays[0] = round(getMotorDelay(speeds[0]));
+  float prevDelay = getMotorDelay(speeds[0]);
   float maxSpeed = max(trackingSpeed, callibrationSpeed);
-  speeds[0] = obsSpeedMin;
-  delays[0] = getMotorDelay(speeds[0]);
   
   while (speeds[maxSpeedInd]<maxSpeed && maxSpeedInd<(bufferSize-1)){
     maxSpeedInd++;
-    speeds[maxSpeedInd] = speeds[maxSpeedInd-1] + delays[maxSpeedInd-1]*pow(10,-6)*obsAcceleration;
-    delays[maxSpeedInd] = getMotorDelay(speeds[maxSpeedInd]);
+    speeds[maxSpeedInd] = speeds[maxSpeedInd-1] + prevDelay*pow(10,-6)*obsAcceleration;
+    delays[maxSpeedInd] = round(getMotorDelay(speeds[maxSpeedInd]));
+    prevDelay = getMotorDelay(speeds[maxSpeedInd]);
   }
   if (speeds[maxSpeedInd]>maxSpeed){maxSpeedInd--;}  // move one below index at which maxSpeed is surpassed
   
@@ -145,11 +148,17 @@ void loop(){
       analogWrite(obsLightPin1, 255*obstacleBrightness);
       analogWrite(obsLightPin2, 255*obstacleBrightness);
     }
+
+    // turn on touch sensor
+    digitalWrite(touchSensorOnPin, HIGH);
   }
 
   
   // obstacle disengage
   else if (isObsTracking && motorTics>=((trackEndPosition-obsStopPos)/mPerMotorTic)){
+
+    // turn off touch sensor
+    digitalWrite(touchSensorOnPin, LOW);
     
     // turn off obstacle
     isObsTracking = false;
@@ -164,9 +173,9 @@ void loop(){
     digitalWrite(motorOffPin, LOW);
     
     // find the start limit switch and move back to starting position
-    findStartLimit(obsSpeedMin, callibrationSpeed);
+    findStartLimit(obsSpeedStart, obsSpeedStop, callibrationSpeed);
     digitalWrite(obsOutPin, HIGH);  // swing obstacle out again
-    takeSteps(obsStartPos/mPerMotorTic, ACCELERATE, obsSpeedMin, callibrationSpeed);  // moving back to start position
+    takeSteps(obsStartPos/mPerMotorTic, ACCELERATE, obsSpeedStart, callibrationSpeed);  // moving back to start position
     digitalWrite(motorOffPin, HIGH);
 
     // determine next obstacle location
@@ -187,7 +196,7 @@ void loop(){
   // obstacle position update
   else if (isObsTracking){
     targetMotorTics = (wheelTicsTemp-startingWheelTics)*motorTicsPerWheelTic + startingMotorTics;
-    targetMotorTics = constrain(targetMotorTics, 0, trackEndPosition/mPerMotorTic) - motorTics;
+    targetMotorTics = constrain(targetMotorTics, 0, (trackEndPosition-trackEndBuffer)/mPerMotorTic) - motorTics;
     if (targetMotorTics!=0){
       takeStepsFast(targetMotorTics);
     }
