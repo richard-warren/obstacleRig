@@ -1,14 +1,14 @@
+
 /* OBSTACLE CONTROL
 
 todo:
-improve acceleration computation
-try microstepping adjustment
-startTracking
+***make sure moves fast!
 
+add touch sensor on/off
+try microstepping adjustment
 add jitter and other things things that need to be initialized after rewards and/or obs offs... // should i still offset obs?
 only check for user input when obs not on, and disable interrupts when user input is being collected...
-document, including description of units used
-avoid hack with having one too many entries in obsLocations
+checks for user settings
 */
 
 
@@ -19,10 +19,10 @@ avoid hack with having one too many entries in obsLocations
 #include "config.h"
 
 // state variables
-bool isObsOn = false;            // whether state is water only, or water with obstacles (does NOT keep track of whether obstacle is CURRENTLY moving)
-bool isObsTracking = false;      // whether obs is currently tracking wheel movements
-bool stepDir = HIGH;             // direction in which stepper motor is moving
-int obsInd = 0;                  // which obstacle is next
+bool isObsOn = false;        // whether state is water only, or water with obstacles (does NOT keep track of whether obstacle is CURRENTLY moving)
+bool isObsTracking = false;  // whether obs is currently tracking wheel movements
+bool stepDir = HIGH;         // direction in which stepper motor is moving
+int obsInd = 0;              // which obstacle is next
   
 // user input
 char inputChar;              // user input for characters
@@ -42,10 +42,16 @@ int startingWheelTics;       // wheel tics at the moment obstacle starts trackin
 int motorTics = 0;           // tics of stepper motor
 int startingMotorTics;       // motor tics at the moment obstacle starts tracking the wheel (after initial velocity matching period)
 int targetMotorTics;         // how many tics should the motor have moved to match the movement of the wheel
+float obsLocation = obsLocations[0];  // keeps track of starting location of next obstacle
 
 // motor speed
-float motorSpeed;            // (m/s) speed of stepper motor
-int motorDelay;              // (microseconds) delay between motor steps corresponding to desired motorSpeed
+const int bufferSize = 10000;
+float speeds[bufferSize];        // lookup table for motor speeds
+int delays[bufferSize];          // lookup table for motor step intervals that correspond to speeds
+int speedInd = 0;
+int maxSpeedInd = 0;
+enum accel {ACCELERATE, DECELERATE};
+
 
 // wheel speed
 long lastMicros = 0;
@@ -55,11 +61,14 @@ int dtInd = 0;               // index for wheelDeltas
 int dtSum = 0;               // sum of values in wheelDeltas
 
 
+
+
 void setup() {
   
   // begin serial communication
   Serial.begin(115200);
   while (!Serial) {}; // wait for serial port to connect
+
   
   // prepare ins and outs
   pinMode(stepPin, OUTPUT);
@@ -82,14 +91,29 @@ void setup() {
   digitalWrite(obsLightPin2, LOW);
   digitalWrite(obsTrackingPin, LOW);
 
-  // initialize random seed
-  randomSeed(analogRead(0));
   
   // initialize encoder hardware interrupt
   attachInterrupt(digitalPinToInterrupt(encoderPinA), encoder_isr, CHANGE);
   attachInterrupt(digitalPinToInterrupt(encoderPinB), encoder_isr, CHANGE);
+
+
+  // initialize lookup table for stepper speeds
+  float maxSpeed = max(trackingSpeed, callibrationSpeed);
+  speeds[0] = obsSpeedMin;
+  delays[0] = getMotorDelay(speeds[0]);
   
+  while (speeds[maxSpeedInd]<maxSpeed && maxSpeedInd<(bufferSize-1)){
+    maxSpeedInd++;
+    speeds[maxSpeedInd] = speeds[maxSpeedInd-1] + delays[maxSpeedInd-1]*pow(10,-6)*obsAcceleration;
+    delays[maxSpeedInd] = getMotorDelay(speeds[maxSpeedInd]);
+  }
+  if (speeds[maxSpeedInd]>maxSpeed){maxSpeedInd--;}  // move one below index at which maxSpeed is surpassed
+  
+  
+  // final initializations
+  randomSeed(analogRead(0));
   initializeLimits();
+  printInitializations();
   printMenu();
 }
 
@@ -109,20 +133,20 @@ void loop(){
 
   
   // obstacle engage
-  if (isObsOn && !isObsTracking && (wheelTicsTemp>=(obsLocations[obsInd]/mPerWheelTic))){
+  if (isObsOn && !isObsTracking && (wheelTicsTemp>=(obsLocation/mPerWheelTic))){
     
     // ramp up obstacle velocity to match wheel velocity
     digitalWrite(motorOffPin, LOW); // engages stepper motor driver
     isObsTracking = true;
     startTracking();
-    
+
     // turn on obstacle light
     if(random(0,100) < obsLightProbability*100.0){
-      digitalWrite(obsLightPin1, HIGH);
-      digitalWrite(obsLightPin2, HIGH);
+      analogWrite(obsLightPin1, 255*obstacleBrightness);
+      analogWrite(obsLightPin2, 255*obstacleBrightness);
     }
   }
-  
+
   
   // obstacle disengage
   else if (isObsTracking && motorTics>=((trackEndPosition-obsStopPos)/mPerMotorTic)){
@@ -140,16 +164,22 @@ void loop(){
     digitalWrite(motorOffPin, LOW);
     
     // find the start limit switch and move back to starting position
-    findStartLimit(callibrationSpeeds[0], callibrationSpeeds[1]);
+    findStartLimit(obsSpeedMin, callibrationSpeed);
     digitalWrite(obsOutPin, HIGH);  // swing obstacle out again
-    takeAcceleratingSteps(obsStartPos/mPerMotorTic, obsAcceleration, callibrationSpeeds[0], callibrationSpeeds[1]);  // moving back to start position
+    takeSteps(obsStartPos/mPerMotorTic, ACCELERATE, obsSpeedMin, callibrationSpeed);  // moving back to start position
     digitalWrite(motorOffPin, HIGH);
+
+    // determine next obstacle location
+    if (obsInd<(sizeof(obsLocations)/4)){  // sizeof(obsLocations)/4 gives number of obstacles, as there are 4 bytes per float
+      obsLocation = obsLocations[obsInd];
+    }else{
+      obsLocation = waterDistance*2;  // this makes the obstacle unreachable until after reward delivery
+    }
   }
 
   
   // water delivery
   else if (wheelTicsTemp >= (waterDistance/mPerWheelTic)){
-    Serial.println("delivering water");
     giveWater();
   }
   
@@ -157,9 +187,9 @@ void loop(){
   // obstacle position update
   else if (isObsTracking){
     targetMotorTics = (wheelTicsTemp-startingWheelTics)*motorTicsPerWheelTic + startingMotorTics;
-    targetMotorTics = constrain(targetMotorTics, 0, trackEndPosition/mPerMotorTic)  - motorTics;
-    if (targetMotorTics!=0){takeSteps(targetMotorTics);}
+    targetMotorTics = constrain(targetMotorTics, 0, trackEndPosition/mPerMotorTic) - motorTics;
+    if (targetMotorTics!=0){
+      takeStepsFast(targetMotorTics);
+    }
   }
-
-  Serial.println(getWheelSpeed());
 }

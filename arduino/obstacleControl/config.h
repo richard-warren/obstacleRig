@@ -16,12 +16,12 @@
 
 
 // positions
-float waterDistance = 5.4;                          // (m) distance between rewards
-const float obsLocations[] = {.9, 2.7, 4.5, 100};   // (m) positions at which obstacles are engaged with respect to previous water locations=
-const float obsLocationJitter = .1;                 // (m) jitter to be applied to obsLocations on every trial
-const float obsStartPos = .02;                      // (m) position at which obstacle starts relative to the start limit switch
-const float obsStopPos = .04;                       // (m) position at which obstacle stops relative to thhe end limit switch
-const float obsStartPosJitter = .02;                // (m) jitter in the starting position of the obstacle on the track relative to the start limit
+float waterDistance = 5.4;                       // (m) distance between rewards
+const float obsLocations[] = {.9, 2.7, 4.5};     // (m) positions at which obstacles are engaged with respect to previous water locations
+const float obsLocationJitter = .1;              // (m) jitter to be applied to obsLocations on every trial
+const float obsStartPos = .02;                   // (m) position at which obstacle starts relative to the start limit switch
+const float obsStopPos = .04;                    // (m) position at which obstacle stops relative to thhe end limit switch
+const float obsStartPosJitter = .02;             // (m) jitter in the starting position of the obstacle on the track relative to the start limit
 
 // durations
 volatile int waterDuration = 80;                 // (ms) time that water solenoid is open for
@@ -29,14 +29,14 @@ const int servoSwingTime = 150;                  // (ms) approximate amount of t
 
 // speed
 const float wheelSpeedDistance = .020;           // (m) wheel speed is contnuously measured over this distance
-const double trackingSpeeds[] = {.4, 1.6};       // (m/s) starting and maximum speed while obstacle is tracking wheel movements
-const double callibrationSpeeds[] = {.4, 1.6};   // (m/s) min and max speeds during callibration
-const double obsAcceleration = 8.0;              // (m/s^2) obstacle acceleration (used when obstacle is starting up or stopping)
-const int speedSamples = 10;                     // successeive samples of wheel soeed to measure (samples are separated by about 500 microseconds)
+const double obsSpeedMin = .2;                   // (m/s) starting speed of obstacle when it speeds up, and minimum speed when it slows down
+const double trackingSpeed = 1.6;                // (m/s) max speed of obstacle when tracking wheel position
+const double callibrationSpeed = 1.6;            // (m/s) max speed of obstacle when looking for limit switches
+const double obsAcceleration = 12.0;             // (m/s^2) obstacle acceleration (used when obstacle is starting up or stopping)
 
 // obstacle light
-float obsLightProbability = 0.5;     // probability of obstacle light turning on
-float obstacleBrightness = .5;       // (0->1) fraction of total brightness for obstacle LEDs
+float obsLightProbability = 1.0;                 // probability of obstacle light turning on
+float obstacleBrightness = .5;                   // (0->1) fraction of total brightness for obstacle LEDs
 
 // rig characteristics
 const double timingPulleyRad = .0152789;         // (mm) radius of timing pulley on stepper motor

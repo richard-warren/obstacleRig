@@ -1,13 +1,11 @@
 
-
-
 void printMenu(){
 
   // print settings
   Serial.println("CURRENT SETTINGS:");
 
   // condition
-  Serial.print("1: set obstacle status: ");
+  Serial.print("1: obstacle status: ");
   if (isObsOn){
     Serial.println("ON");
   }else{
@@ -15,7 +13,7 @@ void printMenu(){
   }
   
   // water distance
-  Serial.print("2: set water distance (meters): ");
+  Serial.print("2: water distance (meters): ");
   Serial.println(waterDistance);
 
   // water duration
@@ -23,7 +21,7 @@ void printMenu(){
   Serial.println(waterDuration);
   
   // light on probability
-  Serial.print("4: set light on probability: ");
+  Serial.print("4: light on probability: ");
   Serial.println(obsLightProbability);
   Serial.println("");
   
@@ -100,7 +98,43 @@ void getUserInput(){
           Serial.println(F("ERROR: please enter a decimal >=0 and <=1!"));
         }
         break;
-        
     }
   }
+}
+
+
+
+
+void printInitializations(){
+  Serial.println("INITIALIZATIONS");
+  Serial.println("---------------");
+  
+  Serial.print("end limit switch (meters): ");
+  Serial.println(trackEndPosition);
+
+  Serial.print("microns per wheel tick: ");
+  Serial.println(mPerWheelTic*pow(10,6));
+
+  Serial.print("microns per motor step: ");
+  Serial.println(mPerMotorTic*pow(10,6));
+
+  Serial.print("speed lookup table length: ");
+  Serial.println(maxSpeedInd+1);
+
+  Serial.print("sizeof(obsLocations): ");
+  Serial.println(sizeof(obsLocations));
+
+  Serial.print("deceleration distance: ");  // distance from limit switch at which obstcle starts slowing down
+  Serial.println((pow(callibrationSpeed,2)-pow(obsSpeedMin,2)) / (2*obsAcceleration));
+
+  Serial.print("delay for speed 2.0: ");  // distance from limit switch at which obstcle starts slowing down
+  Serial.println(getMotorDelay(2.0));
+
+  if (maxSpeedInd==(bufferSize-1)){
+    Serial.print("WARNING! 'speeds' + 'delays' lookup tables could not fit in buffer of size: ");
+    Serial.print(bufferSize);
+    Serial.print("\n  To fix, increase 'bufferSize', increase 'obsAcceleration', or reduce velocity range.\n");
+  }
+
+  Serial.print("--------------\n\n");
 }
