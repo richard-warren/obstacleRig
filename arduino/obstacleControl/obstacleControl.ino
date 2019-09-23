@@ -23,10 +23,12 @@ bool stepDir = HIGH;         // direction in which stepper motor is moving
 int obsInd = 0;              // which obstacle is next
   
 // user input
-char inputChar;              // user input for characters
-int inputInt;                // user input for ints
-int inputFloat;              // user input for floats
-char inputBuffer[100];       // user input buffer
+char inputChar;                // user input for characters
+char inputBuffer[100];         // user input buffer
+int inputInt;                  // user input for ints
+float inputFloat;              // user input for floats
+bool inputDetected = false;    // whether there is a user input that awaits processing
+bool notGettingInput = true;   // keeps track of whether user input is currently being collected
 
 // unit conversions
 const double mPerWheelTic = (2*PI*wheelRad) / encoderSteps;                         // meters for tic of the stepper motor
@@ -34,7 +36,7 @@ const double mPerMotorTic = (2*PI*timingPulleyRad) / (motorSteps*microStepping);
 const double motorTicsPerWheelTic = mPerWheelTic / mPerMotorTic;                    // stepper motor tics per tic of wheel rotary encoder
 
 // positions
-int wheelTics = 0;           // tics of wheel rotary encoder
+volatile int wheelTics = 0;  // tics of wheel rotary encoder
 int wheelTicsTemp = 0;       // this variable temporarily copies wheelTicks in the main code to avoid having to access it multiple times, potentially colliding with its access in the interrupt
 int startingWheelTics;       // wheel tics at the moment obstacle starts tracking the wheel (after initial velocity matching period)
 int motorTics = 0;           // tics of stepper motor
@@ -52,11 +54,11 @@ enum accel {ACCELERATE, DECELERATE};
 
 
 // wheel speed
-long lastMicros = 0;
+volatile long lastMicros = 0;
 const int dtSz = int(wheelSpeedDistance/mPerWheelTic);
-int wheelDts[dtSz];          // (microseconds) running list of intervals between wheel rotary encoder tics
-int dtInd = 0;               // index for wheelDeltas
-int dtSum = 0;               // sum of values in wheelDeltas
+volatile int wheelDts[dtSz];          // (microseconds) running list of intervals between wheel rotary encoder tics
+volatile int dtInd = 0;               // index for wheelDeltas
+volatile int dtSum = 0;               // sum of values in wheelDeltas
 
 
 
@@ -76,6 +78,7 @@ void setup() {
   pinMode(obsOutPin, OUTPUT);
   pinMode(startLimitPin, INPUT_PULLUP);
   pinMode(stopLimitPin, INPUT_PULLUP);
+  pinMode(obsLightPinDig, OUTPUT);
   pinMode(obsLightPin1, OUTPUT);
   pinMode(obsLightPin2, OUTPUT);
   pinMode(obsTrackingPin, OUTPUT);
@@ -86,10 +89,9 @@ void setup() {
   digitalWrite(waterPin, LOW);
   digitalWrite(motorOffPin, LOW);
   digitalWrite(obsOutPin, LOW);
-  digitalWrite(obsLightPin1, LOW);
-  digitalWrite(obsLightPin2, LOW);
   digitalWrite(obsTrackingPin, LOW);
   digitalWrite(touchSensorOnPin, LOW);
+  switchObsLight(LOW);
 
   
   // initialize encoder hardware interrupt
@@ -114,9 +116,7 @@ void setup() {
   
   // final initializations
   randomSeed(analogRead(0));
-  initializeLimits();
-  printInitializations();
-  printMenu();
+  calibrateLimits();
 }
 
 
@@ -126,6 +126,9 @@ void loop(){
 
   // check for user input
   getUserInput();
+  if (!isObsTracking){
+    processUserInput();
+  }
   
   
   // wheel position update
@@ -138,14 +141,14 @@ void loop(){
   if (isObsOn && !isObsTracking && (wheelTicsTemp>=(obsLocation/mPerWheelTic))){
     
     // ramp up obstacle velocity to match wheel velocity
-    digitalWrite(motorOffPin, LOW); // engages stepper motor driver
+    digitalWrite(motorOffPin, LOW);  // engage stepper motor driver
+    digitalWrite(obsTrackingPin, HIGH);
     isObsTracking = true;
     startTracking();
 
     // turn on obstacle light
     if(random(0,100) < obsLightProbability*100.0){
-      analogWrite(obsLightPin1, 255*obstacleBrightness);
-      analogWrite(obsLightPin2, 255*obstacleBrightness);
+      switchObsLight(HIGH);
     }
 
     // turn on touch sensor
@@ -161,8 +164,8 @@ void loop(){
     
     // turn off obstacle
     isObsTracking = false;
-    digitalWrite(obsLightPin1, LOW);
-    digitalWrite(obsLightPin2, LOW);
+    digitalWrite(obsTrackingPin, LOW);
+    switchObsLight(LOW);
     obsInd++;
     
     // reset stepper motor driver while disengaging obstacle

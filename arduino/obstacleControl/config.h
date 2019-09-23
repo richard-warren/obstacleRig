@@ -8,8 +8,9 @@
 #define obsTrackingPin     3    // when the obstacle is tracking the mouse's position
 #define startLimitPin      9    // limit switch at start of track // signal is LOW when engaged
 #define stopLimitPin       10   // limit switch at end of track // signal is LOW when eng aged
-#define obsLightPin1       2    // controls when the light for the obstacle turns on
-#define obsLightPin2       6    // controls when the light for the obstacle turns on
+#define obsLightPinDig     11   // digital pin that signals whether obstacle is lit up
+#define obsLightPin1       2    // PWM pin that drives obstacle LED
+#define obsLightPin2       6    // PWM pin that drives obstacle LED
 #define touchSensorOnPin   12   // powers the touch sensor only when obs is within range of paws
 #define encoderPinA        20   // pin for wheel rotary encoder (don't change, because direct port manipulation is used that assumes 20 and 21 are used)
 #define encoderPinB        21   // pin for wheel rotary encoder (don't change, because direct port manipulation is used that assumes 20 and 21 are used)
@@ -36,8 +37,8 @@ const double callibrationSpeed = 2.0;            // (m/s) max speed of obstacle 
 const double obsAcceleration = 20.0;             // (m/s^2) obstacle acceleration (used when obstacle is starting up or stopping)
 
 // obstacle light
-float obsLightProbability = 0.5;                 // probability of obstacle light turning on
-float obstacleBrightness = .2;                   // (0->1) fraction of total brightness for obstacle LEDs
+float obsLightProbability = 1.0;                 // probability of obstacle light turning on
+float obstacleBrightness = 0.2;                  // (0->1) fraction of total brightness for obstacle LEDs
 
 // rig characteristics
 const double timingPulleyRad = .0152789;         // (mm) radius of timing pulley on stepper motor

@@ -73,16 +73,10 @@ void takeStepsFast(int stepsToTake){
 
 // give water reward
 void giveWater(){
-  noInterrupts();
-  wheelTics = 0;
-  interrupts();
-
-  obsInd = 0;
-  obsLocation = obsLocations[obsInd];
-
   digitalWrite(waterPin, HIGH);
   delay(waterDuration);
   digitalWrite(waterPin, LOW);
+  resetState();
 }
 
 
@@ -91,23 +85,25 @@ void giveWater(){
 // read wheel rotary encoder
 void encoder_isr() {
     
-    // get time elapsed from last wheel tic
-    long currentMicros = micros();
-    wheelDts[dtInd] = currentMicros-lastMicros;
-    lastMicros = currentMicros;
-    dtSum += wheelDts[dtInd];  // add the newest delta
-    dtInd++;
-    if (dtInd==dtSz){dtInd = 0;}
-    dtSum-= wheelDts[dtInd];  // remove the oldest delta
-    
-    // read encoder state
-    static int8_t lookup_table[] = {0,-1,1,0,1,0,0,-1,-1,0,0,1,0,1,-1,0};
-    static uint8_t enc_val = 0;
-    enc_val = enc_val << 2;
-    enc_val = enc_val | ((REG_PIOB_PDSR & (0b11 << 12)) >> 12); // read all pins from port B, and bitmask to get just inputs 12 and 13 from port B, which correspond to Due pins 20 and 21
- 
-    // update wheelTics
-    wheelTics = wheelTics - lookup_table[enc_val & 0b1111];
+    if (notGettingInput){  // don't update wheel position while collecting user input
+      // get time elapsed from last wheel tic
+      volatile long currentMicros = micros();
+      wheelDts[dtInd] = currentMicros-lastMicros;
+      lastMicros = currentMicros;
+      dtSum += wheelDts[dtInd];  // add the newest delta
+      dtInd++;
+      if (dtInd==dtSz){dtInd = 0;}
+      dtSum-= wheelDts[dtInd];  // remove the oldest delta
+      
+      // read encoder state
+      static int8_t lookup_table[] = {0,-1,1,0,1,0,0,-1,-1,0,0,1,0,1,-1,0};
+      static uint8_t enc_val = 0;
+      enc_val = enc_val << 2;
+      enc_val = enc_val | ((REG_PIOB_PDSR & (0b11 << 12)) >> 12); // read all pins from port B, and bitmask to get just inputs 12 and 13 from port B, which correspond to Due pins 20 and 21
+   
+      // update wheelTics
+      wheelTics = wheelTics - lookup_table[enc_val & 0b1111];
+    }
 }
 
 
@@ -143,14 +139,25 @@ float getWheelSpeed(){
 
 
 
-void initializeLimits(){
-    
+void calibrateLimits(){
+  
+  Serial.println(F("Calibrating limits..."));
   static float slowDown = 0.5;  // (0->1) how much to slow down initial limit check relative to callibrationSpeed
-  findStartLimit(obsSpeedStart, obsSpeedStop, callibrationSpeed*slowDown);
+
+  digitalWrite(obsOutPin, LOW);
+  isObsOn = false;
+  isObsTracking = false;
+  
+  digitalWrite(motorOffPin, LOW);
+  findStartLimit(obsSpeedStop, obsSpeedStop, obsSpeedStop);  // move at constant, slow speed
   findStopLimit(obsSpeedStart, obsSpeedStop, callibrationSpeed*slowDown);
   findStartLimit(obsSpeedStart, obsSpeedStop, callibrationSpeed*slowDown);
   takeSteps(max((obsStartPos+getJitter(obsStartPosJitter))/mPerMotorTic,0), ACCELERATE, obsSpeedStart, callibrationSpeed);  // move back to start position
   digitalWrite(motorOffPin, HIGH);
+
+  printInitializations();
+  printMenu();
+  resetState();
 }
 
 
@@ -191,4 +198,38 @@ void findStopLimit(float speedStart, float speedStop, float speedMax){
       }
   }
   trackEndPosition = motorTics*mPerMotorTic;
+}
+
+
+
+
+// reset state variables
+void resetState(){
+  
+  // reset wheel ticks
+  noInterrupts();
+  wheelTics = 0;
+  wheelTicsTemp = 0;
+  interrupts();
+
+  // set initial obstacle location
+  obsInd = 0;
+  obsLocation = obsLocations[obsInd] + getJitter(obsLocationJitter);
+}
+
+
+
+
+// turn lights on/off
+void switchObsLight(bool lightState){
+
+  digitalWrite(obsLightPinDig, lightState);
+  
+  if (lightState){
+    analogWrite(obsLightPin1, 255*obstacleBrightness);
+    analogWrite(obsLightPin2, 255*obstacleBrightness);
+  }else{
+    digitalWrite(obsLightPin1, LOW);
+    digitalWrite(obsLightPin2, LOW);
+  }
 }

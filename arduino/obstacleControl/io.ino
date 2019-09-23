@@ -23,38 +23,50 @@ void printMenu(){
   // light on probability
   Serial.print("4: light on probability: ");
   Serial.println(obsLightProbability);
-  Serial.println("");
-  
+
+  // recallibrate limits
+  Serial.println("5: recallibrate");
 }
 
 
 
 
+// get initial menu selection
 void getUserInput(){
 
   // check for user input
   if (Serial.available()){
-
     inputChar = Serial.read();
     Serial.readBytesUntil('\n', inputBuffer, 100);  // throw away all but the first byte, stopping at the newline character
+    
+    // recallibrate limits immediately if requested
+    if (inputChar=='5'){
+      calibrateLimits();
+    
+    // otherwise set flag so input can be processed when obstacle is not moving
+    }else{
+      inputDetected = true;
+    }
+  }
+}
 
+
+
+
+// process menu selection
+void processUserInput(){
+
+  if (inputDetected){
+    
+    notGettingInput = false;
     
     switch (inputChar){
-
+  
       // turn obstacle on/off
       case '1':
         isObsOn = !isObsOn;
         digitalWrite(obsOutPin, isObsOn);
-        
-        // reset wheel ticks
-        noInterrupts();
-        wheelTics = 0;
-        interrupts();
-
-        // set initial obstacle location
-        obsInd = 0;
-        obsLocation = obsLocations[obsInd] + getJitter(obsLocationJitter);
-
+        resetState();
         printMenu();
         break;
         
@@ -87,7 +99,7 @@ void getUserInput(){
           Serial.println(F("ERROR: please enter an integer >0 and <=1000!"));
         }
         break;
-
+  
       
       // set light on probability
       case '4':
@@ -103,6 +115,9 @@ void getUserInput(){
         }
         break;
     }
+
+    inputDetected = false;
+    notGettingInput = true;
   }
 }
 
@@ -110,7 +125,7 @@ void getUserInput(){
 
 
 void printInitializations(){
-  Serial.println("INITIALIZATIONS");
+  Serial.println("\nINITIALIZATIONS");
   Serial.println("---------------");
   
   Serial.print("track length (meters): ");
@@ -119,12 +134,6 @@ void printInitializations(){
   Serial.print("deceleration distance (meters): ");  // distance from limit switch at which obstcle starts slowing down
   Serial.print((pow(callibrationSpeed,2)-pow(obsSpeedStop,2)) / (2*obsAcceleration), 3);
   Serial.print("\n");
-
-  Serial.print("wheel tick distance (microns): ");
-  Serial.println(mPerWheelTic*pow(10,6));
-
-  Serial.print("wheel tick distance (microns): ");
-  Serial.println(mPerMotorTic*pow(10,6));
 
   Serial.print("motor speed lookup table size: ");
   Serial.println(maxSpeedInd+1);
@@ -137,6 +146,4 @@ void printInitializations(){
     Serial.print(bufferSize);
     Serial.print("\n  To fix, increase 'bufferSize', increase 'obsAcceleration', or reduce velocity range.\n");
   }
-
-  Serial.print("--------------\n");
 }
