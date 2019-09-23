@@ -29,7 +29,8 @@ volatile int waterDuration = 120;                // (ms) time that water solenoi
 const int servoSwingTime = 150;                  // (ms) approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back to avoid it whacking the guy in the butt!
 
 // speed
-const float wheelSpeedDistance = .020;           // (m) wheel speed is contnuously measured over this distance
+const float wheelSpeedDistance = .010;           // (m) wheel speed is contnuously measured over this distance
+const float obsSpeedDistance = .010;             // (m) motor speed is measured over this distance
 const double obsSpeedStart = .1;                 // (m/s) speed of obstacle when it starts up
 const double obsSpeedStop = .3;                  // (m/s) min speed of obstacle as it approaches end limit // MUST BE >= THAN OBS SPEED START
 const double trackingSpeed = 2.0;                // (m/s) max speed of obstacle when tracking wheel position
