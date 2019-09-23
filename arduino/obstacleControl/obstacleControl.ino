@@ -2,11 +2,10 @@
 /* OBSTACLE CONTROL
 
 todo:
-only check for user input when obs not on, and disable interrupts when user input is being collected...
 
-fix assumption that obsSpeedStart is less than obsSpeedMin
-could reduce discrepancy btwn estimated and actual motor speed by making separate accel and decel functions, and also changing direction before accel or decel, so you don't need to check every time if t his needs to happen...
-checks for user settings
+document
+checks that user settings are valid
+
 */
 
 
@@ -51,7 +50,7 @@ int delays[bufferSize];          // lookup table for motor step intervals that c
 int speedInd = 0;
 int maxSpeedInd = 0;
 enum accel {ACCELERATE, DECELERATE};
-
+enum dir {FORWARD=true, REVERSE=false};
 
 // wheel speed
 volatile long lastMicros = 0;
@@ -103,7 +102,7 @@ void setup() {
   speeds[0] = obsSpeedStart;
   delays[0] = round(getMotorDelay(speeds[0]));
   float prevDelay = getMotorDelay(speeds[0]);
-  float maxSpeed = max(trackingSpeed, callibrationSpeed);
+  float maxSpeed = max(obsSpeedMax, callibrationSpeed);
   
   while (speeds[maxSpeedInd]<maxSpeed && maxSpeedInd<(bufferSize-1)){
     maxSpeedInd++;
@@ -177,7 +176,7 @@ void loop(){
     // find the start limit switch and move back to starting position
     findStartLimit(obsSpeedStart, obsSpeedStop, callibrationSpeed);
     digitalWrite(obsOutPin, HIGH);  // swing obstacle out again
-    takeSteps(max((obsStartPos+getJitter(obsStartPosJitter))/mPerMotorTic,0), ACCELERATE, obsSpeedStart, callibrationSpeed);  // moving back to start position
+    goToStartPos();
     digitalWrite(motorOffPin, HIGH);
 
     // determine next obstacle location

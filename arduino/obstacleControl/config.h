@@ -26,15 +26,15 @@ const float obsLocationJitter = .1;              // (m) jitter to be applied to 
 
 // durations
 volatile int waterDuration = 120;                // (ms) time that water solenoid is open for
-const int servoSwingTime = 150;                  // (ms) approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back to avoid it whacking the guy in the butt!
+const int servoSwingTime = 200;                  // (ms) approximate amount of time it takes for the osbtacle to pop out // this is used as a delay bewteen the obstacle reaching the end of the track and it coming back to avoid it whacking the guy in the butt!
 
 // speed
 const float wheelSpeedDistance = .020;           // (m) wheel speed is contnuously measured over this distance
 const double obsSpeedStart = .1;                 // (m/s) speed of obstacle when it starts up
 const double obsSpeedStop = .3;                  // (m/s) min speed of obstacle as it approaches end limit // MUST BE >= THAN OBS SPEED START
-const double trackingSpeed = 2.0;                // (m/s) max speed of obstacle when tracking wheel position
-const double callibrationSpeed = 2.0;            // (m/s) max speed of obstacle when looking for limit switches
-const double obsAcceleration = 20.0;             // (m/s^2) obstacle acceleration (used when obstacle is starting up or stopping)
+const double obsSpeedMax = 3.0;                  // (m/s) max speed of obstacle when tracking wheel position
+const double callibrationSpeed = 3.0;            // (m/s) max speed of obstacle when looking for limit switches
+const double obsAcceleration = 30.0;             // (m/s^2) obstacle acceleration (used when obstacle is starting up or stopping)
 
 // obstacle light
 float obsLightProbability = 0.0;                 // probability of obstacle light turning on

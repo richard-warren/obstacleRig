@@ -135,6 +135,9 @@ void printInitializations(){
   Serial.print((pow(callibrationSpeed,2)-pow(obsSpeedStop,2)) / (2*obsAcceleration), 3);
   Serial.print("\n");
 
+  Serial.print("smallest interstep motor delay (microseconds): ");
+  Serial.println(delays[maxSpeedInd]);
+  
   Serial.print("motor speed lookup table size: ");
   Serial.println(maxSpeedInd+1);
 
