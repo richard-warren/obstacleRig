@@ -88,6 +88,7 @@ void giveWater(){
 void encoder_isr() {
     
     if (notGettingInput){  // don't update wheel position while collecting user input
+      
       // get time elapsed from last wheel tic
       volatile long currentMicros = micros();
       wheelDts[dtInd] = currentMicros-lastMicros;
@@ -150,7 +151,9 @@ void calibrateLimits(){
   Serial.println(F("Calibrating limits..."));
   static float slowDown = 0.25;  // (0->1) how much to slow down initial limit check relative to callibrationSpeed
 
+  // turn off obstacle
   digitalWrite(obsOutPin, LOW);
+  switchObsLight(LOW);
   isObsOn = false;
   isObsTracking = false;
   

@@ -1,10 +1,58 @@
 
 /* OBSTACLE CONTROL
 
-todo:
+Richard Warren - 190924
 
-document
-checks that user settings are valid
+GENERAL:
+This code is for the Arduion Due that is the master controller for the obstacle experiments.
+The mouse runs on a wheel until waterDistance meters have been traveled, at which point water is delivered.
+Obstacles pop out at obsLocations and match the speed of the wheel.
+Settings can be adjusted in 'config.h'.
+
+UNITS:
+Wheel speed is measured with a digital rotary encoder that emmits a pulse every mPerWheelTic meters of wheel movement.
+Wheel displacement is measured in 'wheelTics', i.e. the number of pulses from the rotary encoder.
+The stepper motor controlling the obstacles is also moved discretely using TTLs. The position of the motor is measured in 'motorTics'.
+wheelTics are measured relative to the last delivered reward, and motorTics are measured relative to the position of the limit switch at the beginning of the track.
+Events (water reward, obstacle engagement) occur at positions specified in meters relative to last reward. Converting between meters and tics can be done using mPerWheelTic and mPerMotorTic conversion factors.
+
+OBSTCLE TRACKING:
+To match the movement of the obstacle to the speed of the wheel, the number of wheelTics since obstacle engagement is compared to the number of motorTics since engagement.
+Both are converted to meters. The motor is moved a discrete number of steps that minimizes the discrepancy between these positions.
+
+ACCELERATION:
+The obstacle cannot achieve high velocities immediately from stand-still. Therefore, when the obstacle starts tracking, the velocity is increased with contant acceleration until the obstacle and wheel velocity are matched (see startTracking()).
+At that point, the tracking procedure described above begins. Nominal obstacle velocity is controlled by computing the inter-motor-step interval necessary to achieve desired speeds.
+The algebra necessary to compute subsequent velocities at constant acceleration takes ~27 microseconds, which drastcailly slows down the code.
+Therefore, 'speeds' and 'delays' lookup tables store a list of linearly increasing speeds (constant acceleration) and their associated delays.
+Accelerating and decelerating then becomes as simple as moving up and down in this list. The length of the list is a function of the velocity range and acceleration.
+At slow accelerations and long velocity intervals, the list can become to long, at which point the code will complain and ask you to adjust the parameters.
+
+A subtle but important point: The code drastically overestimates the speed of obstacle movement. It assumes the interstep delay it delivers (with delayMicroseconds()) is the effective delay.
+However, processing delays in the code (on the order of 10-20 microSeconds) decrease the effective speed by about 40 percent.
+Therefore, the speeds and acceleration specified in config.h are nominal and not actual speeds.
+The discrepency between nominal and actual speed becomes important in startTracking(), where the software attempts to match the obstacle speed (measured poorly) and the wheel speed (measured effectively).
+To compensate for this discrepancy, the nominal motor speed is multiplied by 'speedCompensation' in 'startTracking()'.
+If the obstacle speed is too fast or too slow when startTracking() completes (when acceleration desists) you should increase or decrease 'speedCompensation'.
+
+MEASURING WHEEL SPEED:
+The wheel rotary encoder triggers a hardware interrupt (encoder_isr()) that must run very quickly to avoid delaying the code:
+In the isr, microseconds elapsed from last wheel tic is recorded in an array (wheelDts). An index keeps track of the position in the array, and it wraps around to the beginning of the array when the maximum location is reached.
+Computing the speed requires summing these elements, which requires redundant computation if performed on every wheel speed check. Therefore, a running sum is computed:
+On every wheel tic, the new interval is added to the sum, and the oldest interval is subtracted from the sum.
+
+TIMING:
+At the highest wheel speeds, the motor step interval approaches 10 microseconds. Therefore, even small computational delays can severely limit the maximum accomplishable speed.
+Measruing (in microseconds) the duration of certain events was important for troubleshooting the codes. Here are some notes on the timing of certain pieces of code:
+-27us to update the motor speed and delay algebraically. This approach was abandoned in favor of the lookup table for this reason, which only takes 3us to update.
+-in void main(), it takes 2us to perform the algebra necessary to compare wheel and motor Tics on the fly. A faster approach would be to convert these ahead of time, but that would introduce more variables. I opted for this slightly slower, but simpler implementation.
+-getWheelSpeed() takes 12us. Therefore, startTracking does not check the wheel speed after every accelerating step, but instead after every 'stepsBtwnChecks' steps, which is still a very fast rate.
+
+CALIBRATION:
+The position of the obstacle is inferred from the commands sent to the motor. However, steps will inevitably lost as the motor fails to faithfully implement the commands sent to it.
+Therefore, the position is recallibrated at the end of every obstacle trial: The obstacle moves back until it touches the start limit switch, and motorTics is set to 0 at this point.
+The acceleration profile in the speeds lookup table is used during callibration. It allows the obstacle to accelerate as is starts moving from standstill.
+Also, it is used to decelerate as it approaches the estimated position of the limit switch, avoiding a loud bang as it hits the switch at high velocity.
 
 */
 

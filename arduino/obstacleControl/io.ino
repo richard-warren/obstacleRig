@@ -42,6 +42,7 @@ void getUserInput(){
     // recallibrate limits immediately if requested
     if (inputChar=='5'){
       calibrateLimits();
+      
     
     // otherwise set flag so input can be processed when obstacle is not moving
     }else{
