@@ -3,6 +3,11 @@
 
 Richard Warren - 190924
 
+TODO:
+-menu option for delivering reward
+-decelerate near end of track
+-option for turning off touch sensor
+
 GENERAL:
 This code is for the Arduion Due that is the master controller for the obstacle experiments.
 The mouse runs on a wheel until waterDistance meters have been traveled, at which point water is delivered.
@@ -216,6 +221,7 @@ void loop(){
     obsInd++;
     
     // reset stepper motor driver while disengaging obstacle
+//    delay(100);  // !!! try to stop intertia
     digitalWrite(motorOffPin, HIGH);
     digitalWrite(obsOutPin, LOW);  // swing obstacle out of the way
     delay(servoSwingTime);
@@ -237,7 +243,7 @@ void loop(){
 
   
   // water delivery
-  else if (wheelTicsTemp >= (waterDistance/mPerWheelTic)){
+  else if (wheelTicsTemp >= (waterDistance/mPerWheelTic) && !isObsTracking){
     giveWater();
   }
   

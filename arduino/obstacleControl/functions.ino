@@ -156,8 +156,13 @@ void calibrateLimits(){
   switchObsLight(LOW);
   isObsOn = false;
   isObsTracking = false;
-  
+
+  // reset motor driver
+  digitalWrite(motorOffPin, HIGH);
+  delay(50); digitalWrite(motorOffPin, LOW);
   digitalWrite(motorOffPin, LOW);
+  
+  // find limits
   findStartLimit(obsSpeedStop, obsSpeedStop, obsSpeedStop);  // move at constant, slow speed
   findStopLimit(obsSpeedStart, obsSpeedStop, callibrationSpeed*slowDown);
   findStartLimit(obsSpeedStart, obsSpeedStop, callibrationSpeed*slowDown);

@@ -130,7 +130,7 @@ void printInitializations(){
   Serial.println("---------------");
   
   Serial.print("track length (meters): ");
-  Serial.println(trackEndPosition);
+  Serial.println(trackEndPosition, 3);
 
   Serial.print("deceleration distance (meters): ");  // distance from limit switch at which obstcle starts slowing down
   Serial.print((pow(callibrationSpeed,2)-pow(obsSpeedStop,2)) / (2*obsAcceleration), 3);

@@ -31,7 +31,7 @@ const int servoSwingTime = 200;                  // (ms) approximate amount of t
 // speed
 const float wheelSpeedDistance = .020;           // (m) wheel speed is contnuously measured over this distance
 const double obsSpeedStart = .1;                 // (m/s) speed of obstacle when it starts up
-const double obsSpeedStop = .3;                  // (m/s) min speed of obstacle as it approaches end limit // MUST BE >= THAN OBS SPEED START
+const double obsSpeedStop = .1;                  // (m/s) min speed of obstacle as it approaches end limit
 const double obsSpeedMax = 3.0;                  // (m/s) max speed of obstacle when tracking wheel position
 const double callibrationSpeed = 3.0;            // (m/s) max speed of obstacle when looking for limit switches
 const double obsAcceleration = 30.0;             // (m/s^2) obstacle acceleration (used when obstacle is starting up or stopping)
