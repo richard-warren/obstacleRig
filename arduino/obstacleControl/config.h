@@ -30,11 +30,12 @@ const int servoSwingTime = 200;                  // (ms) approximate amount of t
 
 // speed
 const float wheelSpeedDistance = .020;           // (m) wheel speed is contnuously measured over this distance
-const double obsSpeedStart = .1;                 // (m/s) speed of obstacle when it starts up
-const double obsSpeedStop = .1;                  // (m/s) min speed of obstacle as it approaches end limit
+const double obsSpeedStart = .05;                // (m/s) speed of obstacle when it starts up
+const double obsSpeedStop = .2;                  // (m/s) min speed of obstacle as it approaches end limit
 const double obsSpeedMax = 3.0;                  // (m/s) max speed of obstacle when tracking wheel position
 const double callibrationSpeed = 3.0;            // (m/s) max speed of obstacle when looking for limit switches
-const double obsAcceleration = 30.0;             // (m/s^2) obstacle acceleration (used when obstacle is starting up or stopping)
+const double obsAcceleration = 25.0;             // (m/s^2) obstacle acceleration (used when obstacle is starting up or stopping)
+const float speedCompensation = 0.40;            // 0->1 // motor speed is overestimated due to computational delays // estimated speed is multiplied by slowDownFactor to compensate for this
 
 // obstacle light
 float obsLightProbability = 0.0;                 // probability of obstacle light turning on
@@ -46,4 +47,4 @@ const double wheelRad = 0.09525;                 // (m) wheel radius
 const int microStepping = 16;                    // stepper motor only moves (1/microStepping) steps per pulse // this should match the setting on the stepper motor driver, which is set by 3 digital inputs
 const int motorSteps = 200;                      // steps per revolution for the obstacle stepper motor
 const int encoderSteps = 2880;                   // steps per revolution on the wheel rotary encoder (720cpr * 4)
-double trackEndPosition = 0.46;                  // (m) estimate of distance obstacle travels between limit switches // this will be updated during the initial callibration
+double trackEndPosition = 0.452;                  // (m) estimate of distance obstacle travels between limit switches // this will be updated during the initial callibration

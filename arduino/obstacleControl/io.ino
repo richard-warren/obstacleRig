@@ -24,8 +24,11 @@ void printMenu(){
   Serial.print("4: light on probability: ");
   Serial.println(obsLightProbability);
 
+  // deliver water
+  Serial.println("5: deliver water drop");
+
   // recallibrate limits
-  Serial.println("5: recallibrate");
+  Serial.println("6: recalibrate");
 }
 
 
@@ -40,9 +43,8 @@ void getUserInput(){
     Serial.readBytesUntil('\n', inputBuffer, 100);  // throw away all but the first byte, stopping at the newline character
     
     // recallibrate limits immediately if requested
-    if (inputChar=='5'){
+    if (inputChar=='6'){
       calibrateLimits();
-      
     
     // otherwise set flag so input can be processed when obstacle is not moving
     }else{
@@ -114,6 +116,12 @@ void processUserInput(){
         }else{
           Serial.println(F("ERROR: please enter a decimal >=0 and <=1!"));
         }
+        break;
+
+      // deliver water drop
+      case '5':
+        Serial.println(F("Delivering water..."));
+        giveWater();
         break;
     }
 

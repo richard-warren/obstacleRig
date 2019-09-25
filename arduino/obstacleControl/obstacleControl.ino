@@ -4,8 +4,6 @@
 Richard Warren - 190924
 
 TODO:
--menu option for delivering reward
--decelerate near end of track
 -option for turning off touch sensor
 
 GENERAL:
@@ -24,7 +22,7 @@ Events (water reward, obstacle engagement) occur at positions specified in meter
 OBSTCLE TRACKING:
 To match the movement of the obstacle to the speed of the wheel, the number of wheelTics since obstacle engagement is compared to the number of motorTics since engagement.
 Both are converted to meters. The motor is moved a discrete number of steps that minimizes the discrepancy between these positions.
-
+  
 ACCELERATION:
 The obstacle cannot achieve high velocities immediately from stand-still. Therefore, when the obstacle starts tracking, the velocity is increased with contant acceleration until the obstacle and wheel velocity are matched (see startTracking()).
 At that point, the tracking procedure described above begins. Nominal obstacle velocity is controlled by computing the inter-motor-step interval necessary to achieve desired speeds.
@@ -176,6 +174,9 @@ void setup() {
 
 void loop(){
 
+//  digitalWrite(motorOffPin, HIGH);
+//  Serial.println(digitalRead(stopLimitPin)); // !!!
+  
   // check for user input
   getUserInput();
   if (!isObsTracking){
@@ -221,7 +222,6 @@ void loop(){
     obsInd++;
     
     // reset stepper motor driver while disengaging obstacle
-//    delay(100);  // !!! try to stop intertia
     digitalWrite(motorOffPin, HIGH);
     digitalWrite(obsOutPin, LOW);  // swing obstacle out of the way
     delay(servoSwingTime);

@@ -115,16 +115,15 @@ void encoder_isr() {
 // start tracking (ramp up obstacle velocity until it matches velocity of wheel)
 void startTracking(){
 
-  static int stepsBtwnChecks = 20;         // how many accelerating steps to take between checking the wheel velocity // getWheelSpeed() takes ~12 microseconds, so computing this every time can be cumbersome
-  static float speedCompensation = 0.4;    // this code over-estimates the motor speed due to computational delays // estimated speed is multiplied by slowDownFactor to compensate for that
+  static int stepsBtwnChecks = 10;  // how many accelerating steps to take between checking the wheel velocity // getWheelSpeed() takes ~12 microseconds, so computing this every time can be cumbersome // changing this will affect the tuning of 'speedCompensation'
 
-  // find speeds index corresponding to obsSpeedStart
-  speedInd = 0;
-  while (speeds[speedInd] < obsSpeedStart){speedInd++;}
-
-  setDirection(FORWARD);
-  while (speeds[speedInd]*speedCompensation < getWheelSpeed() && digitalRead(stopLimitPin)){
-    takeSteps(stepsBtwnChecks, ACCELERATE, obsSpeedStart, obsSpeedMax);
+  if(obsSpeedStart*speedCompensation<getWheelSpeed()){  // only accelerate if wheel is faster than obsSpeedMin // otherwise, begin positional tracking directly
+    setMotorSpeed(obsSpeedStart);
+    setDirection(FORWARD);
+    
+    while (speeds[speedInd]*speedCompensation < getWheelSpeed() && digitalRead(stopLimitPin)){
+      takeSteps(stepsBtwnChecks, ACCELERATE, obsSpeedStart, obsSpeedMax);
+    }
   }
 
   // record wheel and motor positions at the start of positional tracking  
@@ -180,9 +179,7 @@ void calibrateLimits(){
 // find start or stop limit switch
 void findStartLimit(float speedStart, float speedStop, float speedMax){
   
-  // find speeds index corresponding to speedStart
-  speedInd = 0;
-  while (speeds[speedInd] < speedStart){speedInd++;}
+  setMotorSpeed(speedStart);
   
   float slowDownDistance = (pow(speedMax,2)-pow(speedStop,2)) / (2*obsAcceleration);  // distance before end stop to start slowing down (in meters)
   int targetMotorTics = slowDownDistance/mPerMotorTic;  // distance before end stop to start slowing down (in motor tics)
@@ -204,9 +201,7 @@ void findStartLimit(float speedStart, float speedStop, float speedMax){
 // find start or stop limit switch
 void findStopLimit(float speedStart, float speedStop, float speedMax){
   
-  // find speeds index corresponding to speedStart
-  speedInd = 0;
-  while (speeds[speedInd] < speedStart){speedInd++;}
+  setMotorSpeed(speedStart);
   
   float slowDownDistance = (pow(speedMax,2)-pow(speedStop,2)) / (2*obsAcceleration);  // distance before end stop to start slowing down (in meters)
   int targetMotorTics = (trackEndPosition-slowDownDistance)/mPerMotorTic;  // distance before end stop to start slowing down (in motor tics)
@@ -263,4 +258,13 @@ void switchObsLight(bool lightState){
     digitalWrite(obsLightPin1, LOW);
     digitalWrite(obsLightPin2, LOW);
   }
+}
+
+
+
+
+// set motor speed
+void setMotorSpeed(float spd){
+  speedInd = 0;
+  while (speeds[speedInd]<spd && speedInd<maxSpeedInd){speedInd++;}
 }
