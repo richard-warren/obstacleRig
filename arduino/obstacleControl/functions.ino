@@ -12,7 +12,7 @@ void setDirection(bool isForward){
 
 // get motor step delay that causes motor to move at desired speed
 float getMotorDelay(float motorSpeed){
-  return mPerMotorTic / motorSpeed * pow(10,6);
+  return mPerMotorTic / motorSpeed * pow(10,6) / 2; // divide by two because the delay is actually 50% of the interpulse interval
 }
 
 
@@ -115,13 +115,13 @@ void encoder_isr() {
 // start tracking (ramp up obstacle velocity until it matches velocity of wheel)
 void startTracking(){
 
-  static int stepsBtwnChecks = 10;  // how many accelerating steps to take between checking the wheel velocity // getWheelSpeed() takes ~12 microseconds, so computing this every time can be cumbersome // changing this will affect the tuning of 'speedCompensation'
+  static int stepsBtwnChecks = 10;  // how many accelerating steps to take between checking the wheel velocity // getWheelSpeed() takes ~12 microseconds, so computing this every time can be cumbersome
 
-  if(obsSpeedStart*speedCompensation<getWheelSpeed()){  // only accelerate if wheel is faster than obsSpeedMin // otherwise, begin positional tracking directly
+  if(obsSpeedStart<getWheelSpeed()){  // only accelerate if wheel is faster than obsSpeedMin // otherwise, begin positional tracking directly
     setMotorSpeed(obsSpeedStart);
     setDirection(FORWARD);
     
-    while (speeds[speedInd]*speedCompensation < getWheelSpeed() && digitalRead(stopLimitPin)){
+    while (speeds[speedInd]<getWheelSpeed() && digitalRead(stopLimitPin)){
       takeSteps(stepsBtwnChecks, ACCELERATE, obsSpeedStart, obsSpeedMax);
     }
   }

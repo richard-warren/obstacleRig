@@ -30,12 +30,12 @@ const int servoSwingTime = 200;                  // (ms) approximate amount of t
 
 // speed
 const float wheelSpeedDistance = .020;           // (m) wheel speed is contnuously measured over this distance
-const double obsSpeedStart = .05;                // (m/s) speed of obstacle when it starts up
-const double obsSpeedStop = .2;                  // (m/s) min speed of obstacle as it approaches end limit
-const double obsSpeedMax = 3.0;                  // (m/s) max speed of obstacle when tracking wheel position
-const double callibrationSpeed = 3.0;            // (m/s) max speed of obstacle when looking for limit switches
-const double obsAcceleration = 25.0;             // (m/s^2) obstacle acceleration (used when obstacle is starting up or stopping)
-const float speedCompensation = 0.40;            // 0->1 // motor speed is overestimated due to computational delays // estimated speed is multiplied by slowDownFactor to compensate for this
+const double obsSpeedStart = .01;                // (m/s) speed of obstacle when it starts up
+const double obsSpeedStop = .1;                  // (m/s) min speed of obstacle as it approaches end limit
+const double obsSpeedMax = 1.5;                  // (m/s) max speed of obstacle when tracking wheel position
+const double callibrationSpeed = 1.5;            // (m/s) max speed of obstacle when looking for limit switches
+const double obsAcceleration = 5;               // (m/s^2) obstacle acceleration (used when obstacle is starting up or stopping)
+const int stepDelay = 0;
 
 // obstacle light
 float obsLightProbability = 0.0;                 // probability of obstacle light turning on

@@ -157,7 +157,7 @@ void setup() {
   
   while (speeds[maxSpeedInd]<maxSpeed && maxSpeedInd<(bufferSize-1)){
     maxSpeedInd++;
-    speeds[maxSpeedInd] = speeds[maxSpeedInd-1] + prevDelay*pow(10,-6)*obsAcceleration;
+    speeds[maxSpeedInd] = speeds[maxSpeedInd-1] + prevDelay*pow(10,-6)*obsAcceleration*2;
     delays[maxSpeedInd] = round(getMotorDelay(speeds[maxSpeedInd]));
     prevDelay = getMotorDelay(speeds[maxSpeedInd]);
   }
