@@ -96,12 +96,13 @@ float obsLocation;           // keeps track of starting location of next obstacl
 
 // motor speed
 const int bufferSize = 10000;
-float speeds[bufferSize];    // lookup table for motor speeds
-int delays[bufferSize];      // lookup table for motor step intervals that correspond to speeds
+float speeds[bufferSize];        // lookup table for motor speeds
+int delays[bufferSize];          // lookup table for motor step intervals that correspond to speeds
 int speedInd = 0;
 int maxSpeedInd = 0;
-enum accel {ACCELERATE, DECELERATE};
+enum accel {CONSTANT, ACCELERATE, DECELERATE};
 enum dir {FORWARD=true, REVERSE=false};
+double ms_nominal = 0;  // measure the amount of time it should take to move across track // compared to true measured time, which is used to calculate computational delays associated with taking steps
 
 // wheel speed
 volatile long lastMicros = 0;
@@ -150,24 +151,12 @@ void setup() {
 
 
   // initialize lookup table for stepper speeds
-  speeds[0] = obsSpeedStart;
-  delays[0] = round(getMotorDelay(speeds[0]));
-  float prevDelay = getMotorDelay(speeds[0]);
-  float maxSpeed = max(obsSpeedMax, callibrationSpeed);
-  
-  while (speeds[maxSpeedInd]<maxSpeed && maxSpeedInd<(bufferSize-1)){
-    maxSpeedInd++;
-    speeds[maxSpeedInd] = speeds[maxSpeedInd-1] + prevDelay*2*pow(10,-6)*obsAcceleration;
-    delays[maxSpeedInd] = round(getMotorDelay(speeds[maxSpeedInd]));
-    prevDelay = getMotorDelay(speeds[maxSpeedInd]);
-  }
-  if (speeds[maxSpeedInd]>maxSpeed){maxSpeedInd--;}  // move one below index at which maxSpeed is surpassed
-  
+  computeLookupTables();
+
   
   // final initializations
   randomSeed(analogRead(0));
   calibrateLimits();
-  printInitializations();
 }
 
 
@@ -196,6 +185,7 @@ void loop(){
     digitalWrite(obsTrackingPin, HIGH);
     isObsTracking = true;
     startTracking();
+    speedInd = maxSpeedInd;  // set motor speed to highest value one tracking has started
 
     // turn on obstacle light
     if(random(0,100) < obsLightProbability*100.0){
@@ -203,7 +193,7 @@ void loop(){
     }
 
     // turn on touch sensor
-    if (useTouchSensor){digitalWrite(touchSensorOnPin, HIGH);}
+    digitalWrite(touchSensorOnPin, HIGH);
   }
 
   
@@ -251,7 +241,8 @@ void loop(){
     targetMotorTics = (wheelTicsTemp-startingWheelTics)*motorTicsPerWheelTic + startingMotorTics;
     targetMotorTics = constrain(targetMotorTics, 0, (trackEndPosition-obsStopPos)/mPerMotorTic+1) - motorTics;  // +1 is needed because the motor tics must EXCEED the threshold for the obstacle to be disengaged
     if (targetMotorTics!=0){
-      takeStepsFast(targetMotorTics);
+//      takeStepsFast(targetMotorTics);
+      takeSteps(targetMotorTics, CONSTANT, speeds[maxSpeedInd], speeds[maxSpeedInd]);
     }
   }
 }

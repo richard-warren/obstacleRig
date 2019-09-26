@@ -31,16 +31,15 @@ const int servoSwingTime = 200;                  // (ms) approximate amount of t
 // speed
 const float wheelSpeedDistance = .020;           // (m) wheel speed is contnuously measured over this distance
 const double obsSpeedStart = .01;                // (m/s) speed of obstacle when it starts up
-const double obsSpeedStop = .1;                  // (m/s) min speed of obstacle as it approaches end limit (this is approximate - actually speed will be slightly lower)
-const double obsSpeedMax = 1.5;                  // (m/s) max speed of obstacle when tracking wheel position
+const double obsSpeedStop = .1;                  // (m/s) min speed of obstacle as it approaches end limit
+const double obsSpeedMax = 1.2;                  // (m/s) max speed of obstacle when tracking wheel position
 const double callibrationSpeed = 1.0;            // (m/s) max speed of obstacle when looking for limit switches
 const double obsAcceleration = 6;                // (m/s^2) obstacle acceleration (used when obstacle is starting up or stopping)
-const int delayCompensation = 3;                 // (microseconds) due to computational delays, the nominal speed is slower than actual speed // if arduino underestimates motor speed, increase this value, and vice versa // delayCompensation is subtracted from the motor delays to account for uncontrolled computational delays
+float stepDelay = 14;                            // (microseconds)
 
-// obstacle
+// obstacle light
 float obsLightProbability = 0.0;                 // probability of obstacle light turning on
 float obstacleBrightness = 0.2;                  // (0->1) fraction of total brightness for obstacle LEDs
-bool useTouchSensor = true;                      // whether to power the touch sensor when the obstacle is engaged
 
 // rig characteristics
 const double timingPulleyRad = .0152789;         // (mm) radius of timing pulley on stepper motor
@@ -49,4 +48,4 @@ const int microStepping = 16;                    // stepper motor only moves (1/
 const int motorSteps = 200;                      // steps per revolution for the obstacle stepper motor
 const int encoderSteps = 2880;                   // steps per revolution on the wheel rotary encoder (720cpr * 4)
 double trackEndPosition = 0.452;                 // (m) estimate of distance obstacle travels between limit switches // this will be updated during the initial callibration
-int minMotorDelay = 5;                           // (microseconds) DON'T CHANGE IF NOT SURE // half the interval between motor steps // making these steps too quick can blow out the stepper motor driver and arduino
+int minMotorDelay = 5;                           // (microseconds) half the minimum delay between TTLs sent to the stepper motor

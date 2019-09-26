@@ -1,19 +1,9 @@
 
-// set motor direction
-void setDirection(bool isForward){
-  if (digitalRead(stepDirPin)!=isForward){
-    digitalWrite(stepDirPin, isForward);
-    delayMicroseconds(5); // TCM2100 stepper motor driver requires 20 nanoseconds between stepDirectionPin change and stepPin input // the driver was messing up occasionally, so hopefully this will fix the problem
-  }
-}
-
-
-
-
 // get motor step delay that causes motor to move at desired speed
 float getMotorDelay(float motorSpeed){
-  float dly = mPerMotorTic / motorSpeed * pow(10,6) / 2;
-  return max(dly-delayCompensation, minMotorDelay);
+  float dly = mPerMotorTic / motorSpeed * pow(10,6) / 2;  // divide by two because the delay is actually 50% of the interpulse interval
+  return  max(dly-(stepDelay/2), minMotorDelay);
+//  return  max(dly, minMotorDelay);
 }
 
 
@@ -29,6 +19,12 @@ float getJitter(float jitter){
 // move motor
 void takeSteps(int stepsToTake, accel a, float speedMin, float speedMax){
   
+  // change direction if necessary
+  if (digitalRead(stepDirPin)!=(stepsToTake>0)){
+    digitalWrite(stepDirPin, (stepsToTake>0));
+    delayMicroseconds(5);
+  }
+  
   for (int i = 0; i < abs(stepsToTake); i++){
     
     // take step
@@ -39,6 +35,9 @@ void takeSteps(int stepsToTake, accel a, float speedMin, float speedMax){
 
     // update speed
     switch (a){
+      case CONSTANT:
+        break;
+      
       case ACCELERATE:
         if (speeds[speedInd]<speedMax){speedInd++;}
         break;
@@ -51,25 +50,6 @@ void takeSteps(int stepsToTake, accel a, float speedMin, float speedMax){
   motorTics += stepsToTake;
 }
 
-
-
-
-// move motor // like takeSteps, but faster computationally because doesn't check for acceleration changes and only operates at max speed
-void takeStepsFast(int stepsToTake){
-
-  // set motor direction
-  setDirection(stepsToTake>0);
-
-  // take steps
-  for (int i = 0; i < abs(stepsToTake); i++){
-    
-    digitalWrite(stepPin, HIGH);
-    delayMicroseconds(delays[maxSpeedInd]);
-    digitalWrite(stepPin, LOW);
-    delayMicroseconds(delays[maxSpeedInd]);
-  }
-  motorTics += stepsToTake;
-}
 
 
 
@@ -120,8 +100,6 @@ void startTracking(){
 
   if(obsSpeedStart<getWheelSpeed()){  // only accelerate if wheel is faster than obsSpeedMin // otherwise, begin positional tracking directly
     setMotorSpeed(obsSpeedStart);
-    setDirection(FORWARD);
-    
     while (speeds[speedInd]<getWheelSpeed() && digitalRead(stopLimitPin)){
       takeSteps(stepsBtwnChecks, ACCELERATE, obsSpeedStart, obsSpeedMax);
     }
@@ -149,7 +127,7 @@ float getWheelSpeed(){
 void calibrateLimits(){
   
   Serial.println(F("Calibrating limits..."));
-  static float slowDown = 0.4;  // (0->1) how much to slow down initial limit check relative to callibrationSpeed
+  static float slowDown = 0.6;  // (0->1) how much to slow down initial limit check relative to callibrationSpeed
 
   // turn off obstacle
   digitalWrite(obsOutPin, LOW);
@@ -165,10 +143,17 @@ void calibrateLimits(){
   // find limits
   findStartLimit(obsSpeedStop, obsSpeedStop, obsSpeedStop);  // move at constant, slow speed
   findStopLimit(obsSpeedStart, obsSpeedStop, callibrationSpeed*slowDown);
+
+  // time how long it takes to get back to start
+  long ms = millis();
   findStartLimit(obsSpeedStart, obsSpeedStop, callibrationSpeed*slowDown);
+  ms = millis()-ms;
+  stepDelay = (ms-ms_nominal) / (trackEndPosition/mPerMotorTic) * pow(10,3);  // (excess milliseconds) / (total number of motor steps) * (conversion from milli to microseconds)
+  computeLookupTables();
+  
+  // final preparations
   goToStartPos();
   digitalWrite(motorOffPin, HIGH);
-
   printInitializations();
   printMenu();
   resetState();
@@ -180,19 +165,20 @@ void calibrateLimits(){
 // find start or stop limit switch
 void findStartLimit(float speedStart, float speedStop, float speedMax){
   
+  setMotorSpeed(speedStart);
+  ms_nominal = 0;
   
   float slowDownDistance = (pow(speedMax,2)-pow(speedStop,2)) / (2*obsAcceleration);  // distance before end stop to start slowing down (in meters)
-  int targetMotorTics = slowDownDistance/mPerMotorTic;  // distance before end stop to start slowing down (in motor tics)
+  int targetMotorTics = slowDownDistance/mPerMotorTic;  // distance before start limit switchstop to start slowing down (in motor tics)
 
-  setDirection(REVERSE);
-  setMotorSpeed(speedStart);
-  
+  setMotorSpeed(obsSpeedStart);
   while (digitalRead(startLimitPin)){
       if (motorTics > targetMotorTics){
         takeSteps(-1, ACCELERATE, speedStart, speedMax);  // speed up
       }else{
         takeSteps(-1, DECELERATE, speedStop, speedMax);  // slow down
       }
+      ms_nominal += delays[speedInd]*pow(10,-3)*2;
   }
   motorTics = 0;  // set motorTics to 0, corresponding to location of start limit switch
 }
@@ -203,12 +189,12 @@ void findStartLimit(float speedStart, float speedStop, float speedMax){
 // find start or stop limit switch
 void findStopLimit(float speedStart, float speedStop, float speedMax){
   
+  setMotorSpeed(speedStart);
+  
   float slowDownDistance = (pow(speedMax,2)-pow(speedStop,2)) / (2*obsAcceleration);  // distance before end stop to start slowing down (in meters)
   int targetMotorTics = (trackEndPosition-slowDownDistance)/mPerMotorTic;  // distance before end stop to start slowing down (in motor tics)
   
-  setDirection(FORWARD);
-  setMotorSpeed(speedStart);
-  
+  setMotorSpeed(obsSpeedStart);
   while (digitalRead(stopLimitPin)){
       if (motorTics < targetMotorTics){
         takeSteps(1, ACCELERATE, speedStart, speedMax);  // speed up
@@ -224,7 +210,7 @@ void findStopLimit(float speedStart, float speedStop, float speedMax){
 
 // move obstacle from start limit switch to obsStartPos+jitter
 void goToStartPos(){
-  setDirection(FORWARD);
+  setMotorSpeed(obsSpeedStart);
   takeSteps(max((obsStartPos+getJitter(obsStartPosJitter))/mPerMotorTic,0), ACCELERATE, obsSpeedStart, callibrationSpeed);
 }
 
@@ -269,4 +255,24 @@ void switchObsLight(bool lightState){
 void setMotorSpeed(float spd){
   speedInd = 0;
   while (speeds[speedInd]<spd && speedInd<maxSpeedInd){speedInd++;}
+}
+
+
+
+
+void computeLookupTables(){
+
+  speeds[0] = obsSpeedStart;
+  delays[0] = round(getMotorDelay(speeds[0]));
+  
+  float maxSpeed = max(obsSpeedMax, callibrationSpeed);
+
+  maxSpeedInd=0;
+  while (speeds[maxSpeedInd]<maxSpeed && maxSpeedInd<(bufferSize-1)){
+    maxSpeedInd++;
+    speeds[maxSpeedInd] = speeds[maxSpeedInd-1] + (delays[maxSpeedInd-1]*2+stepDelay)*obsAcceleration*pow(10,-6);
+    delays[maxSpeedInd] = round(getMotorDelay(speeds[maxSpeedInd]));
+  }
+  if (speeds[maxSpeedInd]>maxSpeed){maxSpeedInd--;}  // move one below index at which maxSpeed is surpassed
+  
 }
