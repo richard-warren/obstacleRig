@@ -163,7 +163,7 @@ void calibrateLimits(){
   digitalWrite(motorOffPin, LOW);
   
   // find limits
-  findStartLimit(obsSpeedStop, obsSpeedStop, obsSpeedStop);  // move at constant, slow speed
+  findStartLimit(obsSpeedStart, obsSpeedStop, obsSpeedStop);  // move at constant, slow speed
   findStopLimit(obsSpeedStart, obsSpeedStop, callibrationSpeed*slowDown);
   findStartLimit(obsSpeedStart, obsSpeedStop, callibrationSpeed*slowDown);
   goToStartPos();
@@ -181,7 +181,7 @@ void calibrateLimits(){
 void findStartLimit(float speedStart, float speedStop, float speedMax){
   
   
-  float slowDownDistance = (pow(speedMax,2)-pow(speedStop,2)) / (2*obsAcceleration);  // distance before end stop to start slowing down (in meters)
+  float slowDownDistance = (pow(speedMax,2)-pow(speedStop,2)) / (2*obsAcceleration) * 1.2;  // distance before end stop to start slowing down (in meters) // *1.1 to be safe - we don't want to get to the stop limit before slowing down enough
   int targetMotorTics = slowDownDistance/mPerMotorTic;  // distance before end stop to start slowing down (in motor tics)
 
   setDirection(REVERSE);

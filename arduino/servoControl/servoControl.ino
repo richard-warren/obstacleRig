@@ -11,7 +11,8 @@ To callibrate obstacle heights and alignment:
   - Using the obstacleControl script, toggle the obstacle on and off to generate new random heights.
   - Adjust obsOnPosition such that the obstacle is perpendicular to the wheel and obsOffPosition if necessary.
   - Measure the heights with a ruler and check their correspondence with the heights displayed on the Serial Port.
-  - Adjust obsOffset so thhe obstacle heights match the intended obstacle heights.
+  - Adjust obsOffset so the obstacle heights match the intended obstacle heights.
+  - set startWithObsOut to false and re-upload
 
 */
 
@@ -30,8 +31,8 @@ const int obsHeightPin = 11;     // controls obstacle height via vertical motor 
 // SETTINGS
 
 // alignment settings
-const bool startWithObsOut = false;          // if true, obstacle starts in the engaged position, which is useful for testing vertical and horizontal alignnment
-const float obsOffset = 0;                   // if Arduino thinks the heights are lower than they are, increase this value, and vice versa // these values will be added to the Serial output that reports the obstacle height
+const bool startWithObsOut = true;           // if true, obstacle starts in the engaged position, which is useful for testing vertical and horizontal alignnment
+const float obsOffset = -.5;                 // if Arduino thinks the heights are lower than they are, increase this value, and vice versa // these values will be added to the Serial output that reports the obstacle height
 const float obsHeightZero = .6;              // (mm) height of obstacle (relative to the lowest position on the vertical motor) when it is flush with the floor of the wheel
 const float obsThickness = 3.8;              // the latter term takes care of measurement offset - without it obs is set higher than intended
 
@@ -43,7 +44,7 @@ float obsHeight = 5.0;                       // (mm) height of obstacle, measure
 const float obsHeightTravel = 15.0;          // (mm) DON'T CHANGE // the total travel of the vertical motor
 
 // servo motor
-const float obsOnPosition = 34;      // (unitless) position of obstacle when engaged // smaller number are further away from the mouse
+const float obsOnPosition = 33;      // (unitless) position of obstacle when engaged // smaller number are further away from the mouse
 const float obsOffPosition = 100;    // (unitless) position of obstacle when desengaged
 const int servoPowerTime = 1000;     // (ms) how many ms to power the motor for when a position change request is made
 const int pwmMin = 553;              // DON'T CHANGE // min PWM rate, which is a characteristic of the servo motor
