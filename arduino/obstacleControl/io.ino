@@ -2,7 +2,9 @@
 void printMenu(){
 
   // print settings
-  Serial.println("\nCURRENT SETTINGS:");
+  Serial.print("\nCURRENT SETTINGS (");
+  Serial.print(configName);
+  Serial.println("):");
 
   // condition
   Serial.print("1: obstacle status: ");

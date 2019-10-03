@@ -64,7 +64,7 @@ Also, it is used to decelerate as it approaches the estimated position of the li
 // INITIALIZATIONS
 
 // imports
-#include "config.h"
+#include "config_qz.h"
 
 // state variables
 bool isObsOn = false;        // whether state is water only, or water with obstacles (does NOT keep track of whether obstacle is CURRENTLY moving)
@@ -166,8 +166,8 @@ void setup() {
   
   // final initializations
   randomSeed(analogRead(0));
-  calibrateLimits();
   printInitializations();
+  calibrateLimits();
 }
 
 
