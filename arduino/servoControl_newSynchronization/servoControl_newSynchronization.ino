@@ -21,7 +21,6 @@ To callibrate obstacle heights and alignment:
 
 // PINT ASSIGNMENTS
 const int servoInputPin = 2;     // input signaling that the servo motor should swing out
-const int waterInputPin = 3;     // input signaling that water has been delivered // this causes a brief delay in the video ttls
 const int servoPin = 8;          // controls position of servo motor
 const int servoPowerPin = 12;    // gates power to servo motor via transistor
 const int vidTtlPin = 13;        // generates TTLs that trigger frame acquisition
@@ -53,21 +52,21 @@ const int pwmMax = 2450;             // DON'T CHANGE // max PWM rate, which is a
 // video ttls
 const int vidTtlInterval = 4;        // (ms) interval between TTLs that trigger frame acquisition
 const int vidTtlPulseDuration = 1;   // (ms) duration of TTLs
-const int rewardTtlOverhang = 500;   // (ms) how long to continue generating TTLs after reward is reached before pausing TTLs for rewardTtlGap milliseconds // THIS SHOULD NOT BE DIVISIBLE BY 1000, SO THE TIMESTAMP INTERVAL BETWEEN FRAMES AT ENDAND BEGINNING OF NEXT TRIAL WILL BE DIFFERENT THAN 1/FS
-const int rewardTtlGap = 500;        // (ms) how long to pause TTL generation after rewardTtlOverhang has passed
+const int finalTtlGap = 500;         // (ms) how long to pause TTL generation after rewardTtlOverhang has passed
 
 
 
 // INITIALIZATIONS
+Servo obstacleServo;
 bool isServoEngaged = false;
 bool isTtlOn = false;
-bool overHanging = false;
-int vidTtlTimer = 0;
-int overhangTimer = 0;
+bool isOverHanging = false;
 int serialInput = 0;
-bool disableAfterSteps = false;
+
 int servoPowerTimer = servoPowerTime;
-Servo obstacleServo;
+int vidTtlTimer = 0;
+int overHangTimer = 0;
+
 
 
 
@@ -76,7 +75,6 @@ void setup() {
 
   // initialize pins
   pinMode(servoInputPin, INPUT);
-  pinMode(waterInputPin, INPUT);
   pinMode(vidTtlPin, OUTPUT);
   pinMode(obsHeightPin, OUTPUT);
   pinMode(servoPowerPin, OUTPUT);
@@ -89,7 +87,6 @@ void setup() {
 
   // initialize hardware interrupts
   attachInterrupt(digitalPinToInterrupt(servoInputPin), controlServo, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(waterInputPin), rewardReached, RISING);
 
 
   // initialize servo
@@ -133,6 +130,7 @@ void loop() {
   if (Serial.available()) {
 
     serialInput = Serial.read() - 48; // parseInt was not working here for some reason
+    while (Serial.available()){Serial.read();} // throw away extra bytes
 
     switch (serialInput) {
       
@@ -141,11 +139,16 @@ void loop() {
       
       case 1:
         isTtlOn = true;
-        overHanging = false;
+        isOverHanging = false;
+        vidTtlTimer = 0;
         break;
+        
       case 2:
-        isTtlOn = false;
-        overHanging = false;
+        if (isTtlOn){
+          isTtlOn = false;
+          isOverHanging = true;
+          overHangTimer = 0;
+        }
         break;
     }
   }
@@ -179,16 +182,6 @@ void controlServo() {
 
 
 
-// reward reached interrupt
-void rewardReached() {
-  if (isTtlOn) {
-    overHanging = true;
-    overhangTimer = 0;
-  }
-}
-
-
-
 // set obstacle height
 void setObsHeight(float obsHeight) {
   int obsHeight8 = round((obsHeightZero + obsHeight - obsThickness) * (255.0 / obsHeightTravel));  // height of obstacle expressed as fraction of total motor range and scaled from 0->255
@@ -201,14 +194,30 @@ void setObsHeight(float obsHeight) {
 // timer0 interrupts controls vidTtl generation
 ISR(TIMER0_COMPA_vect) {
 
+  // control vidTtl overhang period
+  if (isOverHanging) {
+    
+    overHangTimer++;
+    
+    switch (overHangTimer) {
+      case finalTtlGap:
+        vidTtlTimer = 0;
+        isTtlOn = true;
+        break;
+      case (finalTtlGap+vidTtlInterval):
+        isTtlOn = false;
+        isOverHanging = false;
+        overHangTimer = 0;
+        break;
+    }
+  }
+  
   // control vidTtl generation
   vidTtlTimer++;
-
+  
   switch (vidTtlTimer) {
     case 1:
-      if (isTtlOn) {
-        digitalWrite(vidTtlPin, HIGH);
-      }
+      if (isTtlOn){digitalWrite(vidTtlPin, HIGH);}
       break;
     case vidTtlPulseDuration+1:
       digitalWrite(vidTtlPin, LOW);
@@ -217,25 +226,7 @@ ISR(TIMER0_COMPA_vect) {
       vidTtlTimer = 0;
       break;
   }
-
-
-  // control vidTtl overhang period
-  if (overHanging) {
-
-    overhangTimer++;
-
-    switch (overhangTimer) {
-      case rewardTtlOverhang:
-        isTtlOn = false;
-        break;
-      case rewardTtlOverhang + rewardTtlGap:
-        isTtlOn = true;
-        overHanging = false;
-        break;
-    }
-  }
-
-
+  
   // control servo power timer
   servoPowerTimer++;
 
