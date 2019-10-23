@@ -35,9 +35,9 @@ void printMenu(){
   // condition
   Serial.print("7: platform only: ");
   if (platformOnly){
-    Serial.println("true");
+    Serial.println("TRUE");
   }else{
-    Serial.println("false");
+    Serial.println("FALSE");
   }
 }
 

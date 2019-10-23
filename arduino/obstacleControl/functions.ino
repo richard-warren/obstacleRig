@@ -251,14 +251,16 @@ void resetState(){
 // turn lights on/off
 void switchObsLight(bool lightState){
 
-  digitalWrite(obsLightPinDig, lightState);
-  
-  if (lightState){
-    analogWrite(obsLightPin1, 255*obstacleBrightness);
-    analogWrite(obsLightPin2, 255*obstacleBrightness);
-  }else{
-    digitalWrite(obsLightPin1, LOW);
-    digitalWrite(obsLightPin2, LOW);
+  if (!platformOnly){
+    digitalWrite(obsLightPinDig, lightState);
+    
+    if (lightState){
+      analogWrite(obsLightPin1, 255*obstacleBrightness);
+      analogWrite(obsLightPin2, 255*obstacleBrightness);
+    }else{
+      digitalWrite(obsLightPin1, LOW);
+      digitalWrite(obsLightPin2, LOW);
+    }
   }
 }
 
