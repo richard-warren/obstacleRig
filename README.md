@@ -1,2 +1,2 @@
 # obstacleRig
-scripts for controlling obstacle experiments - will include arduino code, and maybe spike and bonsai configs as well
+scripts for controlling obstacle experiments in my phd research
