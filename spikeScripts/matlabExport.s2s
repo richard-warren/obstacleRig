@@ -1,5 +1,5 @@
 var file$;;
-file$:="E:\\bonsaiVid\\run.mat";
+file$:="C:\\Users\\runrig\\Desktop\\experiment_data\\run.mat";
 ExportChanList(1); 'Initialise the channel list
 ExportChanList(0,maxTime(),1,2,3,4,5,6,7,8,10,31,32);
 FileSaveAs(file$,100,0,"",0,
