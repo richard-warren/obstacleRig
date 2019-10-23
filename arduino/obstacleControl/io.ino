@@ -31,6 +31,14 @@ void printMenu(){
 
   // recallibrate limits
   Serial.println("6: recalibrate");
+
+  // condition
+  Serial.print("7: platform only: ");
+  if (platformOnly){
+    Serial.println("true");
+  }else{
+    Serial.println("false");
+  }
 }
 
 
@@ -70,7 +78,9 @@ void processUserInput(){
       // turn obstacle on/off
       case '1':
         isObsOn = !isObsOn;
-        digitalWrite(obsOutPin, isObsOn);
+        if (!platformOnly){
+          digitalWrite(obsOutPin, isObsOn);
+        }
         resetState();
         printMenu();
         break;
@@ -120,10 +130,20 @@ void processUserInput(){
         }
         break;
 
+
       // deliver water drop
       case '5':
         Serial.println(F("Delivering water..."));
         giveWater();
+        break;
+
+
+      // toggle platformOnly on/off
+      case '7':
+        platformOnly = !platformOnly;
+        digitalWrite(obsOutPin, LOW);
+        resetState();
+        printMenu();
         break;
     }
 

@@ -71,6 +71,7 @@ bool isObsOn = false;        // whether state is water only, or water with obsta
 bool isObsTracking = false;  // whether obs is currently tracking wheel movements
 bool stepDir = HIGH;         // direction in which stepper motor is moving
 int obsInd = 0;              // which obstacle is next
+bool platformOnly = false;   // if true, when the platform moves the obstacle does not becomes engaged
   
 // user input
 char inputChar;                // user input for characters
@@ -227,7 +228,9 @@ void loop(){
     
     // find the start limit switch and move back to starting position
     findStartLimit(obsSpeedStart, obsSpeedStop, callibrationSpeed);
-    digitalWrite(obsOutPin, HIGH);  // swing obstacle out again
+    if (!platformOnly){
+      digitalWrite(obsOutPin, HIGH);  // swing obstacle out again
+    }
     goToStartPos();
     digitalWrite(motorOffPin, HIGH);
 
