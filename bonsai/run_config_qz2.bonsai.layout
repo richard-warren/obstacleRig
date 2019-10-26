@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<VisualizerLayout xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<VisualizerLayout xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
                  >
   <DialogSettings>
     <Visible>true</Visible>
@@ -89,8 +89,8 @@
   <DialogSettings>
     <Visible>true</Visible>
     <Location>
-      <X>458</X>
-      <Y>30</Y>
+      <X>469</X>
+      <Y>8</Y>
     </Location>
     <Size>
       <Width>352</Width>
@@ -117,8 +117,8 @@
   <DialogSettings>
     <Visible>true</Visible>
     <Location>
-      <X>3</X>
-      <Y>93</Y>
+      <X>9</X>
+      <Y>96</Y>
     </Location>
     <Size>
       <Width>464</Width>
@@ -649,8 +649,8 @@
   <DialogSettings>
     <Visible>true</Visible>
     <Location>
-      <X>432</X>
-      <Y>417</Y>
+      <X>469</X>
+      <Y>423</Y>
     </Location>
     <Size>
       <Width>648</Width>
