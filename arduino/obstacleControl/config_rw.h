@@ -42,7 +42,6 @@ const int delayCompensation = 3;                 // (microseconds) due to comput
 // obstacle
 float obsLightProbability = 0.0;                 // probability of obstacle light turning on
 float obstacleBrightness = 0.2;                  // (0->1) fraction of total brightness for obstacle LEDs
-bool useTouchSensor = true;                      // whether to power the touch sensor when the obstacle is engaged
 
 // rig characteristics
 const double timingPulleyRad = .0152789;         // (mm) radius of timing pulley on stepper motor

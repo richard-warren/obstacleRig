@@ -204,7 +204,7 @@ void loop(){
     }
 
     // turn on touch sensor
-    if (useTouchSensor){digitalWrite(touchSensorOnPin, HIGH);}
+    digitalWrite(touchSensorOnPin, HIGH);
   }
 
   
