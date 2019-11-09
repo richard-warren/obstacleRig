@@ -1,10 +1,6 @@
-
 /* OBSTACLE CONTROL
 
 Richard Warren - 190924
-
-TODO:
--option for turning off touch sensor
 
 GENERAL:
 This code is for the Arduion Due that is the master controller for the obstacle experiments.
@@ -64,7 +60,7 @@ Also, it is used to decelerate as it approaches the estimated position of the li
 // INITIALIZATIONS
 
 // imports
-#include "config_qz.h"
+#include "config_rw.h"
 
 // state variables
 bool isObsOn = false;        // whether state is water only, or water with obstacles (does NOT keep track of whether obstacle is CURRENTLY moving)

@@ -34,7 +34,7 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="q1:FlyCapture">
-          <q1:Index>1</q1:Index>
+          <q1:Index>0</q1:Index>
           <q1:ColorProcessing>Default</q1:ColorProcessing>
           <q1:NumBuffers>10</q1:NumBuffers>
           <q1:GrabMode>BufferFrames</q1:GrabMode>
@@ -50,7 +50,7 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="q1:FlyCapture">
-          <q1:Index>0</q1:Index>
+          <q1:Index>1</q1:Index>
           <q1:ColorProcessing>Default</q1:ColorProcessing>
           <q1:NumBuffers>10</q1:NumBuffers>
           <q1:GrabMode>BufferFrames</q1:GrabMode>
