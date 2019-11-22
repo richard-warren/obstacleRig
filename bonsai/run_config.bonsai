@@ -64,9 +64,9 @@
         <Combinator xsi:type="cv:Crop">
           <cv:RegionOfInterest>
             <cv:X>0</cv:X>
-            <cv:Y>0</cv:Y>
+            <cv:Y>5</cv:Y>
             <cv:Width>448</cv:Width>
-            <cv:Height>214</cv:Height>
+            <cv:Height>204</cv:Height>
           </cv:RegionOfInterest>
         </Combinator>
       </Expression>
@@ -303,7 +303,7 @@ from Bonsai.IO import PathHelper, PathSuffix
 filename = 'E:\\bonsaiVid\\runTop.mp4'
 
 def process(value):
-  os.system(r'ffmpeg -f rawvideo -y -vcodec rawvideo -s 448x458 -r 250 -pix_fmt gray -i \\.\pipe\video1 -f rawvideo -y -vcodec rawvideo -s 336x380 -r 250 -pix_fmt gray -i \\.\pipe\video2 -map 0 -vcodec mpeg4 -pix_fmt yuv420p -vb 10M C:\\Users\\runrig\\Desktop\\experiment_data\\run.mp4 -map 1 -vcodec mpeg4 -pix_fmt yuv420p -vb 10M -vf "lutrgb=y=negval:u=negval:v=negval" C:\\Users\\runrig\\Desktop\\experiment_data\\runWisk.mp4')</scr:Script>
+  os.system(r'ffmpeg -f rawvideo -y -vcodec rawvideo -s 448x448 -r 250 -pix_fmt gray -i \\.\pipe\video1 -f rawvideo -y -vcodec rawvideo -s 336x380 -r 250 -pix_fmt gray -i \\.\pipe\video2 -map 0 -vcodec mpeg4 -pix_fmt yuv420p -vb 10M C:\\Users\\runrig\\Desktop\\experiment_data\\run.mp4 -map 1 -vcodec mpeg4 -pix_fmt yuv420p -vb 10M -vf "lutrgb=y=negval:u=negval:v=negval" C:\\Users\\runrig\\Desktop\\experiment_data\\runWisk.mp4')</scr:Script>
       </Expression>
     </Nodes>
     <Edges>
