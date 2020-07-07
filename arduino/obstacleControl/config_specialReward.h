@@ -17,16 +17,16 @@
 #define encoderPinB        21   // pin for wheel rotary encoder (don't change, because direct port manipulation is used that assumes 20 and 21 are used)
 
 
-String configName = "RW config";
+String configName = "specialReward config";
 
 // positions
 float waterDistance = 5.4;                       // (m) distance between rewards
 float waterDistanceSurprise = 1.8;               // (m) distance for giving surprise water reward delivery    
 const float obsLocations[] = {.9, 2.7, 4.5};     // (m) positions at which obstacles are engaged with respect to previous water locations
-const float obsStartPos = .02;                   // (m) position at which obstacle starts relative to the start limit switch
+const float obsStartPos = .01;                   // (m) position at which obstacle starts relative to the start limit switch
 const float obsStopPos = .04;                    // (m) position at which obstacle stops relative to thhe end limit switch
-const float obsStartPosJitter = .015;            // (m) jitter in the starting position of the obstacle on the track relative to the start limit
-const float obsLocationJitter = .1;              // (m) jitter to be applied to obsLocations for every obstacle
+const float obsStartPosJitter = 0;               // (m) jitter in the starting position of the obstacle on the track relative to the start limit
+const float obsLocationJitter = 0;               // (m) jitter to be applied to obsLocations for every obstacle
 
 // durations
 volatile int waterDuration = 120;                // (ms) time that water solenoid is open for
@@ -42,14 +42,14 @@ const double obsAcceleration = 6;                // (m/s^2) obstacle acceleratio
 const int delayCompensation = 3;                 // (microseconds) due to computational delays, the nominal speed is slower than actual speed // if arduino underestimates motor speed, increase this value, and vice versa // delayCompensation is subtracted from the motor delays to account for uncontrolled computational delays
 
 // obstacle
-float obsLightProbability = 0.0;                 // probability of obstacle light turning on
-float obstacleBrightness = 0.2;                  // (0->1) fraction of total brightness for obstacle LEDs
+float obsLightProbability = 0.5;                 // probability of obstacle light turning on
+float obstacleBrightness = 1;                    // (0->1) fraction of total brightness for obstacle LEDs
 
 // special rewards
-bool specialRewardsOn = false;                   // where surprise and omission trials are possible
-float surpriseProbability = 0.0;                 // probability of reward being delivered at waterDistanceSurprise instead of waterDistance
-float omissionProbability = 0.0;                 // probability of water being delivered without 
-int minRewardInterval = 0;                       // surprise and omission rewards can only occur after minRewardInterval normal rewards
+bool specialRewardsOn = true;                   // where surprise and omission trials are possible
+float surpriseProbability = 0.1;                 // probability of reward being delivered at waterDistanceSurprise instead of waterDistance
+float omissionProbability = 0.1;                 // probability of water being delivered without 
+int minRewardInterval = 3;                       // surprise and omission rewards can only occur after minRewardInterval normal rewards
 
 // rig characteristics
 const double timingPulleyRad = .0152789;         // (mm) radius of timing pulley on stepper motor

@@ -1,3 +1,4 @@
+
 // set motor direction
 void setDirection(bool isForward){
   if (digitalRead(stepDirPin)!=isForward){
@@ -74,21 +75,13 @@ void takeStepsFast(int stepsToTake){
 
 
 // give water reward
-void giveWaterAndCue(bool isOmittedReward){
-  
-  if (!isOmittedReward) {
-    digitalWrite(waterPin, HIGH);
-  }
-  digitalWrite(auditoryCuePin, HIGH);
-  
+void giveWater(){
+  digitalWrite(waterPin, HIGH);
   delay(waterDuration);
-  
-  if (!isOmittedReward) {
-    digitalWrite(waterPin, LOW);
-  }
-  digitalWrite(auditoryCuePin, LOW);
+  digitalWrite(waterPin, LOW);
   resetState();
 }
+
 
 
 
@@ -250,29 +243,6 @@ void resetState(){
   // set initial obstacle location
   obsInd = 0;
   obsLocation = obsLocations[obsInd] + getJitter(obsLocationJitter);
-  isOmissionTrial = false;
-
-  // determine trial type (surprise, omission, or normal)
-  float randi = random(0, 100);
-
-  if (randi<surpriseProbAdjusted*100 && rewardCounter>=minRewardInterval && specialRewardsOn){
-    // surprise
-    waterDistanceTemp = waterDistanceSurprise;
-    isOmissionTrial = false;
-    rewardCounter = 0;
-  }
-  else if (randi<(surpriseProbAdjusted+omissionProbAdjusted)*100 && rewardCounter>=minRewardInterval && specialRewardsOn){
-    // omission
-    waterDistanceTemp = waterDistance;
-    isOmissionTrial = true;
-    rewardCounter = 0;
-  }
-  else {
-    // normal
-    waterDistanceTemp = waterDistance;
-    isOmissionTrial = false;
-    rewardCounter++;
-  }
 }
 
 
@@ -301,14 +271,4 @@ void switchObsLight(bool lightState){
 void setMotorSpeed(float spd){
   speedInd = 0;
   while (speeds[speedInd]<spd && speedInd<maxSpeedInd){speedInd++;}
-}
-
-
-
-
-// adjust surprise and omission reward probabilities to compensate for minRewardInterval
-void adjustRewardProbabilities(){
-  float denominator = (surpriseProbability*minRewardInterval + surpriseProbability*minRewardInterval - 1);
-  surpriseProbAdjusted = -surpriseProbability / denominator;
-  omissionProbAdjusted = -omissionProbability / denominator;
 }

@@ -4,6 +4,7 @@
 #define stepDirPin         4    // stepper motor direction
 #define motorOffPin        8    // turns on/off stepper motor driver
 #define waterPin           7    // solenoid that drives water delivery
+#define auditoryCuePin     24   // auditory cue for water delivery
 #define obsOutPin          13   // signals whether the obstacle flipped outwards // this is sent to an arduino that controls the obstacle servo
 #define obsTrackingPin     3    // when the obstacle is tracking the mouse's position
 #define startLimitPin      9    // limit switch at start of track // signal is LOW when engaged
@@ -20,6 +21,7 @@ String configName = "QZ config";
 
 // positions
 float waterDistance = 5.4;                       // (m) distance between rewards
+float waterDistanceSurprise = 1.8;               // (m) distance for giving surprise water reward delivery    
 const float obsLocations[] = {.9, 2.7, 4.5};     // (m) positions at which obstacles are engaged with respect to previous water locations
 const float obsStartPos = .01;                   // (m) position at which obstacle starts relative to the start limit switch
 const float obsStopPos = .04;                    // (m) position at which obstacle stops relative to thhe end limit switch
@@ -41,7 +43,13 @@ const int delayCompensation = 3;                 // (microseconds) due to comput
 
 // obstacle
 float obsLightProbability = 0.5;                 // probability of obstacle light turning on
-float obstacleBrightness = 0.2;                  // (0->1) fraction of total brightness for obstacle LEDs
+float obstacleBrightness = 1;                    // (0->1) fraction of total brightness for obstacle LEDs
+
+// special rewards
+bool specialRewardsOn = false;                   // where surprise and omission trials are possible
+float surpriseProbability = 0.0;                 // probability of reward being delivered at waterDistanceSurprise instead of waterDistance
+float omissionProbability = 0.0;                 // probability of water being delivered without 
+int minRewardInterval = 0;                       // surprise and omission rewards can only occur after minRewardInterval normal rewards
 
 // rig characteristics
 const double timingPulleyRad = .0152789;         // (mm) radius of timing pulley on stepper motor

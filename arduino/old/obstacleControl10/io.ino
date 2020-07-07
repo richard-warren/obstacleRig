@@ -1,3 +1,4 @@
+
 void printMenu(){
 
   // print settings
@@ -38,23 +39,6 @@ void printMenu(){
   }else{
     Serial.println("FALSE");
   }
-
-  // surprise probability
-  Serial.print("8: special reward status: ");
-  if (specialRewardsOn){
-    Serial.println("ON");
-  }else{
-    Serial.println("OFF");
-  }
-
-  // omission probability
-  Serial.print("9: unexpected/omitted reward probability: ");
-  Serial.println(omissionProbability);
-
-  // adjusted omission probability
-  Serial.print("10: adjusted reward probability: ");
-  Serial.println(omissionProbAdjusted);
-  
 }
 
 
@@ -150,7 +134,7 @@ void processUserInput(){
       // deliver water drop
       case '5':
         Serial.println(F("Delivering water..."));
-        giveWaterAndCue(false);
+        giveWater();
         break;
 
 
@@ -161,46 +145,17 @@ void processUserInput(){
         resetState();
         printMenu();
         break;
+    }
 
-      // turn obstacle on/off
-      case '8':
-        specialRewardsOn = !specialRewardsOn;
-        if (!specialRewardsOn){
-          surpriseProbability = 0;
-          omissionProbability = 0;
-        }
-        resetState();
-        printMenu();
-        break;
-   
-
-     // set special reward probability
-     case '9':
-        Serial.println(F("Enter unexpected or omitted rewards probability..."));
-        while (Serial.available() == 0)  {}
-        inputFloat = Serial.parseFloat();
-        while (Serial.available()){Serial.read();} // throw away extra bytes
-        if (inputFloat>=0 && inputFloat<=1 && specialRewardsOn){
-          surpriseProbability = inputFloat;
-          omissionProbability = inputFloat;
-          adjustRewardProbabilities();
-          resetState();
-          printMenu();
-        }else{
-          Serial.println(F("ERROR: please enter a decimal >=0 and <=1 AND turn on special reward first!"));
-        }
-        break;
-     }
-
-     inputDetected = false;
-     notGettingInput = true;
+    inputDetected = false;
+    notGettingInput = true;
   }
 }
 
 
 
 
-void printInitializations() {
+void printInitializations(){
   Serial.println("\nINITIALIZATIONS");
   Serial.println("---------------");
   

@@ -43,8 +43,8 @@ float obsHeight = 5.0;                       // (mm) height of obstacle, measure
 const float obsHeightTravel = 15.0;          // (mm) DON'T CHANGE // the total travel of the vertical motor
 
 // servo motor
-const float obsOnPosition = 33;      // (unitless) position of obstacle when engaged // smaller number are further away from the mouse
-const float obsOffPosition = 100;    // (unitless) position of obstacle when desengaged
+const float obsOnPosition = 29;      // (unitless) position of obstacle when engaged // smaller number are further away from the mouse
+const float obsOffPosition = 110;    // (unitless) position of obstacle when desengaged
 const int servoPowerTime = 1000;     // (ms) how many ms to power the motor for when a position change request is made
 const int pwmMin = 553;              // DON'T CHANGE // min PWM rate, which is a characteristic of the servo motor
 const int pwmMax = 2450;             // DON'T CHANGE // max PWM rate, which is a characteristic of the servo motor
